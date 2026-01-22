@@ -145,6 +145,12 @@ export default function Home() {
               >
                 Features
               </a>
+              <a
+                href="/corridors"
+                className="block text-sm font-medium hover:text-blue-500"
+              >
+                Corridors
+              </a>
 
               {isConnected && address ? (
                 <button
