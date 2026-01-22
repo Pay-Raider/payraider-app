@@ -42,6 +42,24 @@ export interface LiquidityDataPoint {
   volume_24h_usd: number;
 }
 
+export interface AnchorMetrics {
+  id: string;
+  name: string;
+  stellar_account: string;
+  reliability_score: number;
+  asset_coverage: number;
+  failure_rate: number;
+  total_transactions: number;
+  successful_transactions: number;
+  failed_transactions: number;
+  status: string;
+}
+
+export interface AnchorsResponse {
+  anchors: AnchorMetrics[];
+  total: number;
+}
+
 export interface CorridorDetailData {
   corridor: CorridorMetrics;
   historical_success_rate: SuccessRateDataPoint[];
@@ -94,6 +112,36 @@ export async function getCorridors(): Promise<CorridorMetrics[]> {
     return await response.json();
   } catch (error) {
     console.error('Error fetching corridors:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch all anchors with their metrics
+ */
+export async function getAnchors(limit?: number, offset?: number): Promise<AnchorsResponse> {
+  try {
+    const params = new URLSearchParams();
+    if (limit !== undefined) params.append('limit', limit.toString());
+    if (offset !== undefined) params.append('offset', offset.toString());
+
+    const queryString = params.toString();
+    const url = `${API_BASE_URL}/anchors${queryString ? `?${queryString}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching anchors:', error);
     throw error;
   }
 }
