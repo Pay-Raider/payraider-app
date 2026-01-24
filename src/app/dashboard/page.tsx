@@ -11,8 +11,8 @@ import {
   CartesianGrid,
   Legend,
 } from 'recharts'
+import { SkeletonMetricsCard } from '@/components/ui/Skeleton'
 import { MainLayout } from "@/components/layout"
-import { Loader } from "lucide-react"
 
 type Corridor = {
   id: string
@@ -89,9 +89,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {loading && !data && (
-          <div className="flex items-center justify-center py-12">
-            <Loader className="w-8 h-8 animate-spin text-blue-500" />
+        {loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <SkeletonMetricsCard className="col-span-1" />
+            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+            <SkeletonMetricsCard className="col-span-1" />
+            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
           </div>
         )}
 
