@@ -10,7 +10,9 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
-} from "recharts";
+} from 'recharts'
+import { SkeletonMetricsCard } from '@/components/ui/Skeleton'
+import { MainLayout } from "@/components/layout"
 
 type Corridor = {
   id: string;
@@ -79,9 +81,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {loading && (
-        <div className="rounded p-6 bg-gray-50">Loading metrics…</div>
-      )}
+        {loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <SkeletonMetricsCard className="col-span-1" />
+            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+            <SkeletonMetricsCard className="col-span-1" />
+            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+          </div>
+        )}
 
       {error && (
         <div className="rounded p-4 bg-rose-50 text-rose-700">
