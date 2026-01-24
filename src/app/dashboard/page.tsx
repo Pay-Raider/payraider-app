@@ -4,8 +4,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
