@@ -1,18 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
-} from 'recharts'
 import { SkeletonMetricsCard } from '@/components/ui/Skeleton'
-import { MainLayout } from "@/components/layout"
+import { KpiCard } from '@/components/dashboard/KpiCard'
+import { SettlementSpeedCard } from '@/components/dashboard/SettlementSpeedCard'
+import { LiquidityDepthCard } from '@/components/dashboard/LiquidityDepthCard'
+import { CorridorHealthCard } from '@/components/dashboard/CorridorHealthCard'
+import { TopAssetsCard } from '@/components/dashboard/TopAssetsCard'
 
 type Corridor = {
   id: string;
@@ -99,116 +93,19 @@ export default function DashboardPage() {
 
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="col-span-1 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">
-              Total Payment Success Rate
-            </h2>
-            <div className="mt-3 flex items-end gap-4">
-              <div className="text-4xl font-bold">
-                {(data.totalSuccessRate * 100).toFixed(2)}%
-              </div>
-              <div className="text-sm text-gray-500">(last 24h)</div>
-            </div>
-          </div>
+          <KpiCard
+            title="Total Payment Success Rate"
+            value={`${(data.totalSuccessRate * 100).toFixed(2)}%`}
+            subtitle="(last 24h)"
+          />
 
-          <div className="col-span-1 lg:col-span-2 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">
-              Settlement Speed (ms) — last 24 points
-            </h2>
-            <div style={{ width: "100%", height: 220 }} className="mt-3">
-              <ResponsiveContainer>
-                <LineChart data={data.timeseries}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="ts"
-                    tickFormatter={(s) => new Date(s).getHours() + ":00"}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(s) => new Date(s).toLocaleString()}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="settlementMs"
-                    stroke="#8884d8"
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <SettlementSpeedCard data={data.timeseries} />
 
-          <div className="col-span-1 lg:col-span-2 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">
-              Liquidity Depth / TVL (24h)
-            </h2>
-            <div style={{ width: "100%", height: 240 }} className="mt-3">
-              <ResponsiveContainer>
-                <LineChart data={data.timeseries}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="ts"
-                    tickFormatter={(s) => new Date(s).getHours() + ":00"}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(s) => new Date(s).toLocaleString()}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="tvl"
-                    stroke="#82ca9d"
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <LiquidityDepthCard data={data.timeseries} />
 
-          <div className="col-span-1 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Active Corridor Health</h2>
-            <ul className="mt-3 space-y-3">
-              {data.activeCorridors.map((c) => (
-                <li key={c.id} className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{c.id}</div>
-                    <div className="text-sm text-gray-500">
-                      Success: {(c.successRate * 100).toFixed(2)}%
-                    </div>
-                  </div>
-                  <div className="text-sm font-semibold">
-                    {(c.health * 100).toFixed(0)}%
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <CorridorHealthCard corridors={data.activeCorridors} />
 
-          <div className="col-span-1 lg:col-span-2 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Top-performing Assets</h2>
-            <div className="mt-3 overflow-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="text-gray-500 text-xs uppercase">
-                  <tr>
-                    <th className="pb-2">Asset</th>
-                    <th className="pb-2">Volume</th>
-                    <th className="pb-2">TVL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.topAssets.map((a) => (
-                    <tr key={a.asset} className="border-t">
-                      <td className="py-2 font-medium">{a.asset}</td>
-                      <td className="py-2">{a.volume.toLocaleString()}</td>
-                      <td className="py-2">${a.tvl.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <TopAssetsCard assets={data.topAssets} />
         </div>
       )}
     </div>
