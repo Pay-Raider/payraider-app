@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   TrendingUp,
   Search,
   Filter,
-  Loader,
   Droplets,
   CheckCircle2,
   AlertCircle,
@@ -22,15 +20,36 @@ import { MainLayout } from "@/components/layout";
 import { SkeletonCorridorCard } from "@/components/ui/Skeleton";
 import { usePagination } from "@/hooks/usePagination";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
+import { useMemo } from "react";
 
 export default function CorridorsPage() {
-  const router = useRouter();
   const [corridors, setCorridors] = useState<CorridorMetrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<
     "success_rate" | "health_score" | "liquidity"
   >("health_score");
+
+  const filteredCorridors = useMemo(() => {
+    return corridors
+      .filter(
+        (c) =>
+          c.source_asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          c.destination_asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          c.id.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "success_rate":
+            return b.success_rate - a.success_rate;
+          case "liquidity":
+            return b.liquidity_depth_usd - a.liquidity_depth_usd;
+          case "health_score":
+          default:
+            return b.health_score - a.health_score;
+        }
+      });
+  }, [corridors, searchTerm, sortBy]);
 
   const {
     currentPage,
@@ -39,7 +58,7 @@ export default function CorridorsPage() {
     onPageSizeChange,
     startIndex,
     endIndex,
-  } = usePagination(0);
+  } = usePagination(filteredCorridors.length);
 
   useEffect(() => {
     async function fetchCorridors() {
@@ -48,7 +67,7 @@ export default function CorridorsPage() {
         try {
           const result = await getCorridors();
           setCorridors(result);
-        } catch (apiError) {
+        } catch {
           console.log("API not available, using mock data");
           // Generate mock corridors
           const mockCorridors: CorridorMetrics[] = [
@@ -149,34 +168,7 @@ export default function CorridorsPage() {
     fetchCorridors();
   }, []);
 
-  // Filter and sort corridors
-  const filteredCorridors = corridors
-    .filter(
-      (c) =>
-        c.source_asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.destination_asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.id.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "success_rate":
-          return b.success_rate - a.success_rate;
-        case "liquidity":
-          return b.liquidity_depth_usd - a.liquidity_depth_usd;
-        case "health_score":
-        default:
-          return b.health_score - a.health_score;
-      }
-    });
-
   const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
-
-  const {
-    currentPage: finalCurrentPage,
-    pageSize: finalPageSize,
-    onPageChange: finalOnPageChange,
-    onPageSizeChange: finalOnPageSizeChange,
-  } = usePagination(filteredCorridors.length);
 
   const getHealthColor = (score: number) => {
     if (score >= 90)
@@ -232,7 +224,7 @@ export default function CorridorsPage() {
             <Filter className="w-5 h-5 text-gray-400" />
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as "success_rate" | "health_score" | "liquidity")}
               className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-4 py-2 text-gray-900 dark:text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="health_score">Sort by Health Score</option>
@@ -370,10 +362,10 @@ export default function CorridorsPage() {
 
             <DataTablePagination
               totalItems={filteredCorridors.length}
-              pageSize={finalPageSize}
-              currentPage={finalCurrentPage}
-              onPageChange={finalOnPageChange}
-              onPageSizeChange={finalOnPageSizeChange}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
             />
           </div>
         )}

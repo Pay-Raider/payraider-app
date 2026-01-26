@@ -1,5 +1,5 @@
 import { IssuedAsset } from '@/lib/api';
-import { ArrowUpRight, ArrowDownRight, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, AlertTriangle } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { DataTablePagination } from '@/components/ui/DataTablePagination';
 
