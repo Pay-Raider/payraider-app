@@ -19,6 +19,7 @@ import Link from "next/link";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { usePagination } from "@/hooks/usePagination";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
+import { useMemo } from "react";
 
 // Mock data for demonstration
 const generateMockAnchors = (): AnchorMetrics[] => [
@@ -122,6 +123,38 @@ export default function AnchorsPage() {
   >("reliability");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
+  const filteredAndSortedAnchors = useMemo(() => {
+    return anchors
+      .filter(
+        (anchor) =>
+          anchor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          anchor.stellar_account.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => {
+        let aValue, bValue;
+
+        switch (sortBy) {
+          case "reliability":
+            aValue = a.reliability_score;
+            bValue = b.reliability_score;
+            break;
+          case "transactions":
+            aValue = a.total_transactions;
+            bValue = b.total_transactions;
+            break;
+          case "failure_rate":
+            aValue = a.failure_rate;
+            bValue = b.failure_rate;
+            break;
+          default:
+            aValue = a.reliability_score;
+            bValue = b.reliability_score;
+        }
+
+        return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
+      });
+  }, [anchors, searchTerm, sortBy, sortOrder]);
+
   const {
     currentPage,
     pageSize,
@@ -129,7 +162,7 @@ export default function AnchorsPage() {
     onPageSizeChange,
     startIndex,
     endIndex,
-  } = usePagination(0); // We'll update totalItems later
+  } = usePagination(filteredAndSortedAnchors.length);
 
   useEffect(() => {
     const fetchAnchors = async () => {
@@ -154,45 +187,7 @@ export default function AnchorsPage() {
     fetchAnchors();
   }, []);
 
-  const filteredAndSortedAnchors = anchors
-    .filter(
-      (anchor) =>
-        anchor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        anchor.stellar_account.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .sort((a, b) => {
-      let aValue, bValue;
-
-      switch (sortBy) {
-        case "reliability":
-          aValue = a.reliability_score;
-          bValue = b.reliability_score;
-          break;
-        case "transactions":
-          aValue = a.total_transactions;
-          bValue = b.total_transactions;
-          break;
-        case "failure_rate":
-          aValue = a.failure_rate;
-          bValue = b.failure_rate;
-          break;
-        default:
-          aValue = a.reliability_score;
-          bValue = b.reliability_score;
-      }
-
-      return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
-    });
-
   const paginatedAnchors = filteredAndSortedAnchors.slice(startIndex, endIndex);
-
-  // Update usePagination with correct total items
-  const {
-    currentPage: finalCurrentPage,
-    pageSize: finalPageSize,
-    onPageChange: finalOnPageChange,
-    onPageSizeChange: finalOnPageSizeChange,
-  } = usePagination(filteredAndSortedAnchors.length);
 
   const getHealthStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -584,10 +579,10 @@ export default function AnchorsPage() {
 
             <DataTablePagination
               totalItems={filteredAndSortedAnchors.length}
-              pageSize={finalPageSize}
-              currentPage={finalCurrentPage}
-              onPageChange={finalOnPageChange}
-              onPageSizeChange={finalOnPageSizeChange}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
             />
           </div>
         )}
