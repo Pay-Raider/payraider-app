@@ -1,76 +1,85 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import { MainLayout } from "@/components/layout";
-import { TrendingUp, Activity, AlertCircle, Loader2 } from "lucide-react";
-import { getAnalyticsDashboard, AnalyticsDashboardData } from "@/lib/analytics";
+import { TrendingUp, Activity, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  fetchAnalyticsMetrics,
+  AnalyticsMetrics,
+} from "@/lib/analytics-api";
+import { LiquidityChart } from "@/components/charts/LiquidityChart";
+import { TVLChart } from "@/components/charts/TVLChart";
+import { SettlementLatencyChart } from "@/components/charts/SettlementLatencyChart";
+import { TopCorridors } from "@/components/charts/TopCorridors";
 
 export default function AnalyticsPage() {
-  const [data, setData] = useState<AnalyticsDashboardData | null>(null);
+  const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
-    async function loadData() {
+    const loadMetrics = async () => {
       try {
         setLoading(true);
-        const dashboardData = await getAnalyticsDashboard();
-        setData(dashboardData);
         setError(null);
+        const data = await fetchAnalyticsMetrics();
+        setMetrics(data);
+        setLastUpdated(new Date());
       } catch (err) {
-        console.error("Failed to load analytics data:", err);
-        setError("Failed to load analytics data. Please try again later.");
+        const errorMessage = err instanceof Error ? err.message : "Failed to load metrics";
+        setError(errorMessage);
+        console.error("Error loading analytics metrics:", err);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    loadData();
+    loadMetrics();
+
+    // Refresh every 5 minutes
+    const interval = setInterval(loadMetrics, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
+  const handleRefresh = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchAnalyticsMetrics();
+      setMetrics(data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error("Error refreshing metrics:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!metrics && loading) {
     return (
       <MainLayout>
-        <div className="flex h-[calc(100vh-200px)] items-center justify-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <RefreshCw className="w-12 h-12 text-gray-400 mx-auto mb-4 animate-spin" />
+              <p className="text-gray-600 dark:text-gray-400">Loading metrics...</p>
+            </div>
+          </div>
         </div>
       </MainLayout>
     );
   }
 
-  if (error || !data) {
-    return (
-      <MainLayout>
-        <div className="flex h-[calc(100vh-200px)] flex-col items-center justify-center text-center">
-          <AlertCircle className="mb-4 h-12 w-12 text-red-500" />
-          <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-            Error Loading Data
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">{error || "No data available"}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Retry
-          </button>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  const { stats, timeSeriesData, corridorPerformance } = data;
+  const formatCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(2)}M`;
+    }
+    if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
+    return `$${value.toFixed(0)}`;
+  };
 
   return (
     <MainLayout>
@@ -126,10 +135,10 @@ export default function AnalyticsPage() {
               </h3>
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              ${(stats.volume24h / 1000000).toFixed(1)}M
+              {metrics ? formatCurrency(metrics.total_volume_usd) : "$0"}
             </p>
-            <p className="text-sm text-green-600 dark:text-green-400">
-              ↑ {stats.volumeGrowth}% from yesterday
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              All corridors
             </p>
           </div>
 
@@ -143,10 +152,12 @@ export default function AnalyticsPage() {
               </h3>
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {stats.avgSuccessRate}%
+              {metrics
+                ? `${metrics.avg_success_rate.toFixed(1)}%`
+                : "0%"}
             </p>
             <p className="text-sm text-green-600 dark:text-green-400">
-              ↑ {stats.successRateGrowth}% from last week
+              Network-wide
             </p>
           </div>
 
@@ -160,10 +171,10 @@ export default function AnalyticsPage() {
               </h3>
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {stats.activeCorridors}
+              {metrics ? metrics.active_corridors : "0"}
             </p>
-            <p className="text-sm text-green-600 dark:text-green-400">
-              ↑ {stats.corridorsGrowth} this month
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Trading active
             </p>
           </div>
 
