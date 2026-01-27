@@ -11,6 +11,9 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
+  X,
+  Save,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -30,16 +33,34 @@ export default function CorridorsPage() {
     "success_rate" | "health_score" | "liquidity"
   >("health_score");
 
+  // Filter states
+  const [successRateRange, setSuccessRateRange] = useState<[number, number]>([0, 100]);
+  const [volumeRange, setVolumeRange] = useState<[number, number]>([0, 10000000]);
+  const [assetCodeFilter, setAssetCodeFilter] = useState("");
+  const [timePeriod, setTimePeriod] = useState<"7d" | "30d" | "90d" | "">("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterPresets, setFilterPresets] = useState<{name: string, filters: any}[]>([]);
+  const [presetName, setPresetName] = useState("");
+
   useEffect(() => {
     async function fetchCorridors() {
       try {
         setLoading(true);
         try {
-          const result = await getCorridors();
+          const filters: any = {};
+          if (successRateRange[0] > 0) filters.success_rate_min = successRateRange[0];
+          if (successRateRange[1] < 100) filters.success_rate_max = successRateRange[1];
+          if (volumeRange[0] > 0) filters.volume_min = volumeRange[0];
+          if (volumeRange[1] < 10000000) filters.volume_max = volumeRange[1];
+          if (assetCodeFilter) filters.asset_code = assetCodeFilter;
+          if (timePeriod) filters.time_period = timePeriod;
+          filters.sort_by = sortBy;
+
+          const result = await getCorridors(filters);
           setCorridors(result);
         } catch (apiError) {
           console.log("API not available, using mock data");
-          // Generate mock corridors
+          // Generate mock corridors (same as before)
           const mockCorridors: CorridorMetrics[] = [
             {
               ...generateMockCorridorData("USDC-PHP").corridor,
@@ -136,12 +157,13 @@ export default function CorridorsPage() {
     }
 
     fetchCorridors();
-  }, []);
+  }, [successRateRange, volumeRange, assetCodeFilter, timePeriod, sortBy]);
 
-  // Filter and sort corridors
+  // Filter by search term (additional client-side filtering)
   const filteredCorridors = corridors
     .filter(
       (c) =>
+        searchTerm === "" ||
         c.source_asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.destination_asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.id.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -182,6 +204,57 @@ export default function CorridorsPage() {
     return <AlertCircle className="w-5 h-5 text-red-500" />;
   };
 
+  // Filter functions
+  const clearAllFilters = () => {
+    setSuccessRateRange([0, 100]);
+    setVolumeRange([0, 10000000]);
+    setAssetCodeFilter("");
+    setTimePeriod("");
+    setSearchTerm("");
+  };
+
+  const saveFilterPreset = () => {
+    if (!presetName.trim()) return;
+    const preset = {
+      name: presetName,
+      filters: {
+        successRateRange,
+        volumeRange,
+        assetCodeFilter,
+        timePeriod,
+        searchTerm,
+        sortBy,
+      },
+    };
+    const updatedPresets = [...filterPresets, preset];
+    setFilterPresets(updatedPresets);
+    localStorage.setItem('corridorFilterPresets', JSON.stringify(updatedPresets));
+    setPresetName("");
+  };
+
+  const loadFilterPreset = (preset: any) => {
+    setSuccessRateRange(preset.filters.successRateRange);
+    setVolumeRange(preset.filters.volumeRange);
+    setAssetCodeFilter(preset.filters.assetCodeFilter);
+    setTimePeriod(preset.filters.timePeriod);
+    setSearchTerm(preset.filters.searchTerm);
+    setSortBy(preset.filters.sortBy);
+  };
+
+  const deleteFilterPreset = (index: number) => {
+    const updatedPresets = filterPresets.filter((_, i) => i !== index);
+    setFilterPresets(updatedPresets);
+    localStorage.setItem('corridorFilterPresets', JSON.stringify(updatedPresets));
+  };
+
+  // Load presets on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('corridorFilterPresets');
+    if (saved) {
+      setFilterPresets(JSON.parse(saved));
+    }
+  }, []);
+
   return (
     <MainLayout>
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
@@ -219,8 +292,153 @@ export default function CorridorsPage() {
               <option value="success_rate">Sort by Success Rate</option>
               <option value="liquidity">Sort by Liquidity</option>
             </select>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-4 py-2 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </div>
         </div>
+
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              {/* Success Rate Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Success Rate: {successRateRange[0]}% - {successRateRange[1]}%
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={successRateRange[0]}
+                  onChange={(e) => setSuccessRateRange([parseInt(e.target.value), successRateRange[1]])}
+                  className="w-full"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={successRateRange[1]}
+                  onChange={(e) => setSuccessRateRange([successRateRange[0], parseInt(e.target.value)])}
+                  className="w-full mt-2"
+                />
+              </div>
+
+              {/* Volume Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Volume: ${(volumeRange[0] / 1000000).toFixed(1)}M - ${(volumeRange[1] / 1000000).toFixed(1)}M
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="10000000"
+                  step="100000"
+                  value={volumeRange[0]}
+                  onChange={(e) => setVolumeRange([parseInt(e.target.value), volumeRange[1]])}
+                  className="w-full"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="10000000"
+                  step="100000"
+                  value={volumeRange[1]}
+                  onChange={(e) => setVolumeRange([volumeRange[0], parseInt(e.target.value)])}
+                  className="w-full mt-2"
+                />
+              </div>
+
+              {/* Asset Code Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Asset Code
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., USDC, EURC"
+                  value={assetCodeFilter}
+                  onChange={(e) => setAssetCodeFilter(e.target.value)}
+                  className="w-full bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Time Period */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Time Period
+                </label>
+                <select
+                  value={timePeriod}
+                  onChange={(e) => setTimePeriod(e.target.value as any)}
+                  className="w-full bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Daily</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d">Last 30 days</option>
+                  <option value="90d">Last 90 days</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Filter Actions */}
+            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-200 dark:border-slate-600">
+              <button
+                onClick={clearAllFilters}
+                className="flex items-center gap-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Clear All Filters
+              </button>
+
+              {/* Save Preset */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Preset name"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                  className="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+                <button
+                  onClick={saveFilterPreset}
+                  disabled={!presetName.trim()}
+                  className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  Save Preset
+                </button>
+              </div>
+
+              {/* Load Presets */}
+              {filterPresets.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Load:</span>
+                  {filterPresets.map((preset, index) => (
+                    <div key={index} className="flex items-center gap-1">
+                      <button
+                        onClick={() => loadFilterPreset(preset)}
+                        className="text-blue-500 hover:text-blue-600 text-sm underline"
+                      >
+                        {preset.name}
+                      </button>
+                      <button
+                        onClick={() => deleteFilterPreset(index)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         {loading ? (

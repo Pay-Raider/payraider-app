@@ -189,8 +189,32 @@ export async function getCorridorDetail(
 /**
  * Fetch all corridors (for listing and navigation)
  */
-export async function getCorridors(): Promise<CorridorMetrics[]> {
-  return api.get<CorridorMetrics[]>("/corridors");
+export async function getCorridors(filters?: {
+  success_rate_min?: number;
+  success_rate_max?: number;
+  volume_min?: number;
+  volume_max?: number;
+  asset_code?: string;
+  time_period?: string;
+  limit?: number;
+  offset?: number;
+  sort_by?: string;
+}): Promise<CorridorMetrics[]> {
+  const params = new URLSearchParams();
+  if (filters) {
+    if (filters.success_rate_min !== undefined) params.append('success_rate_min', filters.success_rate_min.toString());
+    if (filters.success_rate_max !== undefined) params.append('success_rate_max', filters.success_rate_max.toString());
+    if (filters.volume_min !== undefined) params.append('volume_min', filters.volume_min.toString());
+    if (filters.volume_max !== undefined) params.append('volume_max', filters.volume_max.toString());
+    if (filters.asset_code) params.append('asset_code', filters.asset_code);
+    if (filters.time_period) params.append('time_period', filters.time_period);
+    if (filters.limit !== undefined) params.append('limit', filters.limit.toString());
+    if (filters.offset !== undefined) params.append('offset', filters.offset.toString());
+    if (filters.sort_by) params.append('sort_by', filters.sort_by);
+  }
+  const query = params.toString();
+  const url = query ? `/corridors?${query}` : '/corridors';
+  return api.get<CorridorMetrics[]>(url);
 }
 
 /**
