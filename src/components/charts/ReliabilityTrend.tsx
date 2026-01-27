@@ -8,9 +8,12 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
+    TooltipProps,
     ResponsiveContainer
 } from 'recharts';
 import { ReliabilityDataPoint } from '@/lib/api';
+import { TooltipProps } from 'recharts';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface ReliabilityTrendProps {
     data: ReliabilityDataPoint[];
@@ -18,19 +21,13 @@ interface ReliabilityTrendProps {
 
 type TimeWindow = '7d' | '30d' | '90d';
 
-interface CustomTooltipProps {
-    active?: boolean;
-    payload?: Array<{ value: number }>;
-    label?: string;
-}
-
-const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl">
                 <p className="text-slate-400 text-xs mb-1">{label}</p>
                 <p className="text-emerald-400 font-bold text-sm">
-                    Score: {payload[0].value.toFixed(1)}
+                    Score: {payload[0].value?.toFixed(1) ?? 'N/A'}
                 </p>
             </div>
         );
@@ -52,8 +49,6 @@ export function ReliabilityTrend({ data }: ReliabilityTrendProps) {
         const days = timeWindow === '7d' ? 7 : timeWindow === '90d' ? 90 : 30;
         return sortedData.slice(-days);
     }, [data, timeWindow]);
-
-
 
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm h-full">
@@ -110,7 +105,7 @@ export function ReliabilityTrend({ data }: ReliabilityTrendProps) {
                             axisLine={false}
                             tickMargin={10}
                         />
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip content={CustomTooltip} />
                         <Area
                             type="monotone"
                             dataKey="score"
