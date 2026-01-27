@@ -78,8 +78,8 @@ function DashboardPageContent() {
       {loading && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <SkeletonMetricsCard className="col-span-1" />
-          <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
-          <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+          <SkeletonChart className="col-span-1 lg:col-span-2" height={400} />
+          <SkeletonChart className="col-span-1 lg:col-span-2" height={400} />
           <SkeletonMetricsCard className="col-span-1" />
           <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
         </div>
