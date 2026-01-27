@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import {
   TrendingUp,
   Search,
@@ -22,6 +22,14 @@ import { usePagination } from "@/hooks/usePagination";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
 
 export default function CorridorsPage() {
+  return (
+    <Suspense>
+      <CorridorsContent />
+    </Suspense>
+  );
+}
+
+function CorridorsContent() {
   const [corridors, setCorridors] = useState<CorridorMetrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

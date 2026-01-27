@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import {
   Anchor,
   Search,
@@ -114,6 +114,14 @@ const generateMockHistoricalData = (baseScore: number) => {
 };
 
 export default function AnchorsPage() {
+  return (
+    <Suspense>
+      <AnchorsContent />
+    </Suspense>
+  );
+}
+
+function AnchorsContent() {
   const [anchors, setAnchors] = useState<AnchorMetrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
