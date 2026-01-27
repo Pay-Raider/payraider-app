@@ -6,9 +6,10 @@ import { useWallet } from "../lib/wallet-context";
 
 interface HeaderProps {
   onMenuToggle: () => void;
+  sidebarOpen: boolean;
 }
 
-export function Header({ onMenuToggle }: HeaderProps) {
+export function Header({ onMenuToggle, sidebarOpen }: HeaderProps) {
   const { isConnected, address, connectWallet, disconnectWallet } = useWallet();
   const [showWalletMenu, setShowWalletMenu] = React.useState(false);
 
