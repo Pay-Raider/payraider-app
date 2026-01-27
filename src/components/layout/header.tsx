@@ -6,9 +6,10 @@ import { useWallet } from "../lib/wallet-context";
 
 interface HeaderProps {
   onMenuToggle: () => void;
+  sidebarOpen: boolean;
 }
 
-export function Header({ onMenuToggle }: HeaderProps) {
+export function Header({ onMenuToggle, sidebarOpen }: HeaderProps) {
   const { isConnected, address, connectWallet, disconnectWallet } = useWallet();
   const [showWalletMenu, setShowWalletMenu] = React.useState(false);
 
@@ -23,10 +24,11 @@ export function Header({ onMenuToggle }: HeaderProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={onMenuToggle}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors lg:hidden"
-            aria-label="Toggle sidebar"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors lg:hidden min-w-[44px] min-h-[44px] touch-manipulation active:bg-gray-200 dark:active:bg-slate-700"
+            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+            aria-expanded={sidebarOpen}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
