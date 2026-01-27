@@ -24,7 +24,6 @@ export const CorridorHeatmap: React.FC<CorridorHeatmapProps> = ({
   corridors,
 }) => {
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Transform corridor data into matrix structure
   const { matrix, sourceAssets, destinationAssets } = useMemo(() => {
@@ -84,9 +83,9 @@ export const CorridorHeatmap: React.FC<CorridorHeatmapProps> = ({
   // Handle mouse enter on cell
   const handleCellHover = (
     cell: HeatmapCell | null,
-    event: React.MouseEvent<HTMLDivElement>
+    event?: React.MouseEvent<HTMLDivElement>
   ) => {
-    if (cell) {
+    if (cell && event) {
       const rect = event.currentTarget.getBoundingClientRect();
       setTooltipData({
         ...cell,
@@ -219,7 +218,7 @@ export const CorridorHeatmap: React.FC<CorridorHeatmapProps> = ({
                         onMouseEnter={(e) =>
                           cell ? handleCellHover(cell, e) : null
                         }
-                        onMouseLeave={() => handleCellHover(null, {} as any)}
+                        onMouseLeave={() => handleCellHover(null)}
                         onTouchStart={(e) => cell ? handleCellTouch(cell, e) : null}
                         onTouchEnd={() => {
                           // Keep tooltip visible for a moment on mobile
