@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { SkeletonMetricsCard } from '@/components/ui/Skeleton'
-import { KpiCard } from '@/components/dashboard/KpiCard'
-import { SettlementSpeedCard } from '@/components/dashboard/SettlementSpeedCard'
-import { LiquidityDepthCard } from '@/components/dashboard/LiquidityDepthCard'
-import { CorridorHealthCard } from '@/components/dashboard/CorridorHealthCard'
-import { TopAssetsCard } from '@/components/dashboard/TopAssetsCard'
+import { SkeletonMetricsCard, SkeletonChart } from "@/components/ui/Skeleton";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { SettlementSpeedCard } from "@/components/dashboard/SettlementSpeedCard";
+import { LiquidityDepthCard } from "@/components/dashboard/LiquidityDepthCard";
+import { CorridorHealthCard } from "@/components/dashboard/CorridorHealthCard";
+import { TopAssetsCard } from "@/components/dashboard/TopAssetsCard";
 
 type Corridor = {
   id: string;
@@ -75,15 +75,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-        {loading && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <SkeletonMetricsCard className="col-span-1" />
-            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
-            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
-            <SkeletonMetricsCard className="col-span-1" />
-            <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
-          </div>
-        )}
+      {loading && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <SkeletonMetricsCard className="col-span-1" />
+          <SkeletonChart className="col-span-1 lg:col-span-2" height={400} />
+          <SkeletonChart className="col-span-1 lg:col-span-2" height={400} />
+          <SkeletonMetricsCard className="col-span-1" />
+          <SkeletonMetricsCard className="col-span-1 lg:col-span-2" />
+        </div>
+      )}
 
       {error && (
         <div className="rounded p-4 bg-rose-50 text-rose-700">
