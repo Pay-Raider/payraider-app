@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import {
   Anchor,
   Search,
@@ -19,7 +19,6 @@ import Link from "next/link";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { usePagination } from "@/hooks/usePagination";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
-import { useMemo } from "react";
 
 // Mock data for demonstration
 const generateMockAnchors = (): AnchorMetrics[] => [
@@ -114,7 +113,7 @@ const generateMockHistoricalData = (baseScore: number) => {
   return data;
 };
 
-export default function AnchorsPage() {
+function AnchorsPageContent() {
   const [anchors, setAnchors] = useState<AnchorMetrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -640,5 +639,19 @@ export default function AnchorsPage() {
         )}
       </div>
     </MainLayout>
+  );
+}
+
+export default function AnchorsPage() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex items-center justify-center h-64">
+          <Loader className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
+      </MainLayout>
+    }>
+      <AnchorsPageContent />
+    </Suspense>
   );
 }
