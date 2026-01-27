@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import {
   Anchor,
   Search,
@@ -19,6 +19,7 @@ import Link from "next/link";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { usePagination } from "@/hooks/usePagination";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 
 // Mock data for demonstration
 const generateMockAnchors = (): AnchorMetrics[] => [
@@ -113,15 +114,7 @@ const generateMockHistoricalData = (baseScore: number) => {
   return data;
 };
 
-export default function AnchorsPage() {
-  return (
-    <Suspense>
-      <AnchorsContent />
-    </Suspense>
-  );
-}
-
-function AnchorsContent() {
+function AnchorsPageContent() {
   const [anchors, setAnchors] = useState<AnchorMetrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -130,7 +123,46 @@ function AnchorsContent() {
   >("reliability");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
+  const filteredAndSortedAnchors = useMemo(() => {
+    return anchors
+      .filter(
+        (anchor) =>
+          anchor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          anchor.stellar_account.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => {
+        let aValue, bValue;
 
+        switch (sortBy) {
+          case "reliability":
+            aValue = a.reliability_score;
+            bValue = b.reliability_score;
+            break;
+          case "transactions":
+            aValue = a.total_transactions;
+            bValue = b.total_transactions;
+            break;
+          case "failure_rate":
+            aValue = a.failure_rate;
+            bValue = b.failure_rate;
+            break;
+          default:
+            aValue = a.reliability_score;
+            bValue = b.reliability_score;
+        }
+
+        return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
+      });
+  }, [anchors, searchTerm, sortBy, sortOrder]);
+
+  const {
+    currentPage,
+    pageSize,
+    onPageChange,
+    onPageSizeChange,
+    startIndex,
+    endIndex,
+  } = usePagination(filteredAndSortedAnchors.length);
 
   useEffect(() => {
     const fetchAnchors = async () => {
@@ -155,35 +187,7 @@ function AnchorsContent() {
     fetchAnchors();
   }, []);
 
-  const filteredAndSortedAnchors = anchors
-    .filter(
-      (anchor) =>
-        anchor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        anchor.stellar_account.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .sort((a, b) => {
-      let aValue, bValue;
-
-      switch (sortBy) {
-        case "reliability":
-          aValue = a.reliability_score;
-          bValue = b.reliability_score;
-          break;
-        case "transactions":
-          aValue = a.total_transactions;
-          bValue = b.total_transactions;
-          break;
-        case "failure_rate":
-          aValue = a.failure_rate;
-          bValue = b.failure_rate;
-          break;
-        default:
-          aValue = a.reliability_score;
-          bValue = b.reliability_score;
-      }
-
-      return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
-    });
+  const paginatedAnchors = filteredAndSortedAnchors.slice(startIndex, endIndex);
 
   const {
     currentPage,
@@ -272,9 +276,9 @@ function AnchorsContent() {
               onChange={(e) =>
                 setSortBy(
                   e.target.value as
-                  | "reliability"
-                  | "transactions"
-                  | "failure_rate",
+                    | "reliability"
+                    | "transactions"
+                    | "failure_rate",
                 )
               }
               className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -301,9 +305,7 @@ function AnchorsContent() {
 
         {/* Anchors Table */}
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader className="w-8 h-8 animate-spin text-blue-500" />
-          </div>
+          <SkeletonTable rows={10} />
         ) : filteredAndSortedAnchors.length === 0 ? (
           <div className="text-center py-12">
             <Anchor className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -390,12 +392,13 @@ function AnchorsContent() {
                               </div>
                               <div className="ml-2 w-16 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                                 <div
-                                  className={`h-2 rounded-full ${anchor.reliability_score >= 95
-                                    ? "bg-green-500"
-                                    : anchor.reliability_score >= 85
-                                      ? "bg-yellow-500"
-                                      : "bg-red-500"
-                                    }`}
+                                  className={`h-2 rounded-full ${
+                                    anchor.reliability_score >= 95
+                                      ? "bg-green-500"
+                                      : anchor.reliability_score >= 85
+                                        ? "bg-yellow-500"
+                                        : "bg-red-500"
+                                  }`}
                                   style={{
                                     width: `${anchor.reliability_score}%`,
                                   }}
@@ -466,7 +469,8 @@ function AnchorsContent() {
               <div className="lg:hidden divide-y divide-gray-200 dark:divide-slate-700">
                 {paginatedAnchors.map((anchor) => {
                   const successRate =
-                    (anchor.successful_transactions / anchor.total_transactions) *
+                    (anchor.successful_transactions /
+                      anchor.total_transactions) *
                     100;
                   const historicalData = generateMockHistoricalData(
                     anchor.reliability_score,
@@ -507,13 +511,16 @@ function AnchorsContent() {
                             </span>
                             <div className="flex-1 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                               <div
-                                className={`h-2 rounded-full ${anchor.reliability_score >= 95
-                                  ? "bg-green-500"
-                                  : anchor.reliability_score >= 85
-                                    ? "bg-yellow-500"
-                                    : "bg-red-500"
-                                  }`}
-                                style={{ width: `${anchor.reliability_score}%` }}
+                                className={`h-2 rounded-full ${
+                                  anchor.reliability_score >= 95
+                                    ? "bg-green-500"
+                                    : anchor.reliability_score >= 85
+                                      ? "bg-yellow-500"
+                                      : "bg-red-500"
+                                }`}
+                                style={{
+                                  width: `${anchor.reliability_score}%`,
+                                }}
                               />
                             </div>
                           </div>
@@ -647,5 +654,19 @@ function AnchorsContent() {
         )}
       </div>
     </MainLayout>
+  );
+}
+
+export default function AnchorsPage() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex items-center justify-center h-64">
+          <Loader className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
+      </MainLayout>
+    }>
+      <AnchorsPageContent />
+    </Suspense>
   );
 }
