@@ -18,7 +18,7 @@ export function IssuedAssetsTable({ assets }: IssuedAssetsTableProps) {
     };
 
     const formatPercent = (value: number) => {
-        return `${value.toFixed(1)}%`;
+        return `${value.toFixed(1)}% `;
     };
 
     const {

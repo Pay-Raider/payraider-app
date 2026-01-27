@@ -169,6 +169,15 @@ function CorridorsPageContent() {
 
   const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
 
+  const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
+
+  const {
+    currentPage: finalCurrentPage,
+    pageSize: finalPageSize,
+    onPageChange: finalOnPageChange,
+    onPageSizeChange: finalOnPageSizeChange,
+  } = usePagination(filteredCorridors.length);
+
   const getHealthColor = (score: number) => {
     if (score >= 90)
       return "bg-green-50 dark:bg-green-900/20 border-green-500/50 text-green-600 dark:text-green-400";
