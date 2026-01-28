@@ -11,6 +11,9 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
+  X,
+  Save,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -30,6 +33,27 @@ export default function CorridorsPage() {
   const [sortBy, setSortBy] = useState<
     "success_rate" | "health_score" | "liquidity"
   >("health_score");
+  
+  // Filter state variables
+  const [successRateRange, setSuccessRateRange] = useState<[number, number]>([0, 100]);
+  const [volumeRange, setVolumeRange] = useState<[number, number]>([0, 10000000]);
+  const [assetCodeFilter, setAssetCodeFilter] = useState("");
+  const [timePeriod, setTimePeriod] = useState("7d");
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Filter presets state
+  const [filterPresets, setFilterPresets] = useState<Array<{
+    name: string;
+    filters: {
+      successRateRange: [number, number];
+      volumeRange: [number, number];
+      assetCodeFilter: string;
+      timePeriod: string;
+      searchTerm: string;
+      sortBy: "success_rate" | "health_score" | "liquidity";
+    };
+  }>>([]);
+  const [presetName, setPresetName] = useState("");
 
   const filteredCorridors = useMemo(() => {
     return corridors
@@ -66,7 +90,16 @@ export default function CorridorsPage() {
       try {
         setLoading(true);
         try {
-          const result = await getCorridors();
+          const filters: Record<string, string | number> = {};
+          if (successRateRange[0] > 0) filters.success_rate_min = successRateRange[0];
+          if (successRateRange[1] < 100) filters.success_rate_max = successRateRange[1];
+          if (volumeRange[0] > 0) filters.volume_min = volumeRange[0];
+          if (volumeRange[1] < 10000000) filters.volume_max = volumeRange[1];
+          if (assetCodeFilter) filters.asset_code = assetCodeFilter;
+          if (timePeriod) filters.time_period = timePeriod;
+          filters.sort_by = sortBy;
+
+          const result = await getCorridors(filters);
           setCorridors(result);
         } catch {
           console.log("API not available, using mock data");
@@ -80,7 +113,7 @@ export default function CorridorsPage() {
     }
 
     fetchCorridors();
-  }, []);
+  }, [successRateRange, volumeRange, assetCodeFilter, timePeriod, sortBy]);
 
   const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
 
@@ -116,6 +149,57 @@ export default function CorridorsPage() {
     if (rate >= 75) return <TrendingUp className="w-5 h-5 text-yellow-500" />;
     return <AlertCircle className="w-5 h-5 text-red-500" />;
   };
+
+  // Filter functions
+  const clearAllFilters = () => {
+    setSuccessRateRange([0, 100]);
+    setVolumeRange([0, 10000000]);
+    setAssetCodeFilter("");
+    setTimePeriod("");
+    setSearchTerm("");
+  };
+
+  const saveFilterPreset = () => {
+    if (!presetName.trim()) return;
+    const preset = {
+      name: presetName,
+      filters: {
+        successRateRange,
+        volumeRange,
+        assetCodeFilter,
+        timePeriod,
+        searchTerm,
+        sortBy,
+      },
+    };
+    const updatedPresets = [...filterPresets, preset];
+    setFilterPresets(updatedPresets);
+    localStorage.setItem('corridorFilterPresets', JSON.stringify(updatedPresets));
+    setPresetName("");
+  };
+
+  const loadFilterPreset = (preset: typeof filterPresets[0]) => {
+    setSuccessRateRange(preset.filters.successRateRange);
+    setVolumeRange(preset.filters.volumeRange);
+    setAssetCodeFilter(preset.filters.assetCodeFilter);
+    setTimePeriod(preset.filters.timePeriod);
+    setSearchTerm(preset.filters.searchTerm);
+    setSortBy(preset.filters.sortBy);
+  };
+
+  const deleteFilterPreset = (index: number) => {
+    const updatedPresets = filterPresets.filter((_preset, i) => i !== index);
+    setFilterPresets(updatedPresets);
+    localStorage.setItem('corridorFilterPresets', JSON.stringify(updatedPresets));
+  };
+
+  // Load presets on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('corridorFilterPresets');
+    if (saved) {
+      setFilterPresets(JSON.parse(saved));
+    }
+  }, []);
 
   return (
     <MainLayout>
@@ -154,6 +238,12 @@ export default function CorridorsPage() {
               <option value="success_rate">Sort by Success Rate</option>
               <option value="liquidity">Sort by Liquidity</option>
             </select>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-4 py-2 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </div>
         </div>
 
