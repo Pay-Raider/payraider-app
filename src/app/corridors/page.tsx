@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, Suspense } from "react";
 import {
   TrendingUp,
   Search,
@@ -24,8 +24,10 @@ import { mockCorridors } from "@/components/lib//mockCorridorData";
 import { MainLayout } from "@/components/layout";
 import { SkeletonCorridorCard } from "@/components/ui/Skeleton";
 import { CorridorHeatmap } from "@/components/charts/CorridorHeatmap";
+import { DataTablePagination } from "@/components/ui/DataTablePagination";
+import { usePagination } from "@/hooks/usePagination";
 
-export default function CorridorsPage() {
+function CorridorsPageContent() {
   const [corridors, setCorridors] = useState<CorridorMetrics[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "heatmap">("grid");
   const [loading, setLoading] = useState(true);
@@ -105,7 +107,7 @@ export default function CorridorsPage() {
           console.log("API not available, using mock data");
           setCorridors(mockCorridors);
         }
-   } catch (err) {
+      } catch (err) {
         console.error("Error fetching corridors:", err);
       } finally {
         setLoading(false);
@@ -116,15 +118,6 @@ export default function CorridorsPage() {
   }, [successRateRange, volumeRange, assetCodeFilter, timePeriod, sortBy]);
 
   const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
-
-  const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
-
-  const {
-    currentPage: finalCurrentPage,
-    pageSize: finalPageSize,
-    onPageChange: finalOnPageChange,
-    onPageSizeChange: finalOnPageSizeChange,
-  } = usePagination(filteredCorridors.length);
 
   const getHealthColor = (score: number) => {
     if (score >= 90)
@@ -247,31 +240,31 @@ export default function CorridorsPage() {
           </div>
         </div>
 
-        {/* View Mode Toggle - NEW */}
-  <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-1">
-    <button
-      onClick={() => setViewMode("grid")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
-        viewMode === "grid"
-          ? "bg-blue-500 text-white"
-          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700"
-      }`}
-    >
-      <List className="w-4 h-4" />
-      <span className="text-sm font-medium">Grid</span>
-    </button>
-    <button
-      onClick={() => setViewMode("heatmap")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
-        viewMode === "heatmap"
-          ? "bg-blue-500 text-white"
-          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700"
-      }`}
-    >
-      <Grid3x3 className="w-4 h-4" />
-      <span className="text-sm font-medium">Heatmap</span>
-    </button>
-  </div>
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-1 mb-6">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
+              viewMode === "grid"
+                ? "bg-blue-500 text-white"
+                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700"
+            }`}
+          >
+            <List className="w-4 h-4" />
+            <span className="text-sm font-medium">Grid</span>
+          </button>
+          <button
+            onClick={() => setViewMode("heatmap")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors ${
+              viewMode === "heatmap"
+                ? "bg-blue-500 text-white"
+                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700"
+            }`}
+          >
+            <Grid3x3 className="w-4 h-4" />
+            <span className="text-sm font-medium">Heatmap</span>
+          </button>
+        </div>
 
         {/* Content */}
         {loading ? (
@@ -305,57 +298,59 @@ export default function CorridorsPage() {
           </div>
         ) : (
           // Grid view
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCorridors.map((corridor) => (
-              <Link
-                key={corridor.id}
-                href={`/corridors/${corridor.id}`}
-                className="group bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 text-left cursor-pointer"
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-500 transition-colors truncate">
-                      {corridor.source_asset} → {corridor.destination_asset}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
-                      {corridor.id}
-                    </p>
-                  </div>
-
-                  {/* Success Rate and Health Score */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-3">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        Success Rate
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedCorridors.map((corridor) => (
+                <Link
+                  key={corridor.id}
+                  href={`/corridors/${corridor.id}`}
+                  className="group bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 text-left cursor-pointer"
+                >
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-500 transition-colors truncate">
+                        {corridor.source_asset} → {corridor.destination_asset}
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
+                        {corridor.id}
                       </p>
-                      <div className="flex items-center gap-2">
-                        {getSuccessStatusIcon(corridor.success_rate)}
-                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {corridor.success_rate.toFixed(1)}%
-                        </p>
-                      </div>
                     </div>
-                    <div
-                      className={`rounded-lg p-3 border ${getHealthColor(
-                        corridor.health_score,
-                      )}`}
-                    >
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        Health
-                      </p>
-                      <p className="text-lg font-bold text-gray-900 dark:text-white">
-                        {corridor.health_score.toFixed(0)}
-                      </p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="text-xs">
-                          {getHealthStatus(corridor.health_score).icon}
-                        </span>
-                        <span
-                          className={`text-xs font-semibold ${getHealthStatus(corridor.health_score).color}`}
-                        >
-                          {getHealthStatus(corridor.health_score).label}
-                        </span>
+
+                    {/* Success Rate and Health Score */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-3">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                          Success Rate
+                        </p>
+                        <div className="flex items-center gap-2">
+                          {getSuccessStatusIcon(corridor.success_rate)}
+                          <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                            {corridor.success_rate.toFixed(1)}%
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        className={`rounded-lg p-3 border ${getHealthColor(
+                          corridor.health_score,
+                        )}`}
+                      >
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                          Health
+                        </p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white">
+                          {corridor.health_score.toFixed(0)}
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-xs">
+                            {getHealthStatus(corridor.health_score).icon}
+                          </span>
+                          <span
+                            className={`text-xs font-semibold ${getHealthStatus(corridor.health_score).color}`}
+                          >
+                            {getHealthStatus(corridor.health_score).label}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -389,21 +384,21 @@ export default function CorridorsPage() {
                         M
                       </span>
                     </div>
-                  </div>
 
-                  {/* Payment Attempts */}
-                  <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-3">
-                    <div className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400">
-                      <span>{corridor.successful_payments} successful</span>
-                      <span>{corridor.failed_payments} failed</span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2 mt-2">
-                      <div
-                        className="bg-green-500 rounded-full h-full transition-all duration-300"
-                        style={{
-                          width: `${(corridor.successful_payments / corridor.total_attempts) * 100}%`,
-                        }}
-                      />
+                    {/* Payment Attempts */}
+                    <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-3">
+                      <div className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400">
+                        <span>{corridor.successful_payments} successful</span>
+                        <span>{corridor.failed_payments} failed</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2 mt-2">
+                        <div
+                          className="bg-green-500 rounded-full h-full transition-all duration-300"
+                          style={{
+                            width: `${(corridor.successful_payments / corridor.total_attempts) * 100}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -417,16 +412,16 @@ export default function CorridorsPage() {
               onPageChange={onPageChange}
               onPageSizeChange={onPageSizeChange}
             />
-          </div>
+          </>
         )}
 
         {/* Info Footer */}
         <div className="mt-8 p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-600 dark:text-gray-400 text-sm">
           <p>
-            Showing {filteredCorridors.length} of {corridors.length} corridors
+            Showing {paginatedCorridors.length} of {corridors.length} corridors
           </p>
           <p className="mt-2 text-xs">
-          {viewMode === "grid"
+            {viewMode === "grid"
               ? "Click any card to view detailed analytics"
               : "Hover over heatmap cells to see detailed corridor metrics"}
           </p>
