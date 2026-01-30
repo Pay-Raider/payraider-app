@@ -143,9 +143,32 @@ const AnchorsPageContent = () => {
     endIndex,
   } = usePagination(sortedAndFilteredAnchors.length);
 
-  const paginatedAnchors = sortedAndFilteredAnchors.slice(startIndex, endIndex);
+  const getHealthStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "healthy":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "warning":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "critical":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+    }
+  };
 
-  // Helper functions for stats
+  const getHealthStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "healthy":
+        return <CheckCircle className="w-4 h-4" />;
+      case "warning":
+        return <AlertCircle className="w-4 h-4" />;
+      case "critical":
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <Activity className="w-4 h-4" />;
+    }
+  };
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
@@ -180,18 +203,37 @@ const AnchorsPageContent = () => {
           </div>
         )}
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-3 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search anchors by name or address..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
-              disabled={loading}
-            />
+          {/* Sort Controls */}
+          <div className="flex gap-2">
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(
+                  e.target.value as
+                    | "reliability"
+                    | "transactions"
+                    | "failure_rate",
+                )
+              }
+              className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="reliability">Reliability Score</option>
+              <option value="transactions">Total Transactions</option>
+              <option value="failure_rate">Failure Rate</option>
+            </select>
+
+            <button
+              onClick={() =>
+                setSortOrder(sortOrder === "desc" ? "asc" : "desc")
+              }
+              className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {sortOrder === "desc" ? (
+                <TrendingDown className="w-4 h-4" />
+              ) : (
+                <TrendingUp className="w-4 h-4" />
+              )}
+            </button>
           </div>
           {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -296,12 +338,13 @@ const AnchorsPageContent = () => {
                               </div>
                               <div className="ml-2 w-16 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                                 <div
-                                  className={`h-2 rounded-full ${anchor.reliability_score >= 95
+                                  className={`h-2 rounded-full ${
+                                    anchor.reliability_score >= 95
                                       ? "bg-green-500"
                                       : anchor.reliability_score >= 85
                                         ? "bg-yellow-500"
                                         : "bg-red-500"
-                                    }`}
+                                  }`}
                                   style={{
                                     width: `${anchor.reliability_score}%`,
                                   }}
@@ -419,12 +462,13 @@ const AnchorsPageContent = () => {
                             </span>
                             <div className="flex-1 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                               <div
-                                className={`h-2 rounded-full ${anchor.reliability_score >= 95
+                                className={`h-2 rounded-full ${
+                                  anchor.reliability_score >= 95
                                     ? "bg-green-500"
                                     : anchor.reliability_score >= 85
                                       ? "bg-yellow-500"
                                       : "bg-red-500"
-                                  }`}
+                                }`}
                                 style={{
                                   width: `${anchor.reliability_score}%`,
                                 }}
