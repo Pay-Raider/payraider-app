@@ -15,6 +15,7 @@ import { LiquidityChart } from "@/components/charts/LiquidityChart";
 import { TVLChart } from "@/components/charts/TVLChart";
 import { SettlementLatencyChart } from "@/components/charts/SettlementLatencyChart";
 import { TopCorridors } from "@/components/charts/TopCorridors";
+import { LiquidityHeatmap } from "@/components/charts/LiquidityHeatmap";
 
 export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
