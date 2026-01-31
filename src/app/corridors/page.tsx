@@ -243,6 +243,12 @@ function CorridorsPageContent() {
             <CorridorHeatmap corridors={filteredCorridors} />
           </div>
         ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedCorridors.map((corridor) => (
+              <div
+                key={corridor.id}
+                className="group bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-lg transition-all"
+              >
                 <Link
                   href={`/corridors/${corridor.id}`}
                 >
@@ -256,13 +262,12 @@ function CorridorsPageContent() {
                         {corridor.id}
                       </p>
                     </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex items-center gap-2">
+                        {getSuccessStatusIcon(corridor.success_rate)}
+                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                          {corridor.success_rate.toFixed(1)}%
                         </p>
-                        <div className="flex items-center gap-2">
-                          {getSuccessStatusIcon(corridor.success_rate)}
-                          <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {corridor.success_rate.toFixed(1)}%
-                          </p>
-                        </div>
                       </div>
                       <div
                         className={`rounded-lg p-3 border ${getHealthColor(
@@ -318,7 +323,6 @@ function CorridorsPageContent() {
                         M
                       </span>
                     </div>
-                    </div>
                   </div>
                 </Link>
               </div>
@@ -326,14 +330,11 @@ function CorridorsPageContent() {
           </div>
         )}
 
-        )}
-
         {/* Info Footer */}
         <div className="mt-8 p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-600 dark:text-gray-400 text-sm">
           <p>
             Showing {filteredCorridors.length} of {corridors.length} corridors
           </p>
-
         </div>
       </div>
     </MainLayout>

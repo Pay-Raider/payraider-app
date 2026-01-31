@@ -241,7 +241,15 @@ export default function AnalyticsPage() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 mb-8">
-          {metrics && <LiquidityHeatmap corridors={metrics.top_corridors} />}
+          {metrics && (
+            <LiquidityHeatmap
+              corridors={metrics.top_corridors}
+              onTimePeriodChange={(period: string) => {
+                console.log(`Time period changed to ${period}`);
+                handleRefresh();
+              }}
+            />
+          )}
           {metrics && <LiquidityChart data={metrics.liquidity_history} />}
           {metrics && <TVLChart data={metrics.tvl_history} />}
           {metrics && (
