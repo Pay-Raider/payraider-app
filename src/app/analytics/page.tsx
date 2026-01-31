@@ -241,16 +241,15 @@ export default function AnalyticsPage() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 mb-8">
+          {metrics && <LiquidityHeatmap corridors={metrics.top_corridors} />}
           {metrics && <LiquidityChart data={metrics.liquidity_history} />}
           {metrics && <TVLChart data={metrics.tvl_history} />}
+          {metrics && (
+            <div className="lg:col-span-2">
+              <SettlementLatencyChart data={metrics.settlement_latency_history} />
+            </div>
+          )}
         </div>
-
-        {/* Settlement Latency Chart - Full Width */}
-        {metrics && (
-          <div className="mb-8">
-            <SettlementLatencyChart data={metrics.settlement_latency_history} />
-          </div>
-        )}
       </div>
     </MainLayout>
   );
