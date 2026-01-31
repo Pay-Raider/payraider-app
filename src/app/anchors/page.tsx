@@ -236,11 +236,8 @@ const AnchorsPageContent = () => {
             </button>
           </div>
           {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              💡 Click on any row to view anchor details • Click column headers to sort
             </p>
           )}
-        </div>
           <div className="space-y-4">
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
               {/* Desktop Table */}
