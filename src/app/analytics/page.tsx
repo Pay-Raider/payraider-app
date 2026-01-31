@@ -15,6 +15,7 @@ import { LiquidityChart } from "@/components/charts/LiquidityChart";
 import { TVLChart } from "@/components/charts/TVLChart";
 import { SettlementLatencyChart } from "@/components/charts/SettlementLatencyChart";
 import { TopCorridors } from "@/components/charts/TopCorridors";
+import { LiquidityHeatmap } from "@/components/charts/LiquidityHeatmap";
 
 export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
@@ -241,16 +242,23 @@ export default function AnalyticsPage() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 mb-8">
+          {metrics && (
+            <LiquidityHeatmap
+              corridors={metrics.top_corridors}
+              onTimePeriodChange={(period: string) => {
+                console.log(`Time period changed to ${period}`);
+                handleRefresh();
+              }}
+            />
+          )}
           {metrics && <LiquidityChart data={metrics.liquidity_history} />}
           {metrics && <TVLChart data={metrics.tvl_history} />}
+          {metrics && (
+            <div className="lg:col-span-2">
+              <SettlementLatencyChart data={metrics.settlement_latency_history} />
+            </div>
+          )}
         </div>
-
-        {/* Settlement Latency Chart - Full Width */}
-        {metrics && (
-          <div className="mb-8">
-            <SettlementLatencyChart data={metrics.settlement_latency_history} />
-          </div>
-        )}
       </div>
     </MainLayout>
   );

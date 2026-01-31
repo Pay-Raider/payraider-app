@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, Suspense } from "react";
-import { Search, Anchor as AnchorIcon, ExternalLink, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Search, Anchor as AnchorIcon, ExternalLink, BarChart3, ChevronUp, ChevronDown, ChevronsUpDown, CheckCircle, AlertCircle, Activity, TrendingUp, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ResponsiveContainer, LineChart, Line } from "recharts";
@@ -80,7 +80,7 @@ const AnchorsPageContent = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"reliability" | "transactions" | "failure_rate">("reliability");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Fetch anchors from the backend
   useEffect(() => {
@@ -129,9 +129,9 @@ const AnchorsPageContent = () => {
         default:
           return 0;
       }
-      return sortDirection === "asc" ? -comparison : comparison;
+      return sortOrder === "asc" ? -comparison : comparison;
     });
-  }, [filteredAnchors, sortBy, sortDirection]);
+  }, [filteredAnchors, sortBy, sortOrder]);
 
   // Pagination
   const {
@@ -142,6 +142,10 @@ const AnchorsPageContent = () => {
     startIndex,
     endIndex,
   } = usePagination(sortedAndFilteredAnchors.length);
+
+  const paginatedAnchors = useMemo(() => {
+    return sortedAndFilteredAnchors.slice(startIndex, endIndex);
+  }, [sortedAndFilteredAnchors, startIndex, endIndex]);
 
   const getHealthStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -203,6 +207,18 @@ const AnchorsPageContent = () => {
           </div>
         )}
 
+        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex-1 relative w-full sm:max-w-md">
+            <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search anchors by name or account..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {/* Sort Controls */}
           <div className="flex gap-2">
             <select
@@ -235,12 +251,12 @@ const AnchorsPageContent = () => {
               )}
             </button>
           </div>
-          {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              💡 Click on any row to view anchor details • Click column headers to sort
-            </p>
-          )}
         </div>
+        {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 mb-4">
+            💡 Click on any row to view anchor details • Click column headers to sort
+          </p>
+        )}
           <div className="space-y-4">
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
               {/* Desktop Table */}
@@ -256,20 +272,20 @@ const AnchorsPageContent = () => {
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none"
-                        onClick={() => handleSort("reliability", sortBy, sortDirection, setSortBy, setSortDirection)}
+                        onClick={() => handleSort("reliability", sortBy, sortOrder, setSortBy, setSortOrder)}
                       >
                         <div className="flex items-center gap-1">
                           Reliability Score
-                          <SortIndicator column="reliability" currentSort={sortBy} direction={sortDirection} />
+                          <SortIndicator column="reliability" currentSort={sortBy} direction={sortOrder} />
                         </div>
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none"
-                        onClick={() => handleSort("failure_rate", sortBy, sortDirection, setSortBy, setSortDirection)}
+                        onClick={() => handleSort("failure_rate", sortBy, sortOrder, setSortBy, setSortOrder)}
                       >
                         <div className="flex items-center gap-1">
                           Success Rate
-                          <SortIndicator column="failure_rate" currentSort={sortBy} direction={sortDirection} />
+                          <SortIndicator column="failure_rate" currentSort={sortBy} direction={sortOrder} />
                         </div>
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -277,11 +293,11 @@ const AnchorsPageContent = () => {
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none"
-                        onClick={() => handleSort("transactions", sortBy, sortDirection, setSortBy, setSortDirection)}
+                        onClick={() => handleSort("transactions", sortBy, sortOrder, setSortBy, setSortOrder)}
                       >
                         <div className="flex items-center gap-1">
                           Total Transactions
-                          <SortIndicator column="transactions" currentSort={sortBy} direction={sortDirection} />
+                          <SortIndicator column="transactions" currentSort={sortBy} direction={sortOrder} />
                         </div>
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
