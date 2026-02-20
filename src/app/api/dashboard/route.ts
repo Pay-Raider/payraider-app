@@ -14,10 +14,18 @@ export async function GET() {
     // Handle initial fetch errors (graceful degradation)
     if (!corridorsRes.ok) throw new Error(`Corridors API failed: ${corridorsRes.status}`);
 
-    const corridors = await corridorsRes.json();
-    const ledger = ledgerRes.ok ? await ledgerRes.json() : null;
+    interface BackendCorridor {
+      id: number;
+      source_asset: string;
+      destination_asset: string;
+      success_rate: number;
+      health_score: number;
+      total_volume_usd: number;
+      avg_settlement_time_ms?: number;
+    }
+
+    const corridors: BackendCorridor[] = await corridorsRes.json();
     const paymentsData = paymentsRes.ok ? await paymentsRes.json() : { _embedded: { records: [] } };
-    const recentPayments = paymentsData._embedded?.records || [];
 
     // --- Aggregation Logic ---
 
@@ -26,15 +34,13 @@ export async function GET() {
 
     // Success Rate (Average of all corridors)
     const avgSuccessRate = totalCorridors > 0
-      ? corridors.reduce((acc: number, c: any) => acc + (c.success_rate || 0), 0) / totalCorridors
+      ? corridors.reduce((acc: number, c: BackendCorridor) => acc + (c.success_rate || 0), 0) / totalCorridors
       : 0;
 
-    // Liquidity Depth (Sum of volume/liquidity from corridors as a proxy)
-    const totalLiquidity = corridors.reduce((acc: number, c: any) => acc + (c.total_volume_usd || 0), 0);
+    const totalLiquidity = corridors.reduce((acc: number, c: BackendCorridor) => acc + (c.total_volume_usd || 0), 0);
 
-    // Settlement Speed (Average from corridors)
     const avgSettlementMs = totalCorridors > 0
-      ? corridors.reduce((acc: number, c: any) => acc + (c.avg_settlement_time_ms || 0), 0) / totalCorridors
+      ? corridors.reduce((acc: number, c: BackendCorridor) => acc + (c.avg_settlement_time_ms || 0), 0) / totalCorridors
       : 0;
 
     const kpiData = {
@@ -73,7 +79,7 @@ export async function GET() {
     });
 
     // 3. Top Assets (Aggregate volume by source asset)
-    const assetMap = new Map();
+    const assetMap = new Map<string, { volume: number; count: number }>();
     corridors.forEach((c: BackendCorridor) => {
       const symbol = c.source_asset.split(':')[0];
       const current = assetMap.get(symbol) || { volume: 0, count: 0 };
