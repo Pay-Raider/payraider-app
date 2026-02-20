@@ -9,7 +9,6 @@ import {
   Compass,
   Settings,
   Activity,
-  Zap,
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
@@ -17,6 +16,7 @@ import {
   Droplets,
   Users,
   Database,
+  Trophy,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -30,6 +30,7 @@ const navItems = [
   { name: "Liquidity", icon: Waves, path: "/liquidity" },
   { name: "Pools", icon: Droplets, path: "/liquidity-pools" },
   { name: "SEP-6", icon: Database, path: "/sep6" },
+  { name: "Quests", icon: Trophy, path: "/quests" },
 ];
 
 interface SidebarProps {

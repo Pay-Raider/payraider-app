@@ -6,6 +6,7 @@ import { WalletProvider } from "../components/lib/wallet-context";
 import { NotificationProvider } from "../contexts/NotificationContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { NotificationSystem } from "../components/notifications/NotificationSystem";
+import { QuestProgressTracker } from "../components/QuestProgressTracker";
 import { Sidebar } from "../components/layout/sidebar";
 import { Navbar } from "../components/navbar";
 import "./globals.css";
@@ -49,6 +50,7 @@ export default function RootLayout({
                     </div>
                   </main>
                 </div>
+                <QuestProgressTracker />
                 <NotificationSystem />
               </NotificationProvider>
             </WalletProvider>
