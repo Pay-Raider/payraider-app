@@ -6,6 +6,9 @@ import { CorridorHealth } from '@/components/dashboard/CorridorHealth';
 import { LiquidityChart } from '@/components/dashboard/LiquidityChart';
 import { TopAssetsTable } from '@/components/dashboard/TopAssetsTable';
 import { SettlementSpeedChart } from '@/components/dashboard/SettlementSpeedChart';
+import { WebSocketStatus } from '@/components/WebSocketStatus';
+import { useRealtimeCorridors } from '@/hooks/useRealtimeCorridors';
+import { useRealtimeAnchors } from '@/hooks/useRealtimeAnchors';
 
 interface CorridorData {
   id: string;
@@ -50,6 +53,50 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+
+  // Initialize WebSocket connections for real-time updates
+  const {
+    isConnected: corridorsConnected,
+    isConnecting: corridorsConnecting,
+    connectionAttempts: corridorAttempts,
+    corridorUpdates,
+    healthAlerts,
+    reconnect: reconnectCorridors,
+  } = useRealtimeCorridors({
+    enablePaymentStream: true,
+    onCorridorUpdate: (update) => {
+      console.log('Received corridor update:', update);
+      setLastUpdate(new Date());
+      // Update the dashboard data with real-time corridor info
+      setData(prevData => {
+        if (!prevData) return prevData;
+        
+        // Update KPI metrics based on corridor updates
+        const updatedData = { ...prevData };
+        if (update.success_rate !== undefined) {
+          // Update success rate if this corridor affects the overall rate
+          updatedData.kpi.successRate.value = update.success_rate;
+        }
+        
+        return updatedData;
+      });
+    },
+    onHealthAlert: (alert) => {
+      console.log('Health alert:', alert);
+      // You could show a toast notification here
+    },
+  });
+
+  const {
+    isConnected: anchorsConnected,
+    reconnect: reconnectAnchors,
+  } = useRealtimeAnchors({
+    onAnchorUpdate: (update) => {
+      console.log('Received anchor update:', update);
+      setLastUpdate(new Date());
+    },
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,10 +164,23 @@ export default function DashboardPage() {
           <h2 className="text-4xl font-black tracking-tighter uppercase italic">Network Overview</h2>
         </div>
         <div className="flex items-center gap-3">
+          <WebSocketStatus
+            isConnected={corridorsConnected && anchorsConnected}
+            isConnecting={corridorsConnecting}
+            connectionAttempts={corridorAttempts}
+            onReconnect={() => {
+              reconnectCorridors();
+              reconnectAnchors();
+            }}
+            className="mr-2"
+          />
           <div className="px-4 py-2 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-            Last Update: {new Date().toLocaleTimeString()}
+            Last Update: {lastUpdate.toLocaleTimeString()}
           </div>
-          <button className="px-4 py-2 bg-accent text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-transform">
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-accent text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-transform"
+          >
             Refresh Node
           </button>
         </div>
