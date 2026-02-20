@@ -90,21 +90,21 @@ export default function TrustlinesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700 pb-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-12">
       {/* Header */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center border border-accent/50 glow-accent shrink-0">
             <Users className="w-5 h-5 text-accent" />
           </div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase italic">
+          <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic">
             Trustline
-            <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4">
+            <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4 ml-2">
               Analysis
             </span>
           </h1>
         </div>
-        <p className="text-sm font-mono text-muted-foreground uppercase tracking-widest pl-14">
+        <p className="text-xs sm:text-sm font-mono text-muted-foreground uppercase tracking-widest mt-2 md:mt-0 pl-1 md:pl-14">
           Monitor asset adoption, holder distribution, and network growth
         </p>
       </div>
@@ -238,21 +238,21 @@ export default function TrustlinesPage() {
           {selectedAsset ? (
             <>
               {/* Asset Header Info */}
-              <div className="glass-card rounded-2xl p-6 border border-border/50 flex justify-between items-start">
+              <div className="glass-card rounded-2xl p-6 border border-border/50 flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tighter flex items-center gap-2">
+                  <h2 className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-2">
                     {selectedAsset.asset_code}
-                    <BadgeCheck className="w-6 h-6 text-emerald-400 inline-block" />
+                    <BadgeCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 inline-block mb-1" />
                   </h2>
-                  <p className="text-xs font-mono text-muted-foreground mt-1 break-all">
+                  <p className="text-[10px] sm:text-xs font-mono text-muted-foreground mt-1 break-all">
                     Issuer: {selectedAsset.asset_issuer}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">
                     Total Supply
                   </div>
-                  <div className="text-xl font-black font-mono tracking-tighter">
+                  <div className="text-lg sm:text-xl font-black font-mono tracking-tighter">
                     {formatNumber(selectedAsset.total_supply)}
                   </div>
                 </div>
@@ -271,16 +271,16 @@ export default function TrustlinesPage() {
                 </h3>
 
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm font-mono mb-2">
+                  <div className="flex flex-col sm:flex-row justify-between text-sm font-mono mb-2 gap-2 sm:gap-0">
                     <span className="text-emerald-400 text-xs flex items-center gap-2">
-                      <div className="w-2 h-2 rounded bg-emerald-400" />{" "}
+                      <div className="w-2 h-2 rounded bg-emerald-400 shrink-0" />{" "}
                       Authorized (
                       {formatNumber(selectedAsset.authorized_trustlines)})
                     </span>
-                    <span className="text-rose-400 text-xs flex items-center gap-2">
+                    <span className="text-rose-400 text-xs flex items-center justify-start sm:justify-end gap-2">
                       Unauthorized (
                       {formatNumber(selectedAsset.unauthorized_trustlines)}){" "}
-                      <div className="w-2 h-2 rounded bg-rose-400" />
+                      <div className="w-2 h-2 rounded bg-rose-400 shrink-0" />
                     </span>
                   </div>
 
