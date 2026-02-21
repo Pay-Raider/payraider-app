@@ -9,7 +9,6 @@ import {
   Compass,
   Settings,
   Activity,
-  Zap,
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
@@ -19,7 +18,7 @@ import {
   Database,
   Calculator,
 } from "lucide-react";
-import { useState } from "react";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 const navItems = [
   { name: "Home", icon: LayoutDashboard, path: "/" },
@@ -41,7 +40,9 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps = {}) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const { prefs, setPrefs } = useUserPreferences();
+  const collapsed = prefs.sidebarCollapsed;
+  const setCollapsed = (val: boolean) => setPrefs({ sidebarCollapsed: val });
 
   return (
     <aside
