@@ -18,7 +18,7 @@ import {
   Database,
   Trophy,
 } from "lucide-react";
-import { useState } from "react";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 const navItems = [
   { name: "Home", icon: LayoutDashboard, path: "/" },
@@ -40,11 +40,13 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps = {}) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const { prefs, setPrefs } = useUserPreferences();
+  const collapsed = prefs.sidebarCollapsed;
+  const setCollapsed = (val: boolean) => setPrefs({ sidebarCollapsed: val });
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen glass border-r border-border transition-all duration-500 z-50 ${
+      className={`fixed top-0 left-0 h-screen overflow-y-auto glass border-r border-border transition-all duration-500 z-50 ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
@@ -65,7 +67,7 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
         </div>
 
         {/* Navigation Section */}
-        <nav className="flex-1 px-4 py-8 space-y-3">
+        <nav className="flex-1 px-4 py-8 space-y-3 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             const Icon = item.icon;
