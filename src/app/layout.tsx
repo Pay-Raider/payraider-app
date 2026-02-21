@@ -2,6 +2,7 @@ import React from "react";
 import type { Metadata, Viewport } from "next";
 // import { Analytics } from '@vercel/analytics/next'
 import { WalletProvider } from "../components/lib/wallet-context";
+import { NotificationProvider } from "../components/lib/notification-context";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -41,7 +42,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <WalletProvider>{children}</WalletProvider>
+        <WalletProvider>
+          <NotificationProvider>
+            {children}
+          </NotificationProvider>
+        </WalletProvider>
         {/* <Analytics /> */}
       </body>
     </html>
