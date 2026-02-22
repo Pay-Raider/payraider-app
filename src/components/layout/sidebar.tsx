@@ -30,6 +30,7 @@ const navItems = [
   { name: "Corridors", icon: Compass, path: "/corridors" },
   { name: "Network", icon: Share2, path: "/network" },
   { name: "Analytics", icon: BarChart3, path: "/analytics" },
+  { name: "API Usage", icon: Activity, path: "/analytics/api" },
   { name: "Trustlines", icon: Users, path: "/trustlines" },
   { name: "Network Health", icon: Activity, path: "/health" },
   { name: "Liquidity", icon: Waves, path: "/liquidity" },
@@ -84,8 +85,8 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
                 key={item.path}
                 href={item.path}
                 className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group ${isActive
-                    ? "bg-accent/10 text-accent border border-accent/20"
-                    : "text-muted-foreground hover:bg-white/5 hover:text-foreground border border-transparent"
+                  ? "bg-accent/10 text-accent border border-accent/20"
+                  : "text-muted-foreground hover:bg-white/5 hover:text-foreground border border-transparent"
                   }`}
               >
                 <Icon
