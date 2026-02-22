@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import {
   BarChart3,
   TrendingUp,
@@ -24,24 +24,25 @@ import {
   Shield,
 } from "lucide-react";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const navItems = [
-  { name: "Home", icon: LayoutDashboard, path: "/" },
-  { name: "Terminal", icon: LayoutDashboard, path: "/dashboard" },
-  { name: "Corridors", icon: Compass, path: "/corridors" },
-  { name: "Network", icon: Share2, path: "/network" },
-  { name: "Analytics", icon: BarChart3, path: "/analytics" },
-  { name: "API Usage", icon: Activity, path: "/analytics/api" },
-  { name: "Trustlines", icon: Users, path: "/trustlines" },
-  { name: "Network Health", icon: Activity, path: "/health" },
-  { name: "Liquidity", icon: Waves, path: "/liquidity" },
-  { name: "Pools", icon: Droplets, path: "/liquidity-pools" },
-  { name: "SEP-6", icon: Database, path: "/sep6" },
-  { name: "Calculator", icon: Calculator, path: "/calculator" },
-  { name: "API Keys", icon: Key, path: "/developer/keys" },
-  { name: "Quests", icon: Trophy, path: "/quests" },
-  { name: "Governance", icon: ScrollText, path: "/governance" },
-  { name: "Privacy", icon: Shield, path: "/settings/gdpr" },
+  { key: "home", icon: LayoutDashboard, path: "/" },
+  { key: "terminal", icon: LayoutDashboard, path: "/dashboard" },
+  { key: "corridors", icon: Compass, path: "/corridors" },
+  { key: "network", icon: Share2, path: "/network" },
+  { key: "analytics", icon: BarChart3, path: "/analytics" },
+  { key: "apiUsage", icon: Activity, path: "/analytics/api" },
+  { key: "trustlines", icon: Users, path: "/trustlines" },
+  { key: "networkHealth", icon: Activity, path: "/health" },
+  { key: "liquidity", icon: Waves, path: "/liquidity" },
+  { key: "pools", icon: Droplets, path: "/liquidity-pools" },
+  { key: "sep6", icon: Database, path: "/sep6" },
+  { key: "calculator", icon: Calculator, path: "/calculator" },
+  { key: "apiKeys", icon: Key, path: "/developer/keys" },
+  { key: "quests", icon: Trophy, path: "/quests" },
+  { key: "governance", icon: ScrollText, path: "/governance" },
+  { key: "privacy", icon: Shield, path: "/settings/gdpr" },
 ];
 
 interface SidebarProps {
@@ -51,6 +52,7 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps = {}) {
   const pathname = usePathname();
+  const t = useTranslations("layout.sidebar");
   const { prefs, setPrefs } = useUserPreferences();
   const collapsed = prefs.sidebarCollapsed;
   const setCollapsed = (val: boolean) => setPrefs({ sidebarCollapsed: val });
@@ -71,7 +73,7 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
             <span className="text-xl font-bold tracking-tighter text-foreground whitespace-nowrap overflow-hidden">
               STELLAR
               <span className="text-accent underline decoration-accent/30">
-                INSIGHTS
+                {" "}{t("stellarInsights")}
               </span>
             </span>
           )}
@@ -98,7 +100,7 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
                 />
                 {!collapsed && (
                   <span className="font-bold text-sm uppercase tracking-widest">
-                    {item.name}
+                    {t(item.key)}
                   </span>
                 )}
                 {isActive && !collapsed && (
@@ -116,12 +118,18 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 rounded-full bg-green-500 grow-success" />
                 <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-tighter">
-                  System Nominal
+                  {t("systemNominal")}
                 </span>
               </div>
               <div className="text-[10px] font-mono text-muted-foreground/50 tabular-nums uppercase tracking-tighter">
                 RPC_ID: STLR_MAIN_01
               </div>
+            </div>
+          )}
+
+          {!collapsed && (
+            <div className="px-2 py-1">
+              <LanguageSwitcher />
             </div>
           )}
 
@@ -136,7 +144,7 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
             )}
             {!collapsed && (
               <span className="text-xs font-bold uppercase tracking-widest">
-                Collapse
+                {t("collapse")}
               </span>
             )}
           </button>
@@ -148,7 +156,7 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
             <Settings className="w-5 h-5 shrink-0" />
             {!collapsed && (
               <span className="text-xs font-bold uppercase tracking-widest">
-                Settings
+                {t("settings")}
               </span>
             )}
           </Link>
