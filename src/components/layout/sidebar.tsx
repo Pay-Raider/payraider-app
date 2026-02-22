@@ -16,8 +16,11 @@ import {
   Droplets,
   Users,
   Database,
+  Calculator,
+  Key,
   Trophy,
   ScrollText,
+  Share2,
 } from "lucide-react";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
@@ -32,6 +35,8 @@ const navItems = [
   { name: "Liquidity", icon: Waves, path: "/liquidity" },
   { name: "Pools", icon: Droplets, path: "/liquidity-pools" },
   { name: "SEP-6", icon: Database, path: "/sep6" },
+  { name: "Calculator", icon: Calculator, path: "/calculator" },
+  { name: "API Keys", icon: Key, path: "/developer/keys" },
   { name: "Quests", icon: Trophy, path: "/quests" },
   { name: "Governance", icon: ScrollText, path: "/governance" },
 ];
