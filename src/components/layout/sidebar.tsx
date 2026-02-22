@@ -17,6 +17,7 @@ import {
   Users,
   Database,
   Trophy,
+  ScrollText,
 } from "lucide-react";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
@@ -32,6 +33,7 @@ const navItems = [
   { name: "Pools", icon: Droplets, path: "/liquidity-pools" },
   { name: "SEP-6", icon: Database, path: "/sep6" },
   { name: "Quests", icon: Trophy, path: "/quests" },
+  { name: "Governance", icon: ScrollText, path: "/governance" },
 ];
 
 interface SidebarProps {
