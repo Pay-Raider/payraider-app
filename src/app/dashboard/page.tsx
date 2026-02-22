@@ -1,340 +1,283 @@
-"use client"
-
-import React, { useEffect, useState, useCallback } from 'react'
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
-} from 'recharts'
-
-type Corridor = {
-  id: string
-  health: number
-  successRate: number
-}
-
-type TopAsset = {
-  asset: string
-  volume: number
-  tvl: number
-}
-
-type TimePoint = {
-  ts: string
-  successRate: number
-  settlementMs: number
-  tvl: number
-}
-
-type DashboardData = {
-  totalSuccessRate: number
-  activeCorridors: Corridor[]
-  topAssets: TopAsset[]
-  timeseries: TimePoint[]
-}
-
-export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchData = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/dashboard')
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const json = await res.json()
-      setData(json)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchData()
-    const id = setInterval(fetchData, 30_000) // refresh every 30s
-    return () => clearInterval(id)
-  }, [fetchData])
-
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Network Dashboard</h1>
-        <div className="flex gap-2 items-center">
-          <button
-            className="px-3 py-1 rounded bg-sky-600 text-white text-sm"
-            onClick={() => fetchData()}
-            disabled={loading}
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-
-      {loading && (
-        <div className="rounded p-6 bg-gray-50">Loading metrics…</div>
-      )}
-
-      {error && (
-        <div className="rounded p-4 bg-rose-50 text-rose-700">Error: {error}</div>
-      )}
-
-      {data && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="col-span-1 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Total Payment Success Rate</h2>
-            <div className="mt-3 flex items-end gap-4">
-              <div className="text-4xl font-bold">
-                {(data.totalSuccessRate * 100).toFixed(2)}%
-              </div>
-              <div className="text-sm text-gray-500">(last 24h)</div>
-            </div>
-          </div>
-
-          <div className="col-span-1 lg:col-span-2 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Settlement Speed (ms) — last 24 points</h2>
-            <div style={{ width: '100%', height: 220 }} className="mt-3">
-              <ResponsiveContainer>
-                <LineChart data={data.timeseries}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="ts" tickFormatter={(s) => new Date(s).getHours() + ':00'} />
-                  <YAxis />
-                  <Tooltip labelFormatter={(s) => new Date(s).toLocaleString()} />
-                  <Legend />
-                  <Line type="monotone" dataKey="settlementMs" stroke="#8884d8" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="col-span-1 lg:col-span-2 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Liquidity Depth / TVL (24h)</h2>
-            <div style={{ width: '100%', height: 240 }} className="mt-3">
-              <ResponsiveContainer>
-                <LineChart data={data.timeseries}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="ts" tickFormatter={(s) => new Date(s).getHours() + ':00'} />
-                  <YAxis />
-                  <Tooltip labelFormatter={(s) => new Date(s).toLocaleString()} />
-                  <Legend />
-                  <Line type="monotone" dataKey="tvl" stroke="#82ca9d" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="col-span-1 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Active Corridor Health</h2>
-            <ul className="mt-3 space-y-3">
-              {data.activeCorridors.map((c) => (
-                <li key={c.id} className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{c.id}</div>
-                    <div className="text-sm text-gray-500">Success: {(c.successRate * 100).toFixed(2)}%</div>
-                  </div>
-                  <div className="text-sm font-semibold">
-                    {(c.health * 100).toFixed(0)}%
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="col-span-1 lg:col-span-2 bg-white rounded shadow p-4">
-            <h2 className="text-sm text-gray-500">Top-performing Assets</h2>
-            <div className="mt-3 overflow-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="text-gray-500 text-xs uppercase">
-                  <tr>
-                    <th className="pb-2">Asset</th>
-                    <th className="pb-2">Volume</th>
-                    <th className="pb-2">TVL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.topAssets.map((a) => (
-                    <tr key={a.asset} className="border-t">
-                      <td className="py-2 font-medium">{a.asset}</td>
-                      <td className="py-2">{a.volume.toLocaleString()}</td>
-                      <td className="py-2">${a.tvl.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { TrendingUp, BarChart3, Anchor, Activity, Loader } from "lucide-react";
-import { MainLayout } from "@/components/layout";
+import React, { useEffect, useState, useCallback } from "react";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { CorridorHealth } from "@/components/dashboard/CorridorHealth";
+import { LiquidityChart } from "@/components/dashboard/LiquidityChart";
+import { TopAssetsTable } from "@/components/dashboard/TopAssetsTable";
+import { SettlementSpeedChart } from "@/components/dashboard/SettlementSpeedChart";
+import { WebSocketStatus } from "@/components/WebSocketStatus";
+import { DataRefreshIndicator } from "@/components/DataRefreshIndicator";
+import { useRealtimeCorridors } from "@/hooks/useRealtimeCorridors";
+import { useRealtimeAnchors } from "@/hooks/useRealtimeAnchors";
+import { useDataRefresh } from "@/hooks/useDataRefresh";
 
-interface StatCard {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  description: string;
-  trend?: string;
+interface CorridorData {
+  id: string;
+  name: string;
+  status: "optimal" | "degraded" | "down";
+  uptime: number;
+  volume24h: number;
+}
+
+interface LiquidityData {
+  date: string;
+  value: number;
+}
+
+interface AssetData {
+  symbol: string;
+  name: string;
+  volume24h: number;
+  price: number;
+  change24h: number;
+}
+
+interface SettlementData {
+  time: string;
+  speed: number;
+}
+
+interface DashboardData {
+  kpi: {
+    successRate: {
+      value: number;
+      trend: number;
+      trendDirection: "up" | "down";
+    };
+    activeCorridors: {
+      value: number;
+      trend: number;
+      trendDirection: "up" | "down";
+    };
+    liquidityDepth: {
+      value: number;
+      trend: number;
+      trendDirection: "up" | "down";
+    };
+    settlementSpeed: {
+      value: number;
+      trend: number;
+      trendDirection: "up" | "down";
+    };
+  };
+  corridors: CorridorData[];
+  liquidity: LiquidityData[];
+  assets: AssetData[];
+  settlement: SettlementData[];
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<StatCard[]>([]);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Simulate fetching dashboard stats
-    setTimeout(() => {
-      setStats([
-        {
-          title: "Active Corridors",
-          value: "24",
-          icon: <TrendingUp className="w-6 h-6" />,
-          description: "Payment corridors",
-          trend: "+3 this month",
-        },
-        {
-          title: "Network Health",
-          value: "98.5%",
-          icon: <Activity className="w-6 h-6" />,
-          description: "Overall success rate",
-          trend: "+2.3% from last week",
-        },
-        {
-          title: "Active Anchors",
-          value: "156",
-          icon: <Anchor className="w-6 h-6" />,
-          description: "Liquidity providers",
-          trend: "+12 this month",
-        },
-        {
-          title: "Total Volume",
-          value: "$2.4M",
-          icon: <BarChart3 className="w-6 h-6" />,
-          description: "24h transaction volume",
-          trend: "+18% from yesterday",
-        },
-      ]);
-      setLoading(false);
-    }, 500);
+  // ── Data refresh hook (auto-refresh every 30 s + manual trigger) ──────────
+  const fetchDashboard = useCallback(async () => {
+    const response = await fetch("/api/dashboard");
+    if (!response.ok) throw new Error("Failed to fetch dashboard data");
+    const result = await response.json();
+    setData(result);
   }, []);
 
-  return (
-    <MainLayout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Overview of your Stellar payment network insights
-          </p>
+  const {
+    lastUpdated,
+    secondsUntilRefresh,
+    isRefreshing,
+    triggerRefresh,
+    markUpdated,
+  } = useDataRefresh({
+    refreshIntervalMs: 30_000,
+    onRefresh: fetchDashboard,
+  });
+
+  // ── WebSocket connections for real-time updates ─────────────────────────
+  const {
+    isConnected: corridorsConnected,
+    isConnecting: corridorsConnecting,
+    connectionAttempts: corridorAttempts,
+    reconnect: reconnectCorridors,
+  } = useRealtimeCorridors({
+    enablePaymentStream: true,
+    onCorridorUpdate: (update) => {
+      console.log("Received corridor update:", update);
+      markUpdated();
+      setData((prevData) => {
+        if (!prevData) return prevData;
+        const updatedData = { ...prevData };
+        if (update.success_rate !== undefined) {
+          updatedData.kpi.successRate.value = update.success_rate;
+        }
+        return updatedData;
+      });
+    },
+    onHealthAlert: (alert) => {
+      console.log("Health alert:", alert);
+    },
+  });
+
+  const { isConnected: anchorsConnected, reconnect: reconnectAnchors } =
+    useRealtimeAnchors({
+      onAnchorUpdate: (update) => {
+        console.log("Received anchor update:", update);
+        markUpdated();
+      },
+    });
+
+  // Initial load on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        await fetchDashboard();
+      } catch (err) {
+        const isNetworkError =
+          err instanceof TypeError &&
+          (err.message.includes("Failed to fetch") ||
+            err.message.includes("fetch is not defined") ||
+            err.message.includes("Network request failed"));
+        const errorMessage =
+          err instanceof Error ? err.message : "An error occurred";
+        setError(errorMessage);
+        if (!isNetworkError) console.error("Dashboard API error:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [fetchDashboard]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest">
+          Initialising Terminal... // System Handshake
         </div>
+      </div>
+    );
+  }
 
-        {/* Stats Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader className="w-8 h-8 animate-spin text-blue-500" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-blue-500 dark:text-blue-400">
-                    {stat.icon}
-                  </div>
-                </div>
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                  {stat.title}
-                </h3>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {stat.value}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                  {stat.description}
-                </p>
-                {stat.trend && (
-                  <p className="text-xs text-green-600 dark:text-green-400">
-                    {stat.trend}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+  if (error) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="px-6 py-4 glass border-red-500/50 text-red-500 font-mono text-sm uppercase tracking-widest">
+          Terminal Error: {error}
+        </div>
+      </div>
+    );
+  }
 
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-            Quick Actions
+  if (!data) return null;
+
+  const formatVolume = (val: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(val);
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
+        <div>
+          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+            Intelligence Terminal // 01
+          </div>
+          <h2 className="text-4xl font-black tracking-tighter uppercase italic">
+            Network Overview
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
-              href="/corridors"
-              className="p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-                Explore Corridors
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                View payment corridors and their performance metrics
-              </p>
-            </a>
-            <a
-              href="/anchors"
-              className="p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-                Browse Anchors
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Discover liquidity providers and their details
-              </p>
-            </a>
-            <a
-              href="/analytics"
-              className="p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-                View Analytics
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Deep dive into network performance data
-              </p>
-            </a>
-            <a
-              href="/"
-              className="p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-                Return to Home
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Go back to the landing page
-              </p>
-            </a>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <WebSocketStatus
+            isConnected={corridorsConnected && anchorsConnected}
+            isConnecting={corridorsConnecting}
+            connectionAttempts={corridorAttempts}
+            onReconnect={() => {
+              reconnectCorridors();
+              reconnectAnchors();
+            }}
+          />
+          <DataRefreshIndicator
+            lastUpdated={lastUpdated}
+            secondsUntilRefresh={secondsUntilRefresh}
+            refreshIntervalSec={30}
+            isRefreshing={isRefreshing}
+            onRefresh={triggerRefresh}
+          />
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Payment Success Rate"
+          value={`${data.kpi.successRate.value}%`}
+          trend={data.kpi.successRate.trend}
+          trendDirection={data.kpi.successRate.trendDirection}
+        />
+        <MetricCard
+          label="Active Corridors"
+          value={data.kpi.activeCorridors.value}
+          trend={data.kpi.activeCorridors.trend}
+          trendDirection={data.kpi.activeCorridors.trendDirection}
+        />
+        <MetricCard
+          label="Liquidity Depth"
+          value={formatVolume(data.kpi.liquidityDepth.value)}
+          trend={data.kpi.liquidityDepth.trend}
+          trendDirection={data.kpi.liquidityDepth.trendDirection}
+        />
+        <MetricCard
+          label="Avg Settlement Speed"
+          value={`${data.kpi.settlementSpeed.value}s`}
+          trend={Math.abs(data.kpi.settlementSpeed.trend)}
+          trendDirection={data.kpi.settlementSpeed.trendDirection}
+          inverse={true} // Lower is better
+        />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-12">
+        <div className="lg:col-span-8 space-y-6">
+          <div className="glass-card rounded-2xl p-1 transition-all duration-300 min-h-[300px] flex flex-col">
+            {data.liquidity.length > 0 ? (
+              <LiquidityChart data={data.liquidity} />
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+                Waiting for Liquidity Data...
+              </div>
+            )}
+          </div>
+          <div className="glass-card rounded-2xl p-1 transition-all duration-300 min-h-[300px] flex flex-col">
+            {data.assets.length > 0 ? (
+              <TopAssetsTable assets={data.assets} />
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+                Waiting for Asset Data...
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="lg:col-span-4 space-y-6">
+          <div className="glass-card rounded-2xl p-1 transition-all duration-300 min-h-[300px] flex flex-col">
+            {data.corridors.length > 0 ? (
+              <CorridorHealth corridors={data.corridors} />
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+                Waiting for Corridor Data...
+              </div>
+            )}
+          </div>
+          <div className="glass-card rounded-2xl p-1 transition-all duration-300 min-h-[300px] flex flex-col">
+            {data.settlement.length > 0 ? (
+              <SettlementSpeedChart data={data.settlement} />
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+                Waiting for Settlement Data...
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }

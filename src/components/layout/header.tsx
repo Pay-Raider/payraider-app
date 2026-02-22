@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Menu, Wallet, LogOut } from "lucide-react";
 import { useWallet } from "../lib/wallet-context";
 import { NotificationCenter } from "./notification-center";
@@ -12,11 +12,81 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle, sidebarOpen }: HeaderProps) {
   const { isConnected, address, connectWallet, disconnectWallet } = useWallet();
+  const { showToast } = useNotifications();
   const [showWalletMenu, setShowWalletMenu] = React.useState(false);
+  const prevConnectedRef = useRef<boolean | null>(null);
 
   const displayAddress = address
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : null;
+
+  // Show notification when wallet connection status changes
+  useEffect(() => {
+    // Skip the first render to avoid showing notification on initial load
+    if (prevConnectedRef.current === null) {
+      prevConnectedRef.current = isConnected;
+      return;
+    }
+
+    // Only show notification if the connection status actually changed
+    if (prevConnectedRef.current !== isConnected) {
+      const currentDisplayAddress = address
+        ? `${address.slice(0, 6)}...${address.slice(-4)}`
+        : null;
+
+      if (isConnected && address) {
+        showToast({
+          type: 'success',
+          priority: 'medium',
+          title: 'Wallet Connected',
+          message: `Successfully connected to ${currentDisplayAddress}`,
+          category: 'system',
+          duration: 4000,
+        });
+      } else if (!isConnected && prevConnectedRef.current) {
+        showToast({
+          type: 'info',
+          priority: 'medium',
+          title: 'Wallet Disconnected',
+          message: 'Your wallet has been disconnected',
+          category: 'system',
+          duration: 3000,
+        });
+      }
+      prevConnectedRef.current = isConnected;
+    }
+  }, [isConnected, address, showToast]); // Remove displayAddress from dependencies
+
+  const handleConnect = async () => {
+    try {
+      await connectWallet();
+    } catch (error) {
+      showToast({
+        type: 'error',
+        priority: 'high',
+        title: 'Connection Failed',
+        message: 'Failed to connect wallet. Please try again.',
+        category: 'system',
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleDisconnect = () => {
+    try {
+      disconnectWallet();
+      setShowWalletMenu(false);
+    } catch (error) {
+      showToast({
+        type: 'error',
+        priority: 'medium',
+        title: 'Disconnection Failed',
+        message: 'Failed to disconnect wallet properly.',
+        category: 'system',
+        duration: 4000,
+      });
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 z-40">
@@ -25,10 +95,11 @@ export function Header({ onMenuToggle, sidebarOpen }: HeaderProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={onMenuToggle}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors lg:hidden"
-            aria-label="Toggle sidebar"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors lg:hidden min-w-[44px] min-h-[44px] touch-manipulation active:bg-gray-200 dark:active:bg-slate-700"
+            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+            aria-expanded={sidebarOpen}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
