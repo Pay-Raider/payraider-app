@@ -1,34 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Info, Phone, BookOpen, X, Menu } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
-const navLinks = [
-  {
-    name: "About Us",
-    href: "/about",
-    icon: Info,
-    description: "Learn about Stellar Insights",
-  },
-  {
-    name: "How to Use",
-    href: "/how-to-use",
-    icon: BookOpen,
-    description: "Get started with our platform",
-  },
-  {
-    name: "Contact Us",
-    href: "/contact",
-    icon: Phone,
-    description: "Reach out to our team",
-  },
+const navLinkKeys = [
+  { key: "aboutUs", href: "/about", icon: Info, descKey: "learnAbout" },
+  { key: "howToUse", href: "/how-to-use", icon: BookOpen, descKey: "getStarted" },
+  { key: "contactUs", href: "/contact", icon: Phone, descKey: "reachOut" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const t = useTranslations("navbar");
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -57,12 +43,12 @@ export function Navbar() {
 
           <div className="flex items-center gap-2">
             <span className="navbar-live-dot" />
-            <span className="navbar-live-text">LIVE NETWORK</span>
+            <span className="navbar-live-text">{t("liveNetwork")}</span>
           </div>
 
 
           <ul className="navbar-links hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {navLinkKeys.map((link) => {
               const isActive = pathname === link.href;
               const Icon = link.icon;
               return (
@@ -72,7 +58,7 @@ export function Navbar() {
                     className={`navbar-link ${isActive ? "navbar-link--active" : ""}`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
-                    <span>{link.name}</span>
+                    <span>{t(link.key)}</span>
                     {isActive && <span className="navbar-link-indicator" />}
                   </Link>
                 </li>
@@ -87,7 +73,7 @@ export function Navbar() {
             <button
               className="md:hidden navbar-hamburger"
               onClick={() => setMobileOpen((v) => !v)}
-              aria-label="Toggle navigation menu"
+              aria-label={t("toggleMenu")}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -95,14 +81,14 @@ export function Navbar() {
 
             <div className="hidden md:flex items-center gap-2 navbar-brand-tag">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              <span>Stellar Insights</span>
+              <span>{t("stellarInsights")}</span>
             </div>
           </div>
         </div>
 
 
         <div className={`navbar-mobile-panel md:hidden ${mobileOpen ? "open" : ""}`}>
-          {navLinks.map((link) => {
+          {navLinkKeys.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
             return (
@@ -115,8 +101,8 @@ export function Navbar() {
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="font-semibold text-sm">{link.name}</div>
-                  <div className="text-xs text-muted-foreground">{link.description}</div>
+                  <div className="font-semibold text-sm">{t(link.key)}</div>
+                  <div className="text-xs text-muted-foreground">{t(link.descKey)}</div>
                 </div>
                 {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-accent" />}
               </Link>
@@ -130,4 +116,3 @@ export function Navbar() {
     </>
   );
 }
-
