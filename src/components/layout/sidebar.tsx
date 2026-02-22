@@ -57,7 +57,7 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen overflow-y-auto glass border-r border-border transition-all duration-500 z-50 ${
+      className={`hidden md:block fixed top-0 left-0 h-screen overflow-y-auto glass border-r border-border transition-all duration-500 z-50 ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
