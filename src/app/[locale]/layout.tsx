@@ -16,6 +16,7 @@ import { NotificationSystem } from "@/components/notifications/NotificationSyste
 import { QuestProgressTracker } from "@/components/QuestProgressTracker";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/navbar";
+import { SkipNavigation } from "@/components/SkipNavigation";
 import { ShortcutHelpOverlay } from "@/components/keyboard-shortcuts/ShortcutHelpOverlay";
 import { ShortcutsInitializer } from "@/components/keyboard-shortcuts/ShortcutsInitializer";
 
