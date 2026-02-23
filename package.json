@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
     "benchmark": "node benchmarks/api.bench.mjs",
     "benchmark:save-baseline": "SAVE_BASELINE=true node benchmarks/api.bench.mjs",
     "test:benchmarks": "node --test benchmarks/api.bench.test.mjs"
@@ -34,6 +36,7 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.3.4",
     "autocannon": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
