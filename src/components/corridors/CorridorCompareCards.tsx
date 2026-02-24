@@ -56,7 +56,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                         {/* Success Rate */}
                         <div className="flex justify-between items-end">
                             <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Success Rate</p>
+                                <p className="text-xs text-muted-foreground dark:text-muted-foreground">Success Rate</p>
                                 <div className="flex items-center gap-1">
                                     {corridor.success_rate >= 90 ? (
                                         <CheckCircle2 className="w-4 h-4 text-green-500" aria-hidden="true" />
