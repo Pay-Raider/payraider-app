@@ -156,9 +156,10 @@ export function Sidebar({ open, onClose }: SidebarProps = {}) {
 
           <Link
             href="/settings"
+            aria-label="Navigate to Settings"
             className="flex items-center gap-4 px-4 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all duration-300"
           >
-            <Settings className="w-5 h-5 shrink-0" />
+            <Settings className="w-5 h-5 shrink-0" aria-hidden="true" />
             {!collapsed && (
               <span className="text-xs font-bold uppercase tracking-widest">
                 {t("settings")}
