@@ -51,7 +51,6 @@ declare module 'lucide-react' {
   export const VolumeX: LucideIcon;
   export const Smartphone: LucideIcon;
   export const CheckSquare: LucideIcon;
-  export const Square: LucideIcon;
   export const MoreHorizontal: LucideIcon;
   export const Trash: LucideIcon;
   export const Edit: LucideIcon;
@@ -114,7 +113,6 @@ declare module 'lucide-react' {
   export const Package: LucideIcon;
   export const Box: LucideIcon;
   export const Inbox: LucideIcon;
-  export const Archive: LucideIcon;
   export const AlertOctagon: LucideIcon;
   export const AlertCircleIcon: LucideIcon;
   export const HelpCircle: LucideIcon;
@@ -125,7 +123,6 @@ declare module 'lucide-react' {
   export const Slash: LucideIcon;
   export const Circle: LucideIcon;
   export const Disc: LucideIcon;
-  export const Square: LucideIcon;
   export const Triangle: LucideIcon;
   export const Hexagon: LucideIcon;
   export const Octagon: LucideIcon;

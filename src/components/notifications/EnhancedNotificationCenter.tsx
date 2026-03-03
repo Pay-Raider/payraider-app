@@ -593,7 +593,7 @@ export const EnhancedNotificationCenter: React.FC<EnhancedNotificationCenterProp
                                     <div className="flex items-start justify-between gap-3">
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-2">
-                                          <NOTIFICATION_ICONS[notification.type] className={`h-4 w-4 ${TYPE_COLORS[notification.type]}`} />
+                                          <{NOTIFICATION_ICONS[notification.type]} className={`h-4 w-4 ${TYPE_COLORS[notification.type]}`} />
                                           <Badge className={PRIORITY_COLORS[notification.priority]}>
                                             {notification.priority}
                                           </Badge>
