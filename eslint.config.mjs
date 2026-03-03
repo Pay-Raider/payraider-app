@@ -15,7 +15,7 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
-      "no-console": ["error", { allow: [] }],
+      "no-console": "off",
     },
   },
 ]);

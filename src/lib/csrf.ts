@@ -10,9 +10,9 @@
  * Uses Node.js crypto in server environment
  */
 export async function generateCsrfToken(): Promise<string> {
-  // Dynamic import for server-side only
-  const { randomBytes } = await import('crypto');
-  return randomBytes(32).toString('hex');
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -25,7 +25,7 @@ export function validateCsrfToken(
   if (!cookieToken || !headerToken) {
     return false;
   }
-  
+
   // Constant-time comparison to prevent timing attacks
   return timingSafeEqual(cookieToken, headerToken);
 }
@@ -37,11 +37,11 @@ function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
     return false;
   }
-  
+
   let result = 0;
   for (let i = 0; i < a.length; i++) {
     result |= a.charCodeAt(i) ^ b.charCodeAt(i);
   }
-  
+
   return result === 0;
 }

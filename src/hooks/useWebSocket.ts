@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { logger } from "@/lib/logger";
 
+export enum ConnectionState {
+  DISCONNECTED = "DISCONNECTED",
+  CONNECTING = "CONNECTING",
+  CONNECTED = "CONNECTED",
+  RECONNECTING = "RECONNECTING",
+}
+
 export interface WsMessage {
   type: string;
   [key: string]: any;
@@ -148,7 +155,7 @@ export function useWebSocket(
       wsRef.current.close();
       wsRef.current = null;
     }
-    
+
     setIsConnected(false);
     setIsConnecting(false);
     setConnectionState(ConnectionState.DISCONNECTED);
@@ -185,11 +192,11 @@ export function useWebSocket(
   const reconnect = useCallback(() => {
     // Disconnect first
     disconnect();
-    
+
     // Reset attempts and enable reconnect
     shouldReconnectRef.current = true;
     setConnectionAttempts(0);
-    
+
     // Delay slightly before reconnecting
     setTimeout(() => {
       connect();

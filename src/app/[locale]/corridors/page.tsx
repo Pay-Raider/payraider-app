@@ -5,9 +5,6 @@ import {
   TrendingUp,
   Search,
   Filter,
-  Grid3x3,
-  List,
-  Droplets,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
@@ -47,31 +44,7 @@ function CorridorsPageContent() {
   const [loading, setLoading] = useState(true);
   // Volatile filters — intentionally session-only
   const [searchTerm, setSearchTerm] = useState("");
-  // Filter state variables (volatile — session only)
-  const [successRateRange, setSuccessRateRange] = useState<[number, number]>([
-    0, 100,
-  ]);
-  const [volumeRange, setVolumeRange] = useState<[number, number]>([
-    0, 10000000,
-  ]);
-  const [assetCodeFilter, setAssetCodeFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-
-  // Filter presets state
-  const [filterPresets, setFilterPresets] = useState<
-    Array<{
-      name: string;
-      filters: {
-        successRateRange: [number, number];
-        volumeRange: [number, number];
-        assetCodeFilter: string;
-        timePeriod: string;
-        searchTerm: string;
-        sortBy: "success_rate" | "health_score" | "liquidity";
-      };
-    }>
-  >([]);
-  const [presetName, setPresetName] = useState("");
 
   const filteredCorridors = useMemo(() => {
     return corridors
@@ -111,13 +84,6 @@ function CorridorsPageContent() {
         setLoading(true);
         try {
           const filters: Record<string, string | number> = {};
-          if (successRateRange[0] > 0)
-            filters.success_rate_min = successRateRange[0];
-          if (successRateRange[1] < 100)
-            filters.success_rate_max = successRateRange[1];
-          if (volumeRange[0] > 0) filters.volume_min = volumeRange[0];
-          if (volumeRange[1] < 10000000) filters.volume_max = volumeRange[1];
-          if (assetCodeFilter) filters.asset_code = assetCodeFilter;
           if (timePeriod) filters.time_period = timePeriod;
           filters.sort_by = sortBy;
 
@@ -136,7 +102,7 @@ function CorridorsPageContent() {
     }
 
     fetchCorridors();
-  }, [successRateRange, volumeRange, assetCodeFilter, timePeriod, sortBy]);
+  }, [timePeriod, sortBy]);
 
   const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
 
@@ -257,7 +223,6 @@ function CorridorsPageContent() {
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <List className="w-3 h-3" />
           Grid
         </button>
         <button
@@ -268,7 +233,6 @@ function CorridorsPageContent() {
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Grid3x3 className="w-3 h-3" />
           Heatmap
         </button>
       </div>

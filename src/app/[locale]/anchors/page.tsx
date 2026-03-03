@@ -3,17 +3,15 @@ import { logger } from "@/lib/logger";
 import { useState, useEffect, useMemo, Suspense } from "react";
 import {
   Search,
-  Anchor as AnchorIcon,
+  Home as AnchorIcon,
   ExternalLink,
   BarChart3,
-  ChevronUp,
-  ChevronDown,
-  ChevronsUpDown,
   CheckCircle,
   AlertCircle,
   Activity,
   TrendingUp,
   TrendingDown,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -93,12 +91,12 @@ const SortIndicator = ({
   direction: "asc" | "desc";
 }) => {
   if (currentSort !== column) {
-    return <ChevronsUpDown className="w-4 h-4 text-muted-foreground" />;
+    return <span className="text-muted-foreground w-4 h-4 inline-block text-center">↕</span>;
   }
   return direction === "asc" ? (
-    <ChevronUp className="w-4 h-4 text-blue-500" />
+    <span className="text-blue-500 w-4 h-4 inline-block text-center">↑</span>
   ) : (
-    <ChevronDown className="w-4 h-4 text-blue-500" />
+    <span className="text-blue-500 w-4 h-4 inline-block text-center">↓</span>
   );
 };
 
@@ -259,9 +257,9 @@ const AnchorsPageContent = () => {
               onChange={(e) =>
                 setSortBy(
                   e.target.value as
-                    | "reliability"
-                    | "transactions"
-                    | "failure_rate",
+                  | "reliability"
+                  | "transactions"
+                  | "failure_rate",
                 )
               }
               className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -434,13 +432,12 @@ const AnchorsPageContent = () => {
                             </div>
                             <div className="ml-2 w-16 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                               <div
-                                className={`h-2 rounded-full ${
-                                  anchor.reliability_score >= 95
-                                    ? "bg-green-500"
-                                    : anchor.reliability_score >= 85
-                                      ? "bg-yellow-500"
-                                      : "bg-red-500"
-                                }`}
+                                className={`h-2 rounded-full ${anchor.reliability_score >= 95
+                                  ? "bg-green-500"
+                                  : anchor.reliability_score >= 85
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500"
+                                  }`}
                                 style={{
                                   width: `${anchor.reliability_score}%`,
                                 }}
@@ -559,13 +556,12 @@ const AnchorsPageContent = () => {
                           </span>
                           <div className="flex-1 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                             <div
-                              className={`h-2 rounded-full ${
-                                anchor.reliability_score >= 95
-                                  ? "bg-green-500"
-                                  : anchor.reliability_score >= 85
-                                    ? "bg-yellow-500"
-                                    : "bg-red-500"
-                              }`}
+                              className={`h-2 rounded-full ${anchor.reliability_score >= 95
+                                ? "bg-green-500"
+                                : anchor.reliability_score >= 85
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
+                                }`}
                               style={{
                                 width: `${anchor.reliability_score}%`,
                               }}
@@ -670,11 +666,11 @@ const AnchorsPageContent = () => {
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {sortedAndFilteredAnchors.length > 0
                   ? (
-                      sortedAndFilteredAnchors.reduce(
-                        (sum, a) => sum + a.reliability_score,
-                        0,
-                      ) / sortedAndFilteredAnchors.length
-                    ).toFixed(1)
+                    sortedAndFilteredAnchors.reduce(
+                      (sum, a) => sum + a.reliability_score,
+                      0,
+                    ) / sortedAndFilteredAnchors.length
+                  ).toFixed(1)
                   : "0.0"}
                 %
               </div>
@@ -722,10 +718,10 @@ const AnchorsPageContent = () => {
             </div>
           )}
       </div>
-      <ExportDialog 
-        isOpen={isExportOpen} 
-        onClose={() => setIsExportOpen(false)} 
-        type="anchors" 
+      <ExportDialog
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        type="anchors"
         title="Stellar Anchors"
       />
     </MainLayout>

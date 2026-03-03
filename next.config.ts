@@ -8,6 +8,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: '../',
+  },
   images: {
     // Modern image formats for better compression
     formats: ['image/webp', 'image/avif'],

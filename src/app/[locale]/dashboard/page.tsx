@@ -104,7 +104,7 @@ export default function DashboardPage() {
   } = useRealtimeCorridors({
     enablePaymentStream: true,
     onCorridorUpdate: (update) => {
-      logger.debug("Received corridor update:", update);
+      logger.debug("Received corridor update:", { update: JSON.stringify(update) });
       markUpdated();
       setData((prevData) => {
         if (!prevData) return prevData;
@@ -116,14 +116,14 @@ export default function DashboardPage() {
       });
     },
     onHealthAlert: (alert) => {
-      logger.debug("Health alert:", alert);
+      logger.debug("Health alert:", { alert: JSON.stringify(alert) });
     },
   });
 
   const { isConnected: anchorsConnected, reconnect: reconnectAnchors } =
     useRealtimeAnchors({
       onAnchorUpdate: (update) => {
-        logger.debug("Received anchor update:", update);
+        logger.debug("Received anchor update:", { update: JSON.stringify(update) });
         markUpdated();
       },
     });

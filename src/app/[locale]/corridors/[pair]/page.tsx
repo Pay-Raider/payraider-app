@@ -59,7 +59,7 @@ export default function CorridorDetailPage() {
     corridorKeys: corridorPair ? [corridorPair] : [],
     enablePaymentStream: true,
     onCorridorUpdate: (update) => {
-      logger.debug("Received real-time corridor update:", update);
+      logger.debug("Received real-time corridor update:", update as unknown as Record<string, unknown>);
       setLastUpdate(new Date());
 
       // Update the corridor data with real-time information
@@ -81,11 +81,11 @@ export default function CorridorDetailPage() {
       });
     },
     onHealthAlert: (alert) => {
-      logger.debug("Health alert for corridor:", alert);
+      logger.debug("Health alert for corridor:", alert as unknown as Record<string, unknown>);
       // You could show a toast notification here
     },
     onNewPayment: (payment) => {
-      logger.debug("New payment in corridor:", payment);
+      logger.debug("New payment in corridor:", payment as unknown as Record<string, unknown>);
       // Update payment-related metrics
     },
   });

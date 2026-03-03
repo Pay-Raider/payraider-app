@@ -41,7 +41,8 @@ import {
   Square,
   ExternalLink,
   Copy,
-  Share2
+  Share2,
+  Camera
 } from 'lucide-react';
 import { format, isToday, isYesterday, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 import { BaseNotification, NotificationType, NotificationPriority, NotificationAction } from '@/types/notifications';
