@@ -13,10 +13,9 @@ import {
   Info,
 } from "lucide-react";
 import {
-  getPaymentPrediction,
-  PredictionResponse,
-  AlternativeRoute,
-} from "../../lib/api";
+  getPaymentPrediction
+} from "../../lib/api/api";
+import { AlternativeRoute, PredictionResponse } from "@/lib/api/types";
 
 // Common asset options for dropdowns
 const ASSETS = [

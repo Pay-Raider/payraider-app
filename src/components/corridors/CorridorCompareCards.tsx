@@ -1,15 +1,14 @@
 "use client";
 
-import React from "react";
 import {
-    CheckCircle2,
-    AlertCircle,
-    Droplets,
-    Zap,
-    Clock,
-    ArrowRight
+  CheckCircle2,
+  AlertCircle,
+  Droplets,
+  Zap,
+  Clock,
+  ArrowRight
 } from "lucide-react";
-import { CorridorMetrics } from "@/lib/api";
+import { CorridorMetrics } from "@/lib/api/corridors";
 
 interface CompareCardsProps {
     corridors: CorridorMetrics[];
@@ -29,7 +28,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
     };
 
     return (
-        <div 
+        <div
             className={`grid grid-cols-1 md:grid-cols-${corridors.length} gap-6 mb-8`}
             role="region"
             aria-label="Corridor comparison cards"
@@ -41,14 +40,14 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                     aria-labelledby={`corridor-${corridor.id}-title`}
                 >
                     <div className="flex items-center justify-between mb-4">
-                        <h3 
+                        <h3
                             id={`corridor-${corridor.id}-title`}
                             className="text-xl font-bold text-gray-900 dark:text-white truncate"
                         >
                             <span className="sr-only">Corridor: </span>
                             {corridor.source_asset} <ArrowRight className="inline w-4 h-4 mx-1" aria-hidden="true" /> {corridor.destination_asset}
                         </h3>
-                        <div 
+                        <div
                             className={`px-2 py-1 rounded text-xs font-bold ${getHealthColor(corridor.health_score)}`}
                             role="status"
                             aria-live="polite"
@@ -69,7 +68,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                                     ) : (
                                         <AlertCircle className="w-4 h-4 text-yellow-500" aria-hidden="true" />
                                     )}
-                                    <span 
+                                    <span
                                         className="text-2xl font-bold text-gray-900 dark:text-white"
                                         aria-label={`${corridor.success_rate.toFixed(1)} percent`}
                                     >
@@ -85,7 +84,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                                 <p className="text-xs text-gray-500 dark:text-gray-400" id={`volume-${corridor.id}`}>
                                     24h Volume
                                 </p>
-                                <div 
+                                <div
                                     className="flex items-center gap-1 text-amber-500"
                                     aria-labelledby={`volume-${corridor.id}`}
                                 >
@@ -99,7 +98,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                                 <p className="text-xs text-gray-500 dark:text-gray-400" id={`liquidity-${corridor.id}`}>
                                     Liquidity
                                 </p>
-                                <div 
+                                <div
                                     className="flex items-center gap-1 text-purple-500"
                                     aria-labelledby={`liquidity-${corridor.id}`}
                                 >
@@ -117,7 +116,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                                 <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1" id={`latency-label-${corridor.id}`}>
                                     <Clock className="w-4 h-4" aria-hidden="true" /> Avg Latency
                                 </span>
-                                <span 
+                                <span
                                     className="font-semibold text-gray-900 dark:text-white"
                                     aria-labelledby={`latency-label-${corridor.id}`}
                                     aria-label={`${corridor.average_latency_ms.toFixed(0)} milliseconds`}
@@ -127,7 +126,7 @@ export function CorridorCompareCards({ corridors }: CompareCardsProps) {
                             </div>
                             <div className="flex justify-between items-center text-sm mt-1">
                                 <span className="text-gray-500 dark:text-gray-400" id={`slippage-label-${corridor.id}`}>Avg Slippage</span>
-                                <span 
+                                <span
                                     className="font-semibold text-red-500"
                                     aria-labelledby={`slippage-label-${corridor.id}`}
                                     aria-label={`${corridor.average_slippage_bps.toFixed(2)} basis points`}
@@ -157,7 +156,7 @@ export function BestTimeToTransact({ corridors }: { corridors: CorridorMetrics[]
     });
 
     return (
-        <section 
+        <section
             className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg mb-8"
             aria-labelledby="best-time-heading"
         >
@@ -166,8 +165,8 @@ export function BestTimeToTransact({ corridors }: { corridors: CorridorMetrics[]
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6" role="list">
                 {recommendations.map(rec => (
-                    <div 
-                        key={rec.id} 
+                    <div
+                        key={rec.id}
                         className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20"
                         role="listitem"
                         aria-label={`Recommendation for ${rec.id}`}

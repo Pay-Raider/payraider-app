@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL } from "./api/api";
 
 export interface TrustlineStat {
   asset_code: string;

@@ -1,6 +1,6 @@
 "use client";
 import { logger } from "@/lib/logger";
-import React, { useEffect, useState, useMemo, Suspense } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import {
   TrendingUp,
   Search,
@@ -12,10 +12,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
-import { getCorridors, CorridorMetrics } from "@/lib/api";
+import { getCorridors, CorridorMetrics } from "@/lib/api/corridors";
 import { mockCorridors } from "@/components/lib//mockCorridorData";
-import { MainLayout } from "@/components/layout";
-import { SkeletonCorridorCard } from "@/components/ui/Skeleton";
 import { CorridorHeatmap } from "@/components/charts/CorridorHeatmap";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
 import { usePagination } from "@/hooks/usePagination";
@@ -159,10 +157,10 @@ function CorridorsPageContent() {
         </div>
       </div>
 
-      <ExportDialog 
-        isOpen={isExportOpen} 
-        onClose={() => setIsExportOpen(false)} 
-        type="corridors" 
+      <ExportDialog
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        type="corridors"
         title="Payment Corridors"
       />
 
