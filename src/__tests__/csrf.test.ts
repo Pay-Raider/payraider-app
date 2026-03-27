@@ -7,15 +7,17 @@ import { generateCsrfToken, validateCsrfToken } from '../lib/csrf';
 
 // Mock crypto for test environment
 if (typeof global.crypto === 'undefined') {
-  (global as any).crypto = {
-    randomUUID: () => '12345678-1234-1234-1234-123456789abc',
-    getRandomValues: (array: Uint8Array) => {
-      for (let i = 0; i < array.length; i++) {
-        array[i] = Math.floor(Math.random() * 256);
+  Object.defineProperty(global, 'crypto', {
+    value: {
+      randomUUID: () => '12345678-1234-1234-1234-123456789abc',
+      getRandomValues: (array: Uint8Array) => {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = Math.floor(Math.random() * 256);
+        }
+        return array;
       }
-      return array;
-    }
-  };
+    } satisfies Pick<Crypto, 'randomUUID' | 'getRandomValues'>,
+  });
 }
 
 describe('CSRF Token Generation', () => {

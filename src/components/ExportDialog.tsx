@@ -1,20 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
-import { 
-  Download, 
-  X, 
-  FileText, 
-  Database, 
-  Calendar, 
-  CheckCircle2, 
+import { useState } from "react";
+import {
+  Download,
+  X,
+  FileText,
+  Database,
+  Calendar,
+  CheckCircle2,
   Loader2,
   AlertCircle,
   FileCode,
   Table
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/api/api";
 
 interface ExportDialogProps {
   isOpen: boolean;
@@ -47,7 +47,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
 
       const params = new URLSearchParams();
       params.append("format", format === "excel" ? "xlsx" : format);
-      
+
       if (dateRange === "custom" && customStart && customEnd) {
         params.append("start_date", new Date(customStart).toISOString());
         params.append("end_date", new Date(customEnd).toISOString());
@@ -61,7 +61,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
       }
 
       const response = await fetch(`${API_BASE_URL}/export/${type}?${params.toString()}`);
-      
+
       clearInterval(progressInterval);
       setProgress(100);
 
@@ -109,7 +109,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
           onClick={onClose}
           className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
         />
-        
+
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -157,8 +157,8 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                     onClick={() => setFormat(item.id as any)}
                     disabled={isExporting}
                     className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all ${
-                      format === item.id 
-                        ? "bg-accent border-accent text-white shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]" 
+                      format === item.id
+                        ? "bg-accent border-accent text-white shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]"
                         : "bg-slate-900/50 border-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                     }`}
                   >
@@ -187,8 +187,8 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                     onClick={() => setDateRange(range.id as any)}
                     disabled={isExporting}
                     className={`px-4 py-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
-                      dateRange === range.id 
-                        ? "bg-white/10 border-white/20 text-white" 
+                      dateRange === range.id
+                        ? "bg-white/10 border-white/20 text-white"
                         : "bg-slate-900/50 border-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                     }`}
                   >
@@ -196,7 +196,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                   </button>
                 ))}
               </div>
-              
+
               {dateRange === "custom" && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300 grid grid-cols-2 gap-2 pt-2">
                   <div className="space-y-1">
@@ -260,8 +260,8 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
               onClick={handleExport}
               disabled={isExporting || (dateRange === "custom" && (!customStart || !customEnd))}
               className={`w-full group relative overflow-hidden flex items-center justify-center gap-3 py-4 rounded-2xl font-black uppercase italic tracking-tighter transition-all ${
-                isExporting 
-                  ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                isExporting
+                  ? "bg-slate-800 text-slate-500 cursor-not-allowed"
                   : success
                     ? "bg-green-500 text-white"
                     : "bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-accent/40 active:scale-95"

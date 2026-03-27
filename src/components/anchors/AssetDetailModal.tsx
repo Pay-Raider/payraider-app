@@ -1,6 +1,6 @@
 "use client";
 
-import { IssuedAsset } from "@/lib/api";
+import { IssuedAsset } from "@/lib/api/types";
 import {
   X,
   ArrowUpRight,
@@ -26,13 +26,13 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
     const focusableElements = modalRef.current?.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements?.[0] as HTMLElement;
     const lastElement = focusableElements?.[focusableElements.length - 1] as HTMLElement;
-    
+
     // Focus the first element (the Close button usually) when modal opens
     firstElement?.focus();
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       // Handle Escape key
       if (e.key === "Escape") {
@@ -92,7 +92,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/30">
           <div className="flex items-center gap-3">
-            <div 
+            <div
               className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 font-bold"
               aria-hidden="true"
             >
@@ -125,7 +125,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
                 <Activity className="w-4 h-4 text-indigo-400" aria-hidden="true" />
                 <span id="volume-label">24h Volume</span>
               </div>
-              <div 
+              <div
                 className="text-3xl font-bold text-white font-mono"
                 aria-labelledby="volume-label"
               >
@@ -139,7 +139,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
                 <TrendingUp className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                 <span id="transactions-label">Total Transactions</span>
               </div>
-              <div 
+              <div
                 className="text-3xl font-bold text-white font-mono"
                 aria-labelledby="transactions-label"
               >
@@ -158,7 +158,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
             <div className="col-span-1 bg-slate-950/50 rounded-xl p-4 border border-slate-800">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-slate-400 text-sm">Success Rate</span>
-                <span 
+                <span
                   className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded text-xs font-mono"
                   role="status"
                   aria-label="Success rate status: High"
@@ -175,7 +175,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
                   Healthy
                 </span>
               </div>
-              <div 
+              <div
                 className="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden"
                 role="progressbar"
                 aria-valuenow={asset.success_rate}
@@ -195,7 +195,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
               <div className="flex justify-between items-center mb-2">
                 <span className="text-slate-400 text-sm">Failure Rate</span>
                 {asset.failure_rate > 5 && (
-                  <span 
+                  <span
                     className="text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded text-xs font-mono flex items-center gap-1"
                     role="status"
                     aria-label="Failure rate status: Warning"
@@ -211,7 +211,7 @@ export function AssetDetailModal({ asset, onClose }: AssetDetailModalProps) {
                   {asset.failure_rate.toFixed(1)}%
                 </span>
               </div>
-              <div 
+              <div
                 className="w-full bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden"
                 role="progressbar"
                 aria-valuenow={Math.min(asset.failure_rate * 5, 100)}

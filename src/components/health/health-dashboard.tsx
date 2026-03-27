@@ -1,27 +1,21 @@
 "use client";
 import { logger } from "@/lib/logger";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
+  ResponsiveContainer, Tooltip,
   AreaChart,
-  Area,
+  Area
 } from "recharts";
 import {
   AlertTriangle,
   Settings,
   Activity,
-  ShieldCheck,
-  Zap,
-  Server,
+  ShieldCheck
 } from "lucide-react";
-import { getAnchors, AnchorMetrics } from "../../lib/api";
+import { getAnchors } from "../../lib/api/api";
 import { Badge } from "@/components/ui/badge";
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { AnchorMetrics } from "@/lib/api/types";
 
 interface AlertThreshold {
   healthScore: number;

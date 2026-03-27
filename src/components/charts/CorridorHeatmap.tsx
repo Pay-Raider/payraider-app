@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { CorridorMetrics } from "@/lib/api";
+import { CorridorMetrics } from "@/lib/api/corridors";
 import {
   TrendingUp,
   Droplets,

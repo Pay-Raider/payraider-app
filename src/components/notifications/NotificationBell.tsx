@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Settings } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { NotificationCenter } from './NotificationCenter';
+import { NotificationCenter } from './NotificationCenter/NotificationCenter';
 import { NotificationPreferences } from './NotificationPreferences';
 
 export const NotificationBell: React.FC = () => {

@@ -1,6 +1,6 @@
 "use client";
 import { logger } from "@/lib/logger";
-import React, { useEffect, useState, useMemo, Suspense } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import {
   TrendingUp,
   Search,
@@ -11,11 +11,10 @@ import {
   Download,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "@/i18n/navigation";
-import { getCorridors, CorridorMetrics } from "@/lib/api";
-import { mockCorridors } from "@/components/lib//mockCorridorData";
-import { MainLayout } from "@/components/layout";
 import { SkeletonCorridorCard } from "@/components/ui/Skeleton";
+import { Link } from "@/i18n/navigation";
+import { getCorridors, CorridorMetrics } from "@/lib/api/corridors";
+import { mockCorridors } from "@/components/lib//mockCorridorData";
 import { CorridorHeatmap } from "@/components/charts/CorridorHeatmap";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
 import { usePagination } from "@/hooks/usePagination";
@@ -159,10 +158,10 @@ function CorridorsPageContent() {
         </div>
       </div>
 
-      <ExportDialog 
-        isOpen={isExportOpen} 
-        onClose={() => setIsExportOpen(false)} 
-        type="corridors" 
+      <ExportDialog
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        type="corridors"
         title="Payment Corridors"
       />
 
@@ -241,10 +240,7 @@ function CorridorsPageContent() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="h-64 glass-card rounded-2xl animate-pulse"
-            />
+            <SkeletonCorridorCard key={i} />
           ))}
         </div>
       ) : filteredCorridors.length === 0 ? (

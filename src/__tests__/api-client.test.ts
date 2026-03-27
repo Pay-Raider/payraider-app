@@ -8,6 +8,8 @@ import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '../lib/api-client'
 // Mock fetch
 global.fetch = vi.fn();
 
+const mockFetch = vi.mocked(global.fetch);
+
 // Mock document.cookie
 Object.defineProperty(document, 'cookie', {
   writable: true,
@@ -21,7 +23,7 @@ describe('API Client', () => {
 
   describe('apiGet', () => {
     it('should make GET request without CSRF token', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: 'test' }),
       });
@@ -42,7 +44,7 @@ describe('API Client', () => {
 
   describe('apiPost', () => {
     it('should include CSRF token in POST request', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       });
@@ -80,7 +82,7 @@ describe('API Client', () => {
 
   describe('apiPut', () => {
     it('should include CSRF token in PUT request', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       });
@@ -101,7 +103,7 @@ describe('API Client', () => {
 
   describe('apiPatch', () => {
     it('should include CSRF token in PATCH request', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       });
@@ -122,7 +124,7 @@ describe('API Client', () => {
 
   describe('apiDelete', () => {
     it('should include CSRF token in DELETE request', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true }),
       });
@@ -143,7 +145,7 @@ describe('API Client', () => {
 
   describe('Error Handling', () => {
     it('should handle 403 CSRF errors', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 403,
         json: async () => ({ error: 'Invalid CSRF token' }),
@@ -155,7 +157,7 @@ describe('API Client', () => {
     });
 
     it('should handle general API errors', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',

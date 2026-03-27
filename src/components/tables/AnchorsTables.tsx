@@ -13,9 +13,9 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import { AnchorMetrics } from "@/lib/api";
 import { formatAddressShort } from "@/lib/address";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { AnchorMetrics } from "@/lib/api/types";
 
 interface AnchorTableProps {
   anchors: AnchorMetrics[];
@@ -243,8 +243,8 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
             {sortedAnchors.map((anchor) => {
-              const successRate = anchor.total_transactions > 0 
-                ? (anchor.successful_transactions / anchor.total_transactions) * 100 
+              const successRate = anchor.total_transactions > 0
+                ? (anchor.successful_transactions / anchor.total_transactions) * 100
                 : 0;
               const historicalData = generateMockHistoricalData(anchor.reliability_score);
               const displayStatus = mapBackendStatus(anchor.status);
@@ -350,8 +350,8 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
       {/* Mobile/Tablet Cards */}
       <div className="lg:hidden divide-y divide-gray-200 dark:divide-slate-700">
         {sortedAnchors.map((anchor) => {
-          const successRate = anchor.total_transactions > 0 
-            ? (anchor.successful_transactions / anchor.total_transactions) * 100 
+          const successRate = anchor.total_transactions > 0
+            ? (anchor.successful_transactions / anchor.total_transactions) * 100
             : 0;
           const historicalData = generateMockHistoricalData(anchor.reliability_score);
           const displayStatus = mapBackendStatus(anchor.status);

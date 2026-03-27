@@ -3,12 +3,16 @@
 /**
  * Script to replace console statements with logger calls
  * 
- * Usage: node scripts/replace-console-statements.js
+ * Usage: node scripts/replace-console-statements.mjs
  */
 
-const fs = require('fs');
-const path = require('path');
-const { glob } = require('glob');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { glob } from 'glob';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Files to process
 const patterns = [

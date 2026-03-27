@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
   Download,
   Trophy,
   AlertTriangle,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { CorridorMetrics } from '@/lib/api';
+import { CorridorMetrics } from '@/lib/api/corridors';
 
 // --- Pagination Component ---
 interface PaginationProps {
@@ -40,7 +40,7 @@ export function DataTablePagination({
     };
 
     return (
-        <nav 
+        <nav
             className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 bg-slate-900/50 border-t border-slate-800"
             aria-label="Table pagination"
         >
@@ -98,7 +98,7 @@ export function DataTablePagination({
                         <ChevronLeft className="w-5 h-5" aria-hidden="true" />
                     </button>
 
-                    <div 
+                    <div
                         className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md"
                         aria-current="page"
                         aria-label={`Page ${currentPage}`}
@@ -232,7 +232,7 @@ export function CorridorComparisonTable({ corridors, onExport }: CorridorCompari
         <table className="w-full" aria-labelledby="table-caption">
           <thead className="bg-gray-50 dark:bg-slate-900">
             <tr>
-              <th 
+              <th
                 scope="col"
                 className="px-4 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-slate-900 z-10"
               >
@@ -246,14 +246,14 @@ export function CorridorComparisonTable({ corridors, onExport }: CorridorCompari
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
                   onClick={() => handleSort(metric.key)}
                 >
-                  <button 
+                  <button
                     className="flex items-center gap-2 w-full uppercase"
                     aria-label={`Sort by ${metric.label}`}
                   >
                     {metric.label}
                     {sortBy === metric.key && (
-                      sortOrder === 'asc' ? 
-                        <TrendingUp className="w-3 h-3" aria-hidden="true" /> : 
+                      sortOrder === 'asc' ?
+                        <TrendingUp className="w-3 h-3" aria-hidden="true" /> :
                         <TrendingDown className="w-3 h-3" aria-hidden="true" />
                     )}
                   </button>
@@ -269,7 +269,7 @@ export function CorridorComparisonTable({ corridors, onExport }: CorridorCompari
                   idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-gray-50/50 dark:bg-slate-800/50'
                 }`}
               >
-                <th 
+                <th
                   scope="row"
                   className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white sticky left-0 bg-inherit z-10"
                 >

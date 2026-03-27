@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import {
@@ -21,7 +21,7 @@ import {
   generateMockCorridorData,
   CorridorDetailData,
   CorridorMetrics,
-} from "@/lib/api";
+} from "@/lib/api/corridors";
 import { logger } from "@/lib/logger";
 import {
   SuccessRateChart,
