@@ -38,6 +38,7 @@ const LiquidityHeatmap = dynamic(
 );
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Badge } from "@/components/ui/badge";
+import { SkeletonChart, SkeletonCard } from "@/components/ui/Skeleton";
 import { MuxedAccountCard } from "@/components/analytics/MuxedAccountCard";
 import { OnChainVerification } from "@/components/OnChainVerification";
 
@@ -94,9 +95,18 @@ export default function AnalyticsPage() {
 
   if (!metrics && loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest italic">
-          Calibrating Intelligence Sensors... // 707-Z
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-6">
+            <SkeletonChart height={256} />
+            <SkeletonChart height={256} />
+          </div>
+          <div className="lg:col-span-4 space-y-6">
+            <SkeletonChart height={256} />
+          </div>
         </div>
       </div>
     );

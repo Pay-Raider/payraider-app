@@ -11,6 +11,7 @@ import {
   Error,
   SearchAndControls
 } from "./helpers";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import useAnchorPage from "./useAnchorPage";
 import AnchorList from "./AnchorTable";
 import AnchorCards from "./AnchorCards";
@@ -69,16 +70,18 @@ const AnchorsPageContent = () => {
         )}
         <div className="space-y-4">
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
-            {/* Desktop Table */}
-            <AnchorList sortBy={sortBy}
-              sortOrder={sortOrder}
-              setSortBy={setSortBy}
-              setSortOrder={setSortOrder}
-              paginatedAnchors={paginatedAnchors} />
-
-            {/* Mobile Cards */}
-            <AnchorCards 
-              paginatedAnchors={paginatedAnchors} />
+            {loading ? (
+              <SkeletonTable rows={8} />
+            ) : (
+              <>
+                <AnchorList sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  setSortBy={setSortBy}
+                  setSortOrder={setSortOrder}
+                  paginatedAnchors={paginatedAnchors} />
+                <AnchorCards paginatedAnchors={paginatedAnchors} />
+              </>
+            )}
           </div>
 
           {/* Pagination */}
