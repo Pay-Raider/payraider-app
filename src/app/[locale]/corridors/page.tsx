@@ -1,6 +1,6 @@
 "use client";
 import { logger } from "@/lib/logger";
-import { useEffect, useState, useMemo, Suspense } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   TrendingUp,
   Search,
@@ -353,17 +353,7 @@ function CorridorsPageContent() {
 export default function CorridorsPage() {
   return (
     <ErrorBoundary>
-      <Suspense
-        fallback={
-          <div className="flex h-[80vh] items-center justify-center">
-            <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest italic">
-              Syncing Satellite Routes... // 404-X
-            </div>
-          </div>
-        }
-      >
-        <CorridorsPageContent />
-      </Suspense>
+      <CorridorsPageContent />
     </ErrorBoundary>
   );
 }
