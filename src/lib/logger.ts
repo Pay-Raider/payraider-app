@@ -120,9 +120,9 @@ export const logger = {
     const redactedMetadata = metadata ? redactSensitiveData(metadata) : undefined;
     
     if (redactedMetadata) {
-      console.log(formatMessage('DEBUG', message), redactedMetadata);
+      console.debug(formatMessage('DEBUG', message), redactedMetadata);
     } else {
-      console.log(formatMessage('DEBUG', message));
+      console.debug(formatMessage('DEBUG', message));
     }
   },
 
@@ -198,7 +198,7 @@ export const logger = {
     }
     
     const redactedData = data ? redactSensitiveData(data) : undefined;
-    console.log(formatMessage('WS', `WebSocket ${event}`), redactedData);
+    console.debug(formatMessage('WS', `WebSocket ${event}`), redactedData);
   },
 
   /**
@@ -210,7 +210,7 @@ export const logger = {
     }
     
     const redactedMetadata = metadata ? redactSensitiveData(metadata) : undefined;
-    console.log(formatMessage('API', `${method} ${url}`), redactedMetadata);
+    console.debug(formatMessage('API', `${method} ${url}`), redactedMetadata);
   },
 
   /**
@@ -222,7 +222,7 @@ export const logger = {
     }
     
     const redactedMetadata = metadata ? redactSensitiveData(metadata) : undefined;
-    console.log(
+    console.debug(
       formatMessage('PERF', `${label}: ${duration.toFixed(2)}ms`),
       redactedMetadata
     );
