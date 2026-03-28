@@ -1,4 +1,3 @@
-"use client";
 import { Suspense } from "react";
 import { Home as AnchorIcon } from "lucide-react";
 import { MainLayout } from "@/components/layout";

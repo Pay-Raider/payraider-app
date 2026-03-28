@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ScrollText, Plus } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ProposalCard } from "@/components/governance/ProposalCard";
