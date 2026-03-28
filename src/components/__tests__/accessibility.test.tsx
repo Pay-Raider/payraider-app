@@ -3,6 +3,15 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { Sidebar } from '../layout/sidebar';
 import { CorridorHealthCard } from '../dashboard/CorridorHealthCard';
 import { CreateProposalModal } from '../governance/CreateProposalModal';
+import { NotificationList } from '../notifications/NotificationList';
+
+// Mock notification context
+jest.mock('@/contexts/NotificationContext', () => ({
+  useNotifications: () => ({
+    markAsRead: jest.fn(),
+    clearNotification: jest.fn(),
+  }),
+}));
 
 // Extend Jest matchers
 expect.extend(toHaveNoViolations);
@@ -131,6 +140,39 @@ describe('Accessibility Tests', () => {
     it('should have close button with aria-label', () => {
       const { getByLabelText } = render(<CreateProposalModal {...mockProps} />);
       expect(getByLabelText(/close modal/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('NotificationList Component', () => {
+    const mockNotifications = [
+      {
+        id: 'id-1',
+        title: 'Test notification',
+        message: 'This is a test',
+        timestamp: new Date().toISOString(),
+        type: 'info',
+        priority: 'medium',
+        read: false,
+        category: 'general',
+      },
+    ];
+
+    it('should provide accessible actionable notification items', () => {
+      const { getByRole } = render(
+        <NotificationList notifications={mockNotifications} />
+      );
+
+      const item = getByRole('button', { name: /open notification: test notification/i });
+      expect(item).toBeInTheDocument();
+      expect(item).toHaveAttribute('tabindex', '0');
+    });
+
+    it('should hide decorative icons from assistive technologies in notification items', () => {
+      const { container } = render(<NotificationList notifications={mockNotifications} />);
+      const icons = container.querySelectorAll('svg');
+      icons.forEach((icon) => {
+        expect(icon).toHaveAttribute('aria-hidden', 'true');
+      });
     });
   });
 
