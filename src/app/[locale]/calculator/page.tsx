@@ -1,8 +1,13 @@
 "use client";
 
 import React from "react";
+import dynamic from "next/dynamic";
 import { Calculator } from "lucide-react";
-import { CostCalculator } from "@/components/CostCalculator";
+
+const CostCalculator = dynamic(
+  () => import("@/components/CostCalculator").then((m) => ({ default: m.CostCalculator })),
+  { ssr: false }
+);
 
 export default function CalculatorPage() {
   return (

@@ -1,13 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { ScrollText, Plus } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { ProposalCard } from "@/components/governance/ProposalCard";
-import { CreateProposalModal } from "@/components/governance/CreateProposalModal";
 import { useWallet } from "@/components/lib/wallet-context";
 import { getProposals } from "@/lib/governance-api";
 import type { Proposal, ProposalStatus } from "@/types/governance";
+
+// Lazy-load the modal — it's only needed when the user clicks "Create Proposal".
+const CreateProposalModal = dynamic(
+  () => import("@/components/governance/CreateProposalModal").then((m) => ({ default: m.CreateProposalModal })),
+  { ssr: false }
+);
 
 const STATUS_TABS: { label: string; value: ProposalStatus | "all" }[] = [
   { label: "All", value: "all" },

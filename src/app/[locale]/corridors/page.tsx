@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, Suspense } from "react";
+import dynamic from "next/dynamic";
 import {
   TrendingUp,
   Search,
@@ -18,13 +19,18 @@ import { getCorridors, CorridorMetrics } from "@/lib/api";
 import { mockCorridors } from "@/components/lib//mockCorridorData";
 import { MainLayout } from "@/components/layout";
 import { SkeletonCorridorCard } from "@/components/ui/Skeleton";
-import { CorridorHeatmap } from "@/components/charts/CorridorHeatmap";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
 import { usePagination } from "@/hooks/usePagination";
 import {
   useUserPreferences,
   type CorridorsTimePeriod,
 } from "@/contexts/UserPreferencesContext";
+
+// Lazy-load the heatmap — only rendered when the user switches to heatmap view.
+const CorridorHeatmap = dynamic(
+  () => import("@/components/charts/CorridorHeatmap").then((m) => ({ default: m.CorridorHeatmap })),
+  { ssr: false }
+);
 
 function CorridorsPageContent() {
   const { prefs, setPrefs } = useUserPreferences();

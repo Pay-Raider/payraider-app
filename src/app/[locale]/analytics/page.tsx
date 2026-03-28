@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   TrendingUp,
   Activity,
@@ -10,14 +11,31 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { fetchAnalyticsMetrics, AnalyticsMetrics } from "@/lib/analytics-api";
-import { LiquidityChart } from "@/components/charts/LiquidityChart";
-import { TVLChart } from "@/components/charts/TVLChart";
-import { SettlementLatencyChart } from "@/components/charts/SettlementLatencyChart";
-import { TopCorridors } from "@/components/charts/TopCorridors";
-import { LiquidityHeatmap } from "@/components/charts/LiquidityHeatmap";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Badge } from "@/components/ui/badge";
 import { MuxedAccountCard } from "@/components/analytics/MuxedAccountCard";
+
+// Heavy chart components — lazy-loaded so they don't bloat the initial bundle.
+const LiquidityChart = dynamic(
+  () => import("@/components/charts/LiquidityChart").then((m) => ({ default: m.LiquidityChart })),
+  { ssr: false }
+);
+const TVLChart = dynamic(
+  () => import("@/components/charts/TVLChart").then((m) => ({ default: m.TVLChart })),
+  { ssr: false }
+);
+const SettlementLatencyChart = dynamic(
+  () => import("@/components/charts/SettlementLatencyChart").then((m) => ({ default: m.SettlementLatencyChart })),
+  { ssr: false }
+);
+const TopCorridors = dynamic(
+  () => import("@/components/charts/TopCorridors").then((m) => ({ default: m.TopCorridors })),
+  { ssr: false }
+);
+const LiquidityHeatmap = dynamic(
+  () => import("@/components/charts/LiquidityHeatmap").then((m) => ({ default: m.LiquidityHeatmap })),
+  { ssr: false }
+);
 
 export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
