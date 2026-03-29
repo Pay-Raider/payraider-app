@@ -25,24 +25,39 @@ const withPWA = require('next-pwa')({
       },
     },
     {
-      urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ico)$/,
+      urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ico|gif|avif|woff2?|ttf|eot)$/i,
       handler: 'CacheFirst',
       options: {
-        cacheName: 'images',
+        cacheName: 'images-fonts',
         expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 30 * 24 * 60 * 60,
+          maxEntries: 150,
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year for static assets
         },
       },
     },
+
     {
-      urlPattern: /\.(?:js|css)$/,
+      urlPattern: /\.(?:js|mjs|css|html)$/,
       handler: 'StaleWhileRevalidate',
       options: {
         cacheName: 'static-resources',
       },
     },
+    {
+      // Cache critical home page and static assets
+      urlPattern: /^\/(index\.html)?(?:$|\/)/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'pages',
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
   ],
+  // Ensure SW updates don't interfere
+  swSrc: 'public/sw.js',
 });
 
 const nextConfig: NextConfig = {

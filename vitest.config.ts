@@ -14,10 +14,10 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/**/*.d.ts',
-        'src/**/__tests__/**',
         'src/**/node_modules/**',
-        'src/app/layout.tsx',
-        'src/app/page.tsx',
+      ],
+      include: [
+        'src/**/*.{test,spec}.{ts,tsx}',
       ],
       thresholds: {
         lines: 70,

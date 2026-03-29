@@ -1,10 +1,4 @@
-import { NextResponse } from 'next/server';
-import {
-  NetworkGraphData,
-  GraphNode,
-  GraphLink,
-  validateNetworkGraphData,
-} from '@/types/network-graph';
+import { NextResponse } from 'next/server';\nimport { logger } from '@/lib/logger';\nimport {\n  NetworkGraphData,\n  GraphNode,\n  GraphLink,\n  validateNetworkGraphData,\n} from '@/types/network-graph';
 
 /**
  * GET /api/network-graph
@@ -97,7 +91,7 @@ export async function GET(): Promise<NextResponse<NetworkGraphData>> {
 
     // Validate data before returning
     if (!validateNetworkGraphData(graphData)) {
-      console.error('Generated invalid network graph data');
+      logger.error('Generated invalid network graph data');
       return NextResponse.json(
         { nodes: [], links: [] },
         { status: 500 }
@@ -106,7 +100,7 @@ export async function GET(): Promise<NextResponse<NetworkGraphData>> {
 
     return NextResponse.json(graphData);
   } catch (error) {
-    console.error('Error fetching network graph data:', error);
+    logger.error('Error fetching network graph data', error);
     return NextResponse.json(
       { nodes: [], links: [] },
       { status: 500 }
