@@ -8,6 +8,43 @@ const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+  runtimeCaching: [
+    {
+      urlPattern: /^https?.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'offlineCache',
+        expiration: {
+          maxEntries: 200,
+        },
+      },
+    },
+    {
+      urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ico)$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 30 * 24 * 60 * 60,
+        },
+      },
+    },
+    {
+      urlPattern: /\.(?:js|css)$/,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'static-resources',
+      },
+    },
+  ],
+});
+
 const nextConfig: NextConfig = {
   experimental: {
     // Optimise package imports to avoid pulling in entire icon/chart libraries
@@ -16,10 +53,13 @@ const nextConfig: NextConfig = {
       "recharts",
       "framer-motion",
       "@stellar/stellar-sdk",
-  turbopack: {
-    root: '../',
+    ],
+    turbopack: {
+      root: '../',
+    },
   },
   images: {
+
     // Modern image formats for better compression
     formats: ['image/webp', 'image/avif'],
 
@@ -49,4 +89,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default analyzer(withNextIntl(nextConfig));
+export default analyzer(withNextIntl(withPWA(nextConfig)));
