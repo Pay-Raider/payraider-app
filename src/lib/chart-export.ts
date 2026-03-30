@@ -1,4 +1,4 @@
-import * as htmlToImage from 'html-to-image';
+import * as htmlToImage from 'html-to-image';\nimport { logger } from '@/lib/logger';
 
 export type ExportFormat = 'png' | 'jpeg' | 'svg';
 
