@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Calculator, Loader2, Route, TrendingUp } from "lucide-react";
+import { AlertCircle, Calculator, Loader2, Route, TrendingUp } from "lucide-react";
+import {
+  validateAmount,
+  getFieldErrorId,
+} from "../lib/validation";
 
 type RouteKey = "stellar_dex" | "anchor_direct" | "liquidity_pool";
 
@@ -84,17 +88,42 @@ export function CostCalculator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CostCalculationResponse | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const updateFieldError = (field: string, msg: string) =>
+    setFieldErrors((prev) => ({ ...prev, [field]: msg }));
 
   const canSubmit = useMemo(() => {
     const parsed = Number(sourceAmount);
-    return Number.isFinite(parsed) && parsed > 0 && selectedRoutes.length > 0;
-  }, [sourceAmount, selectedRoutes]);
+    const destParsed = destinationAmount ? Number(destinationAmount) : null;
+    return (
+      Number.isFinite(parsed) &&
+      parsed > 0 &&
+      selectedRoutes.length > 0 &&
+      sourceCurrency !== destinationCurrency &&
+      (destParsed === null || (Number.isFinite(destParsed) && destParsed > 0))
+    );
+  }, [sourceAmount, destinationAmount, selectedRoutes, sourceCurrency, destinationCurrency]);
 
   async function handleCalculate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!canSubmit) {
-      setError("Enter a valid amount and select at least one route.");
+    // Per-field validation
+    const sourceResult = validateAmount(sourceAmount);
+    updateFieldError("sourceAmount", sourceResult.error);
+
+    const destResult = destinationAmount
+      ? validateAmount(destinationAmount)
+      : { isValid: true, error: "" };
+    updateFieldError("destinationAmount", destResult.error);
+
+    const sameCurrency = sourceCurrency === destinationCurrency;
+    updateFieldError("destinationCurrency", sameCurrency ? "Source and destination currencies must differ" : "");
+
+    const noRoutes = selectedRoutes.length === 0;
+    updateFieldError("routes", noRoutes ? "Select at least one route" : "");
+
+    if (!sourceResult.isValid || !destResult.isValid || sameCurrency || noRoutes) {
       return;
     }
 
@@ -176,9 +205,14 @@ export function CostCalculator() {
               Destination Currency
             </span>
             <select
-              className="w-full rounded-xl border border-border bg-background/60 p-3 text-sm"
+              className={`w-full rounded-xl border bg-background/60 p-3 text-sm ${fieldErrors.destinationCurrency ? "border-red-500" : "border-border"}`}
               value={destinationCurrency}
-              onChange={(event) => setDestinationCurrency(event.target.value)}
+              aria-describedby={fieldErrors.destinationCurrency ? getFieldErrorId("destinationCurrency") : undefined}
+              aria-invalid={!!fieldErrors.destinationCurrency}
+              onChange={(event) => {
+                setDestinationCurrency(event.target.value);
+                setFieldErrors((prev) => ({ ...prev, destinationCurrency: "" }));
+              }}
             >
               {CURRENCIES.map((currency) => (
                 <option key={currency} value={currency}>
@@ -186,6 +220,12 @@ export function CostCalculator() {
                 </option>
               ))}
             </select>
+            {fieldErrors.destinationCurrency && (
+              <div id={getFieldErrorId("destinationCurrency")} className="text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {fieldErrors.destinationCurrency}
+              </div>
+            )}
           </label>
 
           <label className="space-y-2">
@@ -193,14 +233,26 @@ export function CostCalculator() {
               Source Amount
             </span>
             <input
+              id="sourceAmount"
               type="number"
               step="0.01"
-              min="0"
+              min="0.01"
               value={sourceAmount}
-              onChange={(event) => setSourceAmount(event.target.value)}
-              className="w-full rounded-xl border border-border bg-background/60 p-3 text-sm"
+              aria-describedby={fieldErrors.sourceAmount ? getFieldErrorId("sourceAmount") : undefined}
+              aria-invalid={!!fieldErrors.sourceAmount}
+              onChange={(event) => {
+                setSourceAmount(event.target.value);
+                setFieldErrors((prev) => ({ ...prev, sourceAmount: "" }));
+              }}
+              className={`w-full rounded-xl border bg-background/60 p-3 text-sm ${fieldErrors.sourceAmount ? "border-red-500" : "border-border"}`}
               placeholder="1000"
             />
+            {fieldErrors.sourceAmount && (
+              <div id={getFieldErrorId("sourceAmount")} className="text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {fieldErrors.sourceAmount}
+              </div>
+            )}
           </label>
 
           <label className="space-y-2">
@@ -208,14 +260,26 @@ export function CostCalculator() {
               Target Destination Amount (Optional)
             </span>
             <input
+              id="destinationAmount"
               type="number"
               step="0.01"
-              min="0"
+              min="0.01"
               value={destinationAmount}
-              onChange={(event) => setDestinationAmount(event.target.value)}
-              className="w-full rounded-xl border border-border bg-background/60 p-3 text-sm"
+              aria-describedby={fieldErrors.destinationAmount ? getFieldErrorId("destinationAmount") : undefined}
+              aria-invalid={!!fieldErrors.destinationAmount}
+              onChange={(event) => {
+                setDestinationAmount(event.target.value);
+                setFieldErrors((prev) => ({ ...prev, destinationAmount: "" }));
+              }}
+              className={`w-full rounded-xl border bg-background/60 p-3 text-sm ${fieldErrors.destinationAmount ? "border-red-500" : "border-border"}`}
               placeholder="Leave empty for estimate only"
             />
+            {fieldErrors.destinationAmount && (
+              <div id={getFieldErrorId("destinationAmount")} className="text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {fieldErrors.destinationAmount}
+              </div>
+            )}
           </label>
         </div>
 
@@ -223,7 +287,11 @@ export function CostCalculator() {
           <p className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
             Compare Routes
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div
+            className="flex flex-wrap gap-3"
+            role="group"
+            aria-label="Select routes to compare"
+          >
             {ROUTE_OPTIONS.map((option) => (
               <label
                 key={option.value}
@@ -232,12 +300,21 @@ export function CostCalculator() {
                 <input
                   type="checkbox"
                   checked={selectedRoutes.includes(option.value)}
-                  onChange={() => toggleRoute(option.value)}
+                  onChange={() => {
+                    toggleRoute(option.value);
+                    setFieldErrors((prev) => ({ ...prev, routes: "" }));
+                  }}
                 />
                 <span>{option.label}</span>
               </label>
             ))}
           </div>
+          {fieldErrors.routes && (
+            <div className="text-xs text-red-400 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {fieldErrors.routes}
+            </div>
+          )}
         </div>
 
         <button

@@ -23,6 +23,14 @@ import {
   Banknote,
   Quote,
 } from "lucide-react";
+import {
+  validateUrl,
+  validateAmount,
+  validateReceiverId,
+  validateAssetCode,
+  validateJwt,
+  getFieldErrorId,
+} from "../lib/validation";
 
 export function Sep31PaymentFlow() {
   const [anchors, setAnchors] = useState<Sep31AnchorInfo[]>([]);
@@ -44,6 +52,13 @@ export function Sep31PaymentFlow() {
   const [destAsset, setDestAsset] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const updateError = (field: string, result: ReturnType<typeof validateUrl>) => {
+    setErrors((prev) => ({ ...prev, [field]: result.error }));
+  };
+
+  const isFormValid = !Object.values(errors).some(Boolean);
 
   const transferServer = selectedAnchor?.transfer_server || customTransferServer.trim();
 
@@ -144,10 +159,12 @@ export function Sep31PaymentFlow() {
       setError("Select an anchor or enter transfer server URL");
       return;
     }
-    if (!amount) {
-      setError("Enter amount");
-      return;
-    }
+    const amountResult = validateAmount(amount);
+    const receiverResult = validateReceiverId(receiverId);
+    updateError("amount", amountResult);
+    updateError("receiverId", receiverResult);
+    if (!amountResult.isValid || !receiverResult.isValid) return;
+    if (!isFormValid) return;
     setSending(true);
     setError(null);
     setSuccessMessage(null);
@@ -241,15 +258,27 @@ export function Sep31PaymentFlow() {
             Or enter transfer server URL (SEP-31 base)
           </label>
           <input
+            id="transferServer"
             type="url"
             placeholder="https://api.anchor.example/sep31"
-            className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-accent/50"
+            className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-accent/50 ${errors.transferServer ? "border-red-500" : "border-border"}`}
             value={customTransferServer}
+            aria-describedby={errors.transferServer ? getFieldErrorId("transferServer") : undefined}
+            aria-invalid={!!errors.transferServer}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setCustomTransferServer(e.target.value);
+              const value = e.target.value;
+              setCustomTransferServer(value);
               setSelectedAnchor(null);
+              if (value) updateError("transferServer", validateUrl(value));
+              else setErrors((prev) => ({ ...prev, transferServer: "" }));
             }}
           />
+          {errors.transferServer && (
+            <div id={getFieldErrorId("transferServer")} className="mt-1 text-xs text-red-400 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {errors.transferServer}
+            </div>
+          )}
         </div>
       </section>
 
@@ -267,28 +296,50 @@ export function Sep31PaymentFlow() {
               Amount
             </label>
             <input
+              id="amount"
               type="text"
               placeholder="100"
-              className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground"
+              className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground ${errors.amount ? "border-red-500" : "border-border"}`}
               value={amount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setAmount(e.target.value)
-              }
+              aria-describedby={errors.amount ? getFieldErrorId("amount") : undefined}
+              aria-invalid={!!errors.amount}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value;
+                setAmount(value);
+                updateError("amount", validateAmount(value));
+              }}
             />
+            {errors.amount && (
+              <div id={getFieldErrorId("amount")} className="mt-1 text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.amount}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
               Receiver ID (anchor-specific)
             </label>
             <input
+              id="receiverId"
               type="text"
               placeholder="receiver@anchor.com or wallet id"
-              className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground"
+              className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground ${errors.receiverId ? "border-red-500" : "border-border"}`}
               value={receiverId}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setReceiverId(e.target.value)
-              }
+              aria-describedby={errors.receiverId ? getFieldErrorId("receiverId") : undefined}
+              aria-invalid={!!errors.receiverId}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value;
+                setReceiverId(value);
+                updateError("receiverId", validateReceiverId(value));
+              }}
             />
+            {errors.receiverId && (
+              <div id={getFieldErrorId("receiverId")} className="mt-1 text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.receiverId}
+              </div>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -297,28 +348,50 @@ export function Sep31PaymentFlow() {
               Source asset (e.g. USDC:issuer)
             </label>
             <input
+              id="sourceAsset"
               type="text"
               placeholder="optional"
-              className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm"
+              className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm ${errors.sourceAsset ? "border-red-500" : "border-border"}`}
               value={sourceAsset}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSourceAsset(e.target.value)
-              }
+              aria-describedby={errors.sourceAsset ? getFieldErrorId("sourceAsset") : undefined}
+              aria-invalid={!!errors.sourceAsset}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value;
+                setSourceAsset(value);
+                updateError("sourceAsset", validateAssetCode(value));
+              }}
             />
+            {errors.sourceAsset && (
+              <div id={getFieldErrorId("sourceAsset")} className="mt-1 text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.sourceAsset}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
               Destination asset (e.g. iso4217:USD)
             </label>
             <input
+              id="destAsset"
               type="text"
               placeholder="optional"
-              className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm"
+              className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm ${errors.destAsset ? "border-red-500" : "border-border"}`}
               value={destAsset}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setDestAsset(e.target.value)
-              }
+              aria-describedby={errors.destAsset ? getFieldErrorId("destAsset") : undefined}
+              aria-invalid={!!errors.destAsset}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value;
+                setDestAsset(value);
+                updateError("destAsset", validateAssetCode(value));
+              }}
             />
+            {errors.destAsset && (
+              <div id={getFieldErrorId("destAsset")} className="mt-1 text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.destAsset}
+              </div>
+            )}
           </div>
         </div>
         <div className="mb-4">
@@ -326,14 +399,25 @@ export function Sep31PaymentFlow() {
             JWT (optional, from SEP-10)
           </label>
           <input
+            id="jwt"
             type="password"
             placeholder="For authenticated flows"
-            className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm"
+            className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm ${errors.jwt ? "border-red-500" : "border-border"}`}
             value={jwt}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setJwt(e.target.value)
-            }
+            aria-describedby={errors.jwt ? getFieldErrorId("jwt") : undefined}
+            aria-invalid={!!errors.jwt}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const value = e.target.value;
+              setJwt(value);
+              updateError("jwt", validateJwt(value));
+            }}
           />
+          {errors.jwt && (
+            <div id={getFieldErrorId("jwt")} className="mt-1 text-xs text-red-400 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {errors.jwt}
+            </div>
+          )}
         </div>
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-400 text-sm">
@@ -351,7 +435,7 @@ export function Sep31PaymentFlow() {
           <button
             type="button"
             onClick={loadQuote}
-            disabled={loadingQuote || !transferServer || !amount}
+            disabled={loadingQuote || !transferServer || !amount || !isFormValid}
             className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-white/5 flex items-center gap-2 disabled:opacity-50"
           >
             {loadingQuote ? (
@@ -364,7 +448,7 @@ export function Sep31PaymentFlow() {
           <button
             type="button"
             onClick={handleSendPayment}
-            disabled={sending || !transferServer || !amount}
+            disabled={sending || !transferServer || !amount || !isFormValid}
             className="rounded-xl bg-accent text-accent-foreground px-6 py-2.5 font-medium hover:opacity-90 flex items-center gap-2 disabled:opacity-50"
           >
             {sending ? (
