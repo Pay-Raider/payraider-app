@@ -25,7 +25,9 @@ export default function QuestsPage() {
   useEffect(() => {
     checkPathCompletion(pathname);
     const newProgress = getProgress();
-    setProgress((prev) => (prev !== newProgress ? newProgress : prev));
+    setProgress((prev) => 
+      JSON.stringify(prev) === JSON.stringify(newProgress) ? prev : newProgress
+    );
   }, [pathname]);
 
   const completedCount = getCompletedCount();
