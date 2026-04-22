@@ -118,6 +118,7 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
   };
 
   // Helper functions
+// TODO: Intended for future use
   const getHealthStatusColor = (status: string) => {
     const displayStatus = mapBackendStatus(status);
     switch (displayStatus.toLowerCase()) {
@@ -132,6 +133,7 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
     }
   };
 
+// TODO: Intended for future use
   const getHealthStatusIcon = (status: string) => {
     const displayStatus = mapBackendStatus(status);
     switch (displayStatus.toLowerCase()) {
