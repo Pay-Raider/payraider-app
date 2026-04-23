@@ -25,7 +25,7 @@
     "clsx": "^2.1.1",
     "d3-force-3d": "^3.0.6",
     "date-fns": "^4.1.0",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.4.1",
     "framer-motion": "^12.29.2",
     "html-to-image": "^1.11.13",
     "jspdf": "^4.2.0",
@@ -66,9 +66,6 @@
   },
   "packageManager": "pnpm@10.30.0+sha512.2b5753de015d480eeb88f5b5b61e0051f05b4301808a82ec8b840c9d2adf7748eb352c83f5c1593ca703ff1017295bc3fdd3119abb9686efc96b9fcb18200937",
   "overrides": {
-    "dompurify": "^3.3.1"
-  },
-  "_comments": {
-    "dompurify": "Verified 2026-03-30: dompurify 3.3.1 has no known CVEs (npm audit clean)"
+    "dompurify": "^3.4.1"
   }
 }
