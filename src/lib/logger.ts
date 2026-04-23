@@ -77,10 +77,7 @@ function sendToErrorTracking(error: Error, metadata?: LogMetadata): void {
     return;
   }
   
-  // Integration point for error tracking services
-  // Example: Sentry.captureException(error, { extra: metadata });
-  
-  // For now, we'll just prepare the data structure
+  // Send error data to configured error tracking endpoint
   const errorData = {
     message: error.message,
     stack: error.stack,
