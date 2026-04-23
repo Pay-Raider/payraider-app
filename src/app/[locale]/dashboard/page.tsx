@@ -102,6 +102,23 @@ export default function DashboardPage() {
   });
 
   // ── WebSocket connections for real-time updates ─────────────────────────
+  const onCorridorUpdate = useCallback((update) => {
+    logger.debug("Received corridor update:", { update: JSON.stringify(update) });
+    markUpdated();
+    setData((prevData) => {
+      if (!prevData) return prevData;
+      const updatedData = { ...prevData };
+      if (update.success_rate !== undefined) {
+        updatedData.kpi.successRate.value = update.success_rate;
+      }
+      return updatedData;
+    });
+  }, [markUpdated]);
+
+  const onHealthAlert = useCallback((alert) => {
+    logger.debug("Health alert:", { alert: JSON.stringify(alert) });
+  }, []);
+
   const {
     isConnected: corridorsConnected,
     isConnecting: corridorsConnecting,
@@ -109,21 +126,8 @@ export default function DashboardPage() {
     reconnect: reconnectCorridors,
   } = useRealtimeCorridors({
     enablePaymentStream: true,
-    onCorridorUpdate: (update) => {
-      logger.debug("Received corridor update:", { update: JSON.stringify(update) });
-      markUpdated();
-      setData((prevData) => {
-        if (!prevData) return prevData;
-        const updatedData = { ...prevData };
-        if (update.success_rate !== undefined) {
-          updatedData.kpi.successRate.value = update.success_rate;
-        }
-        return updatedData;
-      });
-    },
-    onHealthAlert: (alert) => {
-      logger.debug("Health alert:", { alert: JSON.stringify(alert) });
-    },
+    onCorridorUpdate,
+    onHealthAlert,
   });
 
   const { isConnected: anchorsConnected, reconnect: reconnectAnchors } =
