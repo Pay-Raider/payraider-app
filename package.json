@@ -37,9 +37,9 @@
     "next-pwa": "^5.6.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-force-graph-2d": "^1.29.1",
-    "recharts": "^3.7.0",
-    "tailwind-merge": "^3.5.0"
+    "react-force-graph-2d": "1.29.1",
+    "recharts": "3.7.0",
+    "tailwind-merge": "3.5.0"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.6",
@@ -54,15 +54,15 @@
     "axe-core": "^4.10.2",
     "eslint": "^9.39.3",
     "eslint-config-next": "16.1.6",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "jest-axe": "^9.0.0",
-    "jsdom": "^28.1.0",
-    "prisma": "^6.12.0",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "typescript-eslint": "^8.56.1",
-    "vitest": "^4.0.18",
-    "vitest-axe": "^1.0.0-pre.5"
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "jest-axe": "9.0.0",
+    "jsdom": "28.1.0",
+    "prisma": "6.19.2",
+    "tailwindcss": "4.1.18",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.57.2",
+    "vitest": "4.1.1",
+    "vitest-axe": "1.0.0-pre.5"
   },
   "packageManager": "pnpm@10.30.0+sha512.2b5753de015d480eeb88f5b5b61e0051f05b4301808a82ec8b840c9d2adf7748eb352c83f5c1593ca703ff1017295bc3fdd3119abb9686efc96b9fcb18200937",
   "overrides": {
