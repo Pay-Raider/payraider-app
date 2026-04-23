@@ -130,12 +130,14 @@ export default function DashboardPage() {
     onHealthAlert,
   });
 
+  const onAnchorUpdate = useCallback((update) => {
+    logger.debug("Received anchor update:", { update: JSON.stringify(update) });
+    markUpdated();
+  }, [markUpdated]);
+
   const { isConnected: anchorsConnected, reconnect: reconnectAnchors } =
     useRealtimeAnchors({
-      onAnchorUpdate: (update) => {
-        logger.debug("Received anchor update:", { update: JSON.stringify(update) });
-        markUpdated();
-      },
+      onAnchorUpdate,
     });
 
   // Initial load on mount
