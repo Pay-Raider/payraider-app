@@ -101,11 +101,29 @@ function sendToErrorTracking(error: unknown, metadata?: LogMetadata): void {
 
   import("@sentry/nextjs")
     .then((Sentry) => {
+      // Attach user context if available
+      const userId = typeof window !== 'undefined' ? 
+        sessionStorage.getItem('user_id') : null;
+      
+      if (userId) {
+        Sentry.setUser({ id: userId });
+      }
+      
+      // Add breadcrumb for error context
+      Sentry.addBreadcrumb({
+        category: 'error',
+        message: normalizedError.message,
+        level: 'error',
+        data: redactedMetadata,
+      });
+      
       Sentry.captureException(normalizedError, {
         tags: {
           logger: "frontend",
+          environment: process.env.NODE_ENV,
         },
         extra: redactedMetadata,
+        level: 'error',
       });
     })
     .catch(() => {
