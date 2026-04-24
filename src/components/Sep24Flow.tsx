@@ -1,24 +1,9 @@
 "use client";
 
-import React, { useCallback, useState, useEffect, useMemo } from "react";
-import {
-  getSep24Info,
-  startDepositInteractive,
-  startWithdrawInteractive,
-  getSep24Transactions,
-  getSep24Anchors,
-  type Sep24AnchorInfo,
-  type Sep24InfoResponse,
-  type Sep24Transaction,
-  Sep24Error,
-} from "@/services/sep24";
-import {
-  validateUrl,
-  validateAmount,
-  validateStellarAccount,
-  validateJwt,
-  getFieldErrorId,
-} from "../lib/validation";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -30,114 +15,88 @@ import {
   Clock,
   Banknote,
 } from "lucide-react";
+import { FormField, FormSelect } from "@/components/ui/FormField";
+import { sep24FlowSchema, type Sep24FlowForm } from "@/lib/schemas";
+import {
+  useSep24Anchors,
+  useSep24Info,
+  useSep24Transactions,
+  useStartDepositFlow,
+  useStartWithdrawFlow,
+  useSep24FlowState,
+} from "@/hooks/useSep24";
 
 type FlowKind = "deposit" | "withdraw";
 
 export function Sep24Flow() {
-  const [anchors, setAnchors] = useState<Sep24AnchorInfo[]>([]);
-  const [selectedAnchor, setSelectedAnchor] = useState<Sep24AnchorInfo | null>(
-    null
-  );
-  const [info, setInfo] = useState<Sep24InfoResponse | null>(null);
-  const [transactions, setTransactions] = useState<Sep24Transaction[]>([]);
-  const [loadingAnchors, setLoadingAnchors] = useState(false);
-  const [loadingInfo, setLoadingInfo] = useState(false);
-  const [loadingTx, setLoadingTx] = useState(false);
+  // React Query hooks
+  const { data: anchors, isLoading: loadingAnchors, error: anchorsError } = useSep24Anchors();
+  const { data: info, isLoading: loadingInfo } = useSep24Info(transferServer);
+  const { data: transactions, isLoading: loadingTx } = useSep24Transactions(transferServer, jwt);
+
+  // Mutation hooks
+  const startDepositMutation = useStartDepositFlow();
+  const startWithdrawMutation = useStartWithdrawFlow();
+
+  // Zustand state
+  const { formData, setFormDataValue, clearFormDataValue, setFormErrors, clearFormErrors, setLoading, loading } = useSep24FlowState();
+
+  // Local state
   const [flowKind, setFlowKind] = useState<FlowKind>("deposit");
-  const [assetCode, setAssetCode] = useState("");
-  const [amount, setAmount] = useState("");
-  const [account, setAccount] = useState("");
-  const [jwt, setJwt] = useState("");
-  const [customTransferServer, setCustomTransferServer] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [interactiveUrl, setInteractiveUrl] = useState<string | null>(null);
-  const [startingFlow, setStartingFlow] = useState(false);
+  const [selectedAnchor, setSelectedAnchor] = useState<Sep24AnchorInfo | null>(null);
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isDirty },
+    setValue,
+    watch,
+    trigger,
+    resetField,
+  } = useForm<Sep24FlowForm>({
+    resolver: zodResolver(sep24FlowSchema),
+    mode: "onChange",
+    defaultValues: formData,
+  });
 
-  const updateError = (field: string, result: ReturnType<typeof validateUrl>) => {
-    setErrors((prev) => ({
-      ...prev,
-      [field]: result.error,
-    }));
-  };
+  // Watch form values for real-time updates
+  const transferServer = watch("transferServer");
+  const assetCode = watch("assetCode");
+  const amount = watch("amount");
+  const account = watch("account");
+  const jwt = watch("jwt");
 
-  const isFormValid = useMemo(() => {
-    return !Object.values(errors).some((error) => error);
-  }, [errors]);
-
-  const loadAnchors = useCallback(async () => {
-    setLoadingAnchors(true);
-    setError(null);
-    try {
-      const res = await getSep24Anchors();
-      setAnchors(res.anchors || []);
-      if (res.anchors?.length && !selectedAnchor) {
-        setSelectedAnchor(res.anchors[0]);
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load anchors");
-    } finally {
-      setLoadingAnchors(false);
-    }
-  }, [selectedAnchor]);
-
-  const loadInfo = useCallback(async () => {
-    const base = selectedAnchor?.transfer_server || customTransferServer?.trim();
-    if (!base) {
-      setInfo(null);
-      return;
-    }
-    setLoadingInfo(true);
-    setError(null);
-    try {
-      const data = await getSep24Info(base);
-      setInfo(data);
-      const assets = flowKind === "deposit" ? data.deposit : data.withdraw;
-      const codes = assets ? Object.keys(assets) : [];
-      setAssetCode((prev) => (codes.length && (!prev || !codes.includes(prev)) ? codes[0] : prev));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load anchor info");
-      setInfo(null);
-    } finally {
-      setLoadingInfo(false);
-    }
-  }, [selectedAnchor, customTransferServer, flowKind]);
-
-  const loadTransactions = useCallback(async () => {
-    const base = selectedAnchor?.transfer_server || customTransferServer?.trim();
-    if (!base) return;
-    setLoadingTx(true);
-    setError(null);
-    try {
-      const res = await getSep24Transactions({
-        transfer_server: base,
-        jwt: jwt || undefined,
-        kind: flowKind,
-        limit: 20,
-      });
-      setTransactions(res.transactions || []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load transactions");
-      setTransactions([]);
-    } finally {
-      setLoadingTx(false);
-    }
-  }, [selectedAnchor, customTransferServer, jwt, flowKind]);
-
-  React.useEffect(() => {
-    loadAnchors();
-  }, []);
-
-  React.useEffect(() => {
-    if (selectedAnchor?.transfer_server || customTransferServer?.trim()) {
-      loadInfo();
+  // Update selected anchor when transfer server changes
+  useEffect(() => {
+    if (transferServer && anchors) {
+      const anchor = anchors.find((a) => a.transfer_server === transferServer);
+      setSelectedAnchor(anchor || null);
     } else {
-      setInfo(null);
+      setSelectedAnchor(null);
     }
-  }, [selectedAnchor, customTransferServer, flowKind]);
+  }, [transferServer, anchors]);
 
-  const transferServer = selectedAnchor?.transfer_server || customTransferServer?.trim();
+  const isFormValid = isValid && isDirty;
+
+  React.useEffect(() => {
+    if (anchorsError) {
+      setError(anchorsError.message);
+    }
+  }, [anchorsError]);
+
+  React.useEffect(() => {
+    if (info && assetCode && info.deposit && info.withdraw) {
+      const assets = flowKind === "deposit" ? info.deposit : info.withdraw;
+      const codes = Object.keys(assets);
+      if (!codes.includes(assetCode)) {
+        setValue("assetCode", codes[0]);
+      }
+    }
+  }, [info, flowKind, assetCode, setValue]);
+
+  const transferServer = selectedAnchor?.transfer_server || transferServer?.trim();
   const assets = info
     ? flowKind === "deposit"
       ? info.deposit
@@ -145,49 +104,31 @@ export function Sep24Flow() {
     : null;
   const assetCodes = assets ? Object.keys(assets) : [];
 
-  const startFlow = async () => {
+  const startFlow: SubmitHandler<Sep24Form> = async (data) => {
     if (!isFormValid) {
       return;
     }
-    if (!transferServer) {
+    const base = selectedAnchor?.transfer_server || data.transferServer;
+    if (!base) {
       setError("Select an anchor or enter a transfer server URL");
       return;
     }
-    setStartingFlow(true);
+
     setError(null);
     setInteractiveUrl(null);
-    try {
-      const params = {
-        transfer_server: transferServer,
-        asset_code: assetCode || undefined,
-        account: account || undefined,
-        amount: amount || undefined,
-        jwt: jwt || undefined,
-      };
-      const res =
-        flowKind === "deposit"
-          ? await startDepositInteractive(params)
-          : await startWithdrawInteractive(params);
-      const url =
-        (res as { url?: string }).url ||
-        (res as { transaction?: { id: string } })?.transaction?.id;
-      if (typeof url === "string" && url.startsWith("http")) {
-        setInteractiveUrl(url);
-        window.open(url, "sep24-interactive", "width=500,height=700");
-      } else {
-        setError("Anchor did not return an interactive URL. Try again or complete KYC on the anchor site.");
-      }
-    } catch (e) {
-      const msg =
-        e instanceof Sep24Error
-          ? e.message
-          : e instanceof Error
-            ? e.message
-            : "Failed to start flow";
-      setError(msg);
-    } finally {
-      setStartingFlow(false);
-    }
+
+    // Use the appropriate mutation
+    const mutation = flowKind === "deposit" ? startDepositMutation : startWithdrawMutation;
+
+    const params = {
+      transferServer: base,
+      assetCode: data.assetCode || undefined,
+      account: data.account || undefined,
+      amount: data.amount || undefined,
+      jwt: data.jwt || undefined,
+    };
+
+    mutation.mutate(params);
   };
 
   const statusColor = (status: string) => {
@@ -216,6 +157,8 @@ export function Sep24Flow() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 const a = anchors.find((x: Sep24AnchorInfo) => x.transfer_server === e.target.value);
                 setSelectedAnchor(a || null);
+                setValue("transferServer", e.target.value);
+                trigger("transferServer");
               }}
               disabled={loadingAnchors}
             >
@@ -229,7 +172,7 @@ export function Sep24Flow() {
           </div>
           <button
             type="button"
-            onClick={loadAnchors}
+            onClick={() => window.location.reload()}
             disabled={loadingAnchors}
             className="rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-white/5 flex items-center gap-2"
           >
@@ -242,30 +185,13 @@ export function Sep24Flow() {
           </button>
         </div>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-muted-foreground mb-1">
-            Or enter transfer server URL
-          </label>
-          <input
+          <FormField
+            name="transferServer"
+            label="Or enter transfer server URL"
             type="url"
             placeholder="https://api.anchor.example/sep24"
-            className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-accent/50"
-            value={customTransferServer}
-            id="transferServer"
-            aria-describedby={errors.transferServer ? getFieldErrorId('transferServer') : undefined}
-            aria-invalid={!!errors.transferServer}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const value = e.target.value;
-              setCustomTransferServer(value);
-              setSelectedAnchor(null);
-              updateError('transferServer', validateUrl(value));
-            }}
+            description="Custom SEP-24 transfer server endpoint"
           />
-          {errors.transferServer && (
-            <div id={getFieldErrorId('transferServer')} className="mt-1 text-xs text-red-400 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              {errors.transferServer}
-            </div>
-          )}
         </div>
       </section>
 
@@ -278,11 +204,10 @@ export function Sep24Flow() {
           <button
             type="button"
             onClick={() => setFlowKind("deposit")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all ${
-              flowKind === "deposit"
-                ? "bg-accent/20 text-accent border border-accent/30"
-                : "border border-border text-muted-foreground hover:bg-white/5"
-            }`}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all ${flowKind === "deposit"
+              ? "bg-accent/20 text-accent border border-accent/30"
+              : "border border-border text-muted-foreground hover:bg-white/5"
+              }`}
           >
             <ArrowDownToLine className="w-4 h-4" />
             Deposit
@@ -290,11 +215,10 @@ export function Sep24Flow() {
           <button
             type="button"
             onClick={() => setFlowKind("withdraw")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all ${
-              flowKind === "withdraw"
-                ? "bg-accent/20 text-accent border border-accent/30"
-                : "border border-border text-muted-foreground hover:bg-white/5"
-            }`}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all ${flowKind === "withdraw"
+              ? "bg-accent/20 text-accent border border-accent/30"
+              : "border border-border text-muted-foreground hover:bg-white/5"
+              }`}
           >
             <ArrowUpFromLine className="w-4 h-4" />
             Withdraw
@@ -304,97 +228,37 @@ export function Sep24Flow() {
         {info && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1">
-                  Asset
-                </label>
-                <select
-                  className="w-full rounded-xl bg-background/80 border border-border px-4 py-2.5 text-foreground"
-                  value={assetCode}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAssetCode(e.target.value)}
-                >
-                  {assetCodes.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1">
-                  Amount (optional)
-                </label>
-                <input
-                  id="amount"
-                  aria-describedby={errors.amount ? getFieldErrorId('amount') : undefined}
-                  aria-invalid={!!errors.amount}
-                  type="text"
-                  placeholder="0.00"
-                  className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-accent/50 \${errors.amount ? 'border-red-500' : 'border-border'}`}
-                  value={amount}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const value = e.target.value;
-                    setAmount(value);
-                    updateError('amount', validateAmount(value));
-                  }}
-                />
-                {errors.amount && (
-                  <div id={getFieldErrorId('amount')} className="mt-1 text-xs text-red-400 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    {errors.amount}
-                  </div>
-                )}
-              </div>
+              <FormSelect
+                name="assetCode"
+                label="Asset"
+                options={assetCodes.map((c) => ({ value: c, label: c }))}
+                required
+              />
+              <FormField
+                name="amount"
+                label="Amount (optional)"
+                type="text"
+                placeholder="0.00"
+                description="Leave empty for anchor to determine"
+              />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-muted-foreground mb-1">
-                Stellar account (optional)
-              </label>
-              <input
-                id="account"
-                aria-describedby={errors.account ? getFieldErrorId('account') : undefined}
-                aria-invalid={!!errors.account}
+              <FormField
+                name="account"
+                label="Stellar account (optional)"
                 type="text"
                 placeholder="G..."
-                className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm focus:ring-2 focus:ring-accent/50 \${errors.account ? 'border-red-500' : 'border-border'}`}
-                value={account}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const value = e.target.value;
-                  setAccount(value);
-                  updateError('account', validateStellarAccount(value));
-                }}
+                description="Your Stellar public key"
               />
-              {errors.account && (
-                <div id={getFieldErrorId('account')} className="mt-1 text-xs text-red-400 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.account}
-                </div>
-              )}
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-muted-foreground mb-1">
-                JWT (optional, from SEP-10)
-              </label>
-              <input
-                id="jwt"
-                aria-describedby={errors.jwt ? getFieldErrorId('jwt') : undefined}
-                aria-invalid={!!errors.jwt}
+              <FormField
+                name="jwt"
+                label="JWT (optional, from SEP-10)"
                 type="password"
                 placeholder="For authenticated flows"
-                className={`w-full rounded-xl bg-background/80 border px-4 py-2.5 text-foreground placeholder:text-muted-foreground font-mono text-sm focus:ring-2 focus:ring-accent/50 \${errors.jwt ? 'border-red-500' : 'border-border'}`}
-                value={jwt}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const value = e.target.value;
-                  setJwt(value);
-                  updateError('jwt', validateJwt(value));
-                }}
+                description="Authentication token from SEP-10 challenge"
               />
-              {errors.jwt && (
-                <div id={getFieldErrorId('jwt')} className="mt-1 text-xs text-red-400 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.jwt}
-                </div>
-              )}
             </div>
             {error && (
               <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-red-400 text-sm">
@@ -418,11 +282,11 @@ export function Sep24Flow() {
             )}
             <button
               type="button"
-              onClick={startFlow}
-              disabled={startingFlow}
+              onClick={handleSubmit(startFlow)}
+              disabled={startDepositMutation.isPending || startWithdrawMutation.isPending || !isFormValid}
               className="rounded-xl bg-accent text-accent-foreground px-6 py-2.5 font-medium hover:opacity-90 flex items-center gap-2 disabled:opacity-50"
             >
-              {startingFlow ? (
+              {(startDepositMutation.isPending || startWithdrawMutation.isPending) ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : flowKind === "deposit" ? (
                 <ArrowDownToLine className="w-4 h-4" />

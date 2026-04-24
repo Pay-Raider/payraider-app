@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Calculator, Loader2, Route, TrendingUp } from "lucide-react";
-import {
-  validateAmount,
-  getFieldErrorId,
-} from "../lib/validation";
+import { FormField, FormSelect, FormCheckboxGroup } from "@/components/ui/FormField";
+import { costCalculatorSchema, type CostCalculatorForm } from "@/lib/schemas";
 
 type RouteKey = "stellar_dex" | "anchor_direct" | "liquidity_pool";
 
@@ -76,66 +76,60 @@ function formatAmount(value: number, digits = 2): string {
 }
 
 export function CostCalculator() {
-  const [sourceCurrency, setSourceCurrency] = useState("USDC");
-  const [destinationCurrency, setDestinationCurrency] = useState("NGN");
-  const [sourceAmount, setSourceAmount] = useState("1000");
-  const [destinationAmount, setDestinationAmount] = useState("");
-  const [selectedRoutes, setSelectedRoutes] = useState<RouteKey[]>([
-    "stellar_dex",
-    "anchor_direct",
-    "liquidity_pool",
-  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CostCalculationResponse | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const updateFieldError = (field: string, msg: string) =>
-    setFieldErrors((prev) => ({ ...prev, [field]: msg }));
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isDirty },
+    setValue,
+    watch,
+    trigger,
+  } = useForm<CostCalculatorForm>({
+    resolver: zodResolver(costCalculatorSchema),
+    mode: "onChange",
+    defaultValues: {
+      sourceCurrency: "USDC",
+      destinationCurrency: "NGN",
+      sourceAmount: "1000",
+      destinationAmount: "",
+      routes: ["stellar_dex", "anchor_direct", "liquidity_pool"],
+    },
+  });
+
+  // Watch form values for real-time updates
+  const sourceCurrency = watch("sourceCurrency");
+  const destinationCurrency = watch("destinationCurrency");
+  const sourceAmount = watch("sourceAmount");
+  const destinationAmount = watch("destinationAmount");
+  const selectedRoutes = watch("routes");
 
   const canSubmit = useMemo(() => {
     const parsed = Number(sourceAmount);
     const destParsed = destinationAmount ? Number(destinationAmount) : null;
     return (
+      isValid &&
+      isDirty &&
       Number.isFinite(parsed) &&
       parsed > 0 &&
       selectedRoutes.length > 0 &&
       sourceCurrency !== destinationCurrency &&
       (destParsed === null || (Number.isFinite(destParsed) && destParsed > 0))
     );
-  }, [sourceAmount, destinationAmount, selectedRoutes, sourceCurrency, destinationCurrency]);
+  }, [isValid, isDirty, sourceAmount, destinationAmount, selectedRoutes, sourceCurrency, destinationCurrency]);
 
-  async function handleCalculate(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    // Per-field validation
-    const sourceResult = validateAmount(sourceAmount);
-    updateFieldError("sourceAmount", sourceResult.error);
-
-    const destResult = destinationAmount
-      ? validateAmount(destinationAmount)
-      : { isValid: true, error: "" };
-    updateFieldError("destinationAmount", destResult.error);
-
-    const sameCurrency = sourceCurrency === destinationCurrency;
-    updateFieldError("destinationCurrency", sameCurrency ? "Source and destination currencies must differ" : "");
-
-    const noRoutes = selectedRoutes.length === 0;
-    updateFieldError("routes", noRoutes ? "Select at least one route" : "");
-
-    if (!sourceResult.isValid || !destResult.isValid || sameCurrency || noRoutes) {
-      return;
-    }
-
+  const handleCalculate: SubmitHandler<CostCalculatorForm> = async (data) => {
     setLoading(true);
     setError(null);
 
     const body = {
-      source_currency: sourceCurrency,
-      destination_currency: destinationCurrency,
-      source_amount: Number(sourceAmount),
-      destination_amount: destinationAmount ? Number(destinationAmount) : undefined,
-      routes: selectedRoutes,
+      source_currency: data.sourceCurrency,
+      destination_currency: data.destinationCurrency,
+      source_amount: Number(data.sourceAmount),
+      destination_amount: data.destinationAmount ? Number(data.destinationAmount) : undefined,
+      routes: data.routes as RouteKey[],
     };
 
     try {
@@ -165,157 +159,61 @@ export function CostCalculator() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   function toggleRoute(route: RouteKey) {
-    setSelectedRoutes((previous) => {
-      if (previous.includes(route)) {
-        return previous.filter((value) => value !== route);
-      }
-      return [...previous, route];
-    });
+    const currentRoutes = selectedRoutes || [];
+    if (currentRoutes.includes(route)) {
+      setValue("routes", currentRoutes.filter((value) => value !== route), { shouldValidate: true });
+    } else {
+      setValue("routes", [...currentRoutes, route], { shouldValidate: true });
+    }
   }
 
   return (
     <div className="space-y-6">
       <form
-        onSubmit={handleCalculate}
+        onSubmit={handleSubmit(handleCalculate)}
         className="glass rounded-2xl border border-border/60 p-6 space-y-6"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="space-y-2">
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-              Source Currency
-            </span>
-            <select
-              className="w-full rounded-xl border border-border bg-background/60 p-3 text-sm"
-              value={sourceCurrency}
-              onChange={(event) => setSourceCurrency(event.target.value)}
-            >
-              {CURRENCIES.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
-            </select>
-          </label>
+          <FormSelect
+            name="sourceCurrency"
+            label="Source Currency"
+            options={CURRENCIES.map((currency) => ({ value: currency, label: currency }))}
+            required
+          />
 
-          <label className="space-y-2">
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-              Destination Currency
-            </span>
-            <select
-              className={`w-full rounded-xl border bg-background/60 p-3 text-sm ${fieldErrors.destinationCurrency ? "border-red-500" : "border-border"}`}
-              value={destinationCurrency}
-              aria-describedby={fieldErrors.destinationCurrency ? getFieldErrorId("destinationCurrency") : undefined}
-              aria-invalid={!!fieldErrors.destinationCurrency}
-              onChange={(event) => {
-                setDestinationCurrency(event.target.value);
-                setFieldErrors((prev) => ({ ...prev, destinationCurrency: "" }));
-              }}
-            >
-              {CURRENCIES.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
-            </select>
-            {fieldErrors.destinationCurrency && (
-              <div id={getFieldErrorId("destinationCurrency")} className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {fieldErrors.destinationCurrency}
-              </div>
-            )}
-          </label>
+          <FormSelect
+            name="destinationCurrency"
+            label="Destination Currency"
+            options={CURRENCIES.map((currency) => ({ value: currency, label: currency }))}
+            required
+          />
 
-          <label className="space-y-2">
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-              Source Amount
-            </span>
-            <input
-              id="sourceAmount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={sourceAmount}
-              aria-describedby={fieldErrors.sourceAmount ? getFieldErrorId("sourceAmount") : undefined}
-              aria-invalid={!!fieldErrors.sourceAmount}
-              onChange={(event) => {
-                setSourceAmount(event.target.value);
-                setFieldErrors((prev) => ({ ...prev, sourceAmount: "" }));
-              }}
-              className={`w-full rounded-xl border bg-background/60 p-3 text-sm ${fieldErrors.sourceAmount ? "border-red-500" : "border-border"}`}
-              placeholder="1000"
-            />
-            {fieldErrors.sourceAmount && (
-              <div id={getFieldErrorId("sourceAmount")} className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {fieldErrors.sourceAmount}
-              </div>
-            )}
-          </label>
+          <FormField
+            name="sourceAmount"
+            label="Source Amount"
+            type="number"
+            placeholder="1000"
+            required
+          />
 
-          <label className="space-y-2">
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-              Target Destination Amount (Optional)
-            </span>
-            <input
-              id="destinationAmount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={destinationAmount}
-              aria-describedby={fieldErrors.destinationAmount ? getFieldErrorId("destinationAmount") : undefined}
-              aria-invalid={!!fieldErrors.destinationAmount}
-              onChange={(event) => {
-                setDestinationAmount(event.target.value);
-                setFieldErrors((prev) => ({ ...prev, destinationAmount: "" }));
-              }}
-              className={`w-full rounded-xl border bg-background/60 p-3 text-sm ${fieldErrors.destinationAmount ? "border-red-500" : "border-border"}`}
-              placeholder="Leave empty for estimate only"
-            />
-            {fieldErrors.destinationAmount && (
-              <div id={getFieldErrorId("destinationAmount")} className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {fieldErrors.destinationAmount}
-              </div>
-            )}
-          </label>
+          <FormField
+            name="destinationAmount"
+            label="Target Destination Amount (Optional)"
+            type="number"
+            placeholder="Leave empty for estimate only"
+            description="If specified, calculator will determine required source amount"
+          />
         </div>
 
-        <div className="space-y-3">
-          <p className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
-            Compare Routes
-          </p>
-          <div
-            className="flex flex-wrap gap-3"
-            role="group"
-            aria-label="Select routes to compare"
-          >
-            {ROUTE_OPTIONS.map((option) => (
-              <label
-                key={option.value}
-                className="flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedRoutes.includes(option.value)}
-                  onChange={() => {
-                    toggleRoute(option.value);
-                    setFieldErrors((prev) => ({ ...prev, routes: "" }));
-                  }}
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </div>
-          {fieldErrors.routes && (
-            <div className="text-xs text-red-400 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              {fieldErrors.routes}
-            </div>
-          )}
-        </div>
+        <FormCheckboxGroup
+          name="routes"
+          label="Compare Routes"
+          options={ROUTE_OPTIONS}
+          required
+        />
 
         <button
           type="submit"
