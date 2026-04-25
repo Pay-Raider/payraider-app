@@ -53,6 +53,15 @@ const nextConfig: NextConfig = {
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
+      // Performance budgets — raw sizes (pre-gzip).
+      // 500 KB raw ≈ ~200 KB gzipped, matching the documented budget.
+      // In CI (process.env.CI=true) violations are errors; locally they are warnings.
+      config.performance = {
+        hints: process.env.CI ? 'error' : 'warning',
+        maxAssetSize: 500 * 1024,       // 500 KB per asset
+        maxEntrypointSize: 500 * 1024,  // 500 KB per entrypoint
+      };
+
       config.optimization = {
         ...config.optimization,
         splitChunks: {
