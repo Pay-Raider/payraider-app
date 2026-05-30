@@ -5,6 +5,31 @@ import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { ShortcutCustomizer } from "@/components/keyboard-shortcuts/ShortcutCustomizer";
+import { ProgressiveWebApp } from "@/components/ProgressiveWebApp";
+import { useOfflineStatus } from "@/hooks/useOfflineStatus";
+import { WifiOff, Wifi } from "lucide-react";
+
+function OfflineStatusBadge() {
+  const { isOnline, offlineSince } = useOfflineStatus();
+  return (
+    <div
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
+        isOnline
+          ? "bg-success/10 text-success"
+          : "bg-error/10 text-error"
+      }`}
+    >
+      {isOnline ? (
+        <Wifi className="w-3.5 h-3.5" aria-hidden="true" />
+      ) : (
+        <WifiOff className="w-3.5 h-3.5" aria-hidden="true" />
+      )}
+      {isOnline
+        ? "Online"
+        : `Offline${offlineSince ? ` since ${offlineSince.toLocaleTimeString()}` : ""}`}
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const t = useTranslations("layout.sidebar");
@@ -23,6 +48,24 @@ export default function SettingsPage() {
       <div className="glass-card p-6 rounded-2xl">
         <h2 className="text-lg font-semibold mb-4">Language</h2>
         <LanguageSwitcher />
+      </div>
+
+      {/* Offline / PWA */}
+      <div className="glass-card p-6 rounded-2xl space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Offline &amp; Installation</h2>
+          <OfflineStatusBadge />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Install Stellar Insights as an app for instant access and offline support.
+          Cached data remains available for up to 24 hours without a connection.
+        </p>
+        <ProgressiveWebApp
+          showInstallPrompt
+          showOfflineIndicator
+          showUpdateNotification
+          showCacheManagement
+        />
       </div>
 
       {/* Keyboard shortcuts */}
