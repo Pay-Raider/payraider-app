@@ -10,45 +10,36 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // Time in milliseconds that data remains fresh
-        staleTime: 5 * 60 * 1000, // 5 minutes
-        
-        // Time in milliseconds that inactive queries will be garbage collected
-        gcTime: 10 * 60 * 1000, // 10 minutes
-        
-        // Number of times a failed query should be retried
+        // Keep cached data fresh for 5 minutes
+        staleTime: 5 * 60 * 1000,
+
+        // Offline mode (#1489): hold cached data for 24 h so pages remain
+        // usable after extended offline periods.
+        gcTime: 24 * 60 * 60 * 1000,
+
+        // Use cached data when offline; only fetch when a network is available.
+        // 'offlineFirst' returns cached data immediately and retries in the
+        // background once connectivity is restored.
+        networkMode: 'offlineFirst',
+
         retry: (failureCount, error) => {
-          // Don't retry on 4xx errors
           if (error && typeof error === 'object' && 'status' in error) {
-            const status = (error as any).status;
-            if (status >= 400 && status < 500) {
-              return false;
-            }
+            const status = (error as { status: number }).status;
+            if (status >= 400 && status < 500) return false;
           }
-          // Retry up to 3 times for other errors
           return failureCount < 3;
         },
-        
-        // Delay between retries (exponential backoff)
+
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-        
-        // Whether to refetch on window focus
         refetchOnWindowFocus: false,
-        
-        // Whether to refetch on reconnect
-        refetchOnReconnect: true,
-        
-        // Whether to refetch on interval
+        refetchOnReconnect: true, // auto-refresh stale queries when back online
         refetchInterval: false,
-        
-        // Enable error logging
         throwOnError: false,
       },
       mutations: {
-        // Retry mutations up to 1 time
+        // Also use offlineFirst so mutations queue rather than fail immediately
+        networkMode: 'offlineFirst',
         retry: 1,
-        
-        // Delay between retries
         retryDelay: 1000,
       },
     },

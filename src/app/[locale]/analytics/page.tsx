@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { PrintButton } from "@/components/PrintButton";
 import { fetchAnalyticsMetrics, AnalyticsMetrics } from "@/lib/analytics-api";
 import { logger } from "@/lib/logger";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -139,6 +140,7 @@ export default function AnalyticsPage() {
               <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
               Re-Scan
             </button>
+            <PrintButton label="Print" />
           </div>
         </div>
 
