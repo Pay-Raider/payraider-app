@@ -3,7 +3,7 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { ShortcutCustomizer } from "@/components/keyboard-shortcuts/ShortcutCustomizer";
 
 export default function SettingsPage() {
@@ -12,18 +12,20 @@ export default function SettingsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <h1 className="text-3xl font-bold">{t("settings")}</h1>
-      
-      <div className="glass-card p-6 rounded-2xl space-y-6">
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Language</h2>
-          <LanguageSwitcher />
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Theme</h2>
-          <ThemeToggle />
-        </div>
+
+      {/* Theme customization */}
+      <div className="glass-card p-6 rounded-2xl">
+        <h2 className="text-lg font-semibold mb-6">Theme &amp; Appearance</h2>
+        <ThemeCustomizer />
       </div>
 
+      {/* Language */}
+      <div className="glass-card p-6 rounded-2xl">
+        <h2 className="text-lg font-semibold mb-4">Language</h2>
+        <LanguageSwitcher />
+      </div>
+
+      {/* Keyboard shortcuts */}
       <div className="glass-card p-6 rounded-2xl">
         <ShortcutCustomizer />
       </div>
