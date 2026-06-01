@@ -59,6 +59,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  compress: true,
   async headers() {
     return [
       {
@@ -76,9 +78,9 @@ const nextConfig: NextConfig = {
       "d3-force-3d",
       "react-force-graph-2d",
     ],
-    turbopack: {
-      root: '../',
-    },
+  },
+  turbopack: {
+    root: '../',
   },
   images: {
     formats: ['image/webp', 'image/avif'],

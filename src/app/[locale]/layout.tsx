@@ -19,6 +19,10 @@ import { Navbar } from "@/components/navbar";
 import { SkipNavigation } from "@/components/SkipNavigation";
 import { ShortcutHelpOverlay } from "@/components/keyboard-shortcuts/ShortcutHelpOverlay";
 import { ShortcutsInitializer } from "@/components/keyboard-shortcuts/ShortcutsInitializer";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { StateProvider } from "@/components/StateProvider";
+import { CommandPaletteProvider } from "@/contexts/CommandPaletteContext";
+import { CommandPalette } from "@/components/CommandPalette";
 
 type Props = {
   children: React.ReactNode;
@@ -61,9 +65,12 @@ export default async function LocaleLayout({ children, params }: Props) {
         <ThemeProvider>
           <UserPreferencesProvider>
             <KeyboardShortcutsProvider>
+              <CommandPaletteProvider>
               <WalletProvider>
                 <NotificationProvider>
-                  <ShortcutsInitializer />
+                  <StateProvider>
+                    <OfflineBanner />
+                    <ShortcutsInitializer />
                   <div className="flex min-h-screen">
                     <Sidebar />
                     <main className="flex-1 ml-20 lg:ml-64 transition-all duration-300 relative" tabIndex={-1}>
@@ -81,8 +88,11 @@ export default async function LocaleLayout({ children, params }: Props) {
                   <QuestProgressTracker />
                   <NotificationSystem />
                   <ShortcutHelpOverlay />
+                  <CommandPalette />
+                  </StateProvider>
                 </NotificationProvider>
               </WalletProvider>
+              </CommandPaletteProvider>
             </KeyboardShortcutsProvider>
           </UserPreferencesProvider>
         </ThemeProvider>

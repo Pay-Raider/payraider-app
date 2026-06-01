@@ -12,6 +12,7 @@ import {
   Cell,
 } from "recharts";
 import { Badge } from "../ui/badge";
+import { getTooltipContentStyle } from "@/lib/chart-utils";
 
 interface SettlementData {
   time: string;
@@ -80,15 +81,14 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
             />
             <Tooltip
               cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-              contentStyle={{
+              contentStyle={getTooltipContentStyle({
                 backgroundColor: "rgba(15, 23, 42, 0.9)",
                 borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(8px)",
                 color: "#f8fafc",
                 fontSize: "12px",
                 fontFamily: "monospace",
-              }}
+              })}
               formatter={(value?: number) => {
                 if (typeof value !== "number") return ["-", "Settlement Time"];
                 return [`${value}s`, "Settlement Time"];
