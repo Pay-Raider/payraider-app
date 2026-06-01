@@ -526,3 +526,97 @@ body {
   background: var(--contact-option-bg);
   color: var(--foreground);
 }
+
+/* ─── Print Optimisation (#1488) ──────────────────────────────────────────── */
+@media print {
+  /* Hide interactive / decorative chrome */
+  nav,
+  aside,
+  .sidebar,
+  [data-sidebar],
+  .navbar-default,
+  .navbar-scrolled,
+  .print-hide,
+  button:not(.print-show),
+  [role="dialog"],
+  [role="alertdialog"],
+  .fixed,
+  .animate-pulse,
+  .animate-pulse-slow {
+    display: none !important;
+  }
+
+  /* Reset layout so content fills the page */
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+    margin: 0;
+    padding: 0;
+  }
+
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Flatten glassmorphism cards to plain white boxes */
+  .glass,
+  .glass-card,
+  [class*="glass"] {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure text is readable */
+  * {
+    color: #000000 !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  a {
+    color: #1d4ed8 !important;
+    text-decoration: underline;
+  }
+
+  /* Avoid breaking tables and cards across pages */
+  table,
+  .glass-card,
+  .print-no-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Charts: let them render at full width */
+  .recharts-wrapper,
+  canvas {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+/* Hide print-only elements on screen */
+.print-only {
+  display: none;
+}
