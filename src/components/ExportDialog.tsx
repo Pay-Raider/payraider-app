@@ -114,6 +114,30 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
 
   return (
     <AnimatePresence>
+      {/* Accessibility: ARIA live region for export status announcements */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {isExporting && !success && (
+          <span>
+            Exporting data... {progress}% complete
+          </span>
+        )}
+        {success && (
+          <span>
+            Export completed successfully
+          </span>
+        )}
+        {error && (
+          <span>
+            Export failed: {error}
+          </span>
+        )}
+      </div>
+
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0 }}
@@ -253,7 +277,9 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                   <span className="text-[10px] font-mono text-accent uppercase tracking-widest animate-pulse">
                     {success ? "Satellite Link Verified // 200" : "Extracting Telemetry Data..."}
                   </span>
-                  <span className="text-[10px] font-mono text-white">{progress}%</span>
+                  <span className="text-[10px] font-mono text-white" aria-label={`${progress} percent`}>
+                    {progress}%
+                  </span>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                   <motion.div
@@ -261,6 +287,11 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ ease: "easeOut" }}
+                    aria-label={`Progress: ${progress} percent`}
+                    role="progressbar"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
                   />
                 </div>
               </div>
@@ -272,6 +303,8 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
             <button
               onClick={handleExport}
               disabled={isExporting || (dateRange === "custom" && (!customStart || !customEnd))}
+              aria-busy={isExporting}
+              aria-disabled={isExporting || (dateRange === "custom" && (!customStart || !customEnd))}
               className={`w-full group relative overflow-hidden flex items-center justify-center gap-3 py-4 rounded-2xl font-black uppercase italic tracking-tighter transition-all ${
                 isExporting
                   ? "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -282,17 +315,17 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
             >
               {isExporting ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  INITIATING SEQUENCE
+                  <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                  <span>INITIATING SEQUENCE</span>
                 </>
               ) : success ? (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
                   DATA RECEIVED
                 </>
               ) : (
                 <>
-                  <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
+                  <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" aria-hidden="true" />
                   START EXPORT COMMAND
                 </>
               )}
