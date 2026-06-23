@@ -34,6 +34,11 @@ const analyzer = withBundleAnalyzer({
  */
 const securityHeaders = [
   {
+    // HSTS: enforce HTTPS for 2 years across all subdomains and opt into preload list
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
