@@ -54,6 +54,13 @@ export function useWebSocket(
     ConnectionState.DISCONNECTED
   );
 
+  const [appState, setAppState] = useState<"active" | "background">("active");
+  const appStateRef = useRef<"active" | "background">("active");
+
+  useEffect(() => {
+    appStateRef.current = appState;
+  }, [appState]);
+
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const shouldReconnectRef = useRef(true);
@@ -94,10 +101,11 @@ export function useWebSocket(
         isConnectingRef.current = false;
         onClose?.();
 
-        // Attempt to reconnect if enabled and under max attempts
+        // Attempt to reconnect if enabled, under max attempts, and not in background
         if (
           shouldReconnectRef.current &&
-          connectionAttempts < maxReconnectAttempts
+          connectionAttempts < maxReconnectAttempts &&
+          appStateRef.current !== "background"
         ) {
           setConnectionAttempts((prev) => prev + 1);
           reconnectTimeoutRef.current = setTimeout(
@@ -212,6 +220,43 @@ export function useWebSocket(
       disconnect();
     };
   }, [connect, disconnect]);
+
+  // Handle visibility change (background/foreground)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const nextState = document.visibilityState === "hidden" ? "background" : "active";
+      const prevState = appStateRef.current;
+
+      if (nextState === prevState) return;
+
+      setAppState(nextState);
+
+      if (nextState === "active" && prevState === "background") {
+        logger.debug("App active. Resuming WebSocket reconnection with exponential backoff.");
+        if (shouldReconnectRef.current && !isConnected && !isConnectingRef.current) {
+          const delay = reconnectInterval * Math.pow(1.5, connectionAttempts);
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+          }
+          reconnectTimeoutRef.current = setTimeout(() => {
+            connect();
+          }, delay);
+          setConnectionAttempts((prev) => prev + 1);
+        }
+      } else if (nextState === "background") {
+        logger.debug("App in background. Pausing WebSocket reconnection.");
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [connect, isConnected, connectionAttempts, reconnectInterval]);
 
   // Cleanup on unmount
   useEffect(() => {
