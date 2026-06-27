@@ -18,6 +18,13 @@ interface CollaborativeMessage {
   content: string;
   timestamp: Date;
   userColor: string;
+  version?: number;
+}
+
+interface ConflictInfo {
+  rejectedContent: string;
+  serverVersion: number;
+  localVersion: number;
 }
 
 interface RealtimeCollaborationProps {
@@ -46,8 +53,10 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
+  const [conflict, setConflict] = useState<ConflictInfo | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const versionRef = useRef<number>(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,9 +88,12 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
       wsRef.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
+
           switch (data.type) {
-            case 'message':
+            case 'message': {
+              if (data.version != null) {
+                versionRef.current = data.version;
+              }
               const newMessage: CollaborativeMessage = {
                 id: data.id,
                 userId: data.userId,
@@ -89,6 +101,7 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
                 content: data.content,
                 timestamp: new Date(data.timestamp),
                 userColor: data.userColor,
+                version: data.version,
               };
               setMessages((prev) => {
                 const updated = [...prev, newMessage];
@@ -96,8 +109,21 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
               });
               onMessageReceived?.(newMessage);
               break;
+            }
 
-            case 'user_joined':
+            case 'conflict': {
+              if (data.version != null) {
+                versionRef.current = data.version;
+              }
+              setConflict({
+                rejectedContent: data.rejectedContent ?? '',
+                serverVersion: data.version ?? 0,
+                localVersion: data.localVersion ?? 0,
+              });
+              break;
+            }
+
+            case 'user_joined': {
               const joinedUser: CollaborativeUser = {
                 id: data.userId,
                 name: data.userName,
@@ -108,6 +134,7 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
               setActiveUsers((prev) => [...prev, joinedUser]);
               onUserJoined?.(joinedUser);
               break;
+            }
 
             case 'user_left':
               setActiveUsers((prev) => prev.filter((u) => u.id !== data.userId));
@@ -157,11 +184,13 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
   const sendMessage = useCallback(() => {
     if (!inputValue.trim() || !isConnected || !wsRef.current) return;
 
+    setConflict(null);
     wsRef.current.send(JSON.stringify({
       type: 'message',
       content: inputValue,
       userId,
       userName,
+      version: versionRef.current,
     }));
 
     setInputValue('');
@@ -242,6 +271,23 @@ export const RealtimeCollaboration: React.FC<RealtimeCollaborationProps> = ({
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Conflict Banner */}
+          {conflict && (
+            <div className="border-t border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-2" role="alert" aria-label="Write conflict detected">
+              <span className="text-amber-600 font-medium text-sm shrink-0">Conflict:</span>
+              <span className="text-amber-800 text-sm flex-1">
+                Your message was rejected because another change arrived first. Please retry.
+              </span>
+              <button
+                onClick={() => setConflict(null)}
+                className="text-amber-600 hover:text-amber-800 text-sm font-medium shrink-0"
+                aria-label="Dismiss conflict"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Input Area */}
           <div className="border-t p-4 bg-gray-50">
