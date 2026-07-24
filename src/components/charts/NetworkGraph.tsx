@@ -134,8 +134,8 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ data }) => {
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={1}
         linkCurvature={0.25}
-        linkWidth={(link) =>
-          link.type === "corridor" ? (link as any).value : 1
+        linkWidth={(link: Link) =>
+          link.type === "corridor" ? link.value : 1
         }
         onNodeHover={setHoverNode}
         cooldownTicks={100}
