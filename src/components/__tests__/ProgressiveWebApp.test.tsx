@@ -27,7 +27,7 @@ describe('ProgressiveWebApp Component', () => {
       serviceWorkerReady: true,
       cacheSize: 1024 * 1024,
     },
-    installPrompt: {} as any,
+    installPrompt: {} as BeforeInstallPromptEvent,
     install: vi.fn(),
     dismiss: vi.fn(),
     clearCache: vi.fn(),
