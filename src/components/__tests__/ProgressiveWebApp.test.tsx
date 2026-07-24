@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ProgressiveWebApp } from '../ProgressiveWebApp';
 import * as useProgressiveWebAppModule from '@/hooks/useProgressiveWebApp';
@@ -27,7 +27,7 @@ describe('ProgressiveWebApp Component', () => {
       serviceWorkerReady: true,
       cacheSize: 1024 * 1024,
     },
-    installPrompt: {} as any,
+    installPrompt: {} as BeforeInstallPromptEvent,
     install: vi.fn(),
     dismiss: vi.fn(),
     clearCache: vi.fn(),
