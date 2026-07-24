@@ -13,7 +13,13 @@ vi.mock("@/lib/logger", () => ({
 
 // Mock next/navigation
 vi.mock("@/i18n/navigation", () => ({
-  Link: ({ href, children, ...props }: any) => (
+  Link: ({
+    href,
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    children?: React.ReactNode;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>
