@@ -163,7 +163,7 @@ export function PWAExample() {
             <h3 className="font-medium mb-2">Mobile (iOS)</h3>
             <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
               <li>Tap the Share button</li>
-              <li>Select "Add to Home Screen"</li>
+              <li>Select &quot;Add to Home Screen&quot;</li>
               <li>Confirm the name</li>
               <li>App will appear on your home screen</li>
             </ol>
@@ -172,7 +172,7 @@ export function PWAExample() {
             <h3 className="font-medium mb-2">Mobile (Android)</h3>
             <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
               <li>Tap the menu button (three dots)</li>
-              <li>Select "Install app"</li>
+              <li>Select &quot;Install app&quot;</li>
               <li>Confirm the installation</li>
               <li>App will appear in your app drawer</li>
             </ol>
