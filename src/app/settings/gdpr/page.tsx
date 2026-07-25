@@ -232,7 +232,7 @@ export default function GdprSettingsPage() {
             </svg>
             <span>
               <strong>Right to Erasure:</strong> You can request deletion of
-              your personal data ("right to be forgotten").
+              your personal data (&quot;right to be forgotten&quot;).
             </span>
           </li>
           <li className="flex items-start">
