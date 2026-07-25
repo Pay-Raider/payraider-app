@@ -24,14 +24,14 @@ beforeEach(() => {
     ready: Promise.resolve({
       active: { state: 'activated' }
     })
-  } as any;
+  } as unknown as ServiceWorkerContainer;
 
   // Mock caches
   globalThis.caches = {
     open: vi.fn(),
     match: vi.fn(),
     delete: vi.fn()
-  } as any;
+  } as unknown as CacheStorage;
 });
 
 afterEach(() => {
@@ -53,9 +53,9 @@ describe('PWA Offline Implementation', () => {
     const { isOffline, getSWStatus, registerSW } = await import('@/lib/pwa');
     
     expect(isOffline()).toBe(false);
-    
+
     // Mock offline
-    (globalThis.navigator as any).onLine = false;
+    (globalThis.navigator as unknown as { onLine: boolean }).onLine = false;
     expect(isOffline()).toBe(true);
     
     // Mock SW status
@@ -68,7 +68,7 @@ describe('PWA Offline Implementation', () => {
 
   it('caches static assets correctly (simulated)', async () => {
     // Simulate CacheFirst for images/fonts
-    (globalThis.caches as any).open.mockResolvedValue({
+    (globalThis.caches as unknown as CacheStorage).open.mockResolvedValue({
       addAll: vi.fn(),
       match: vi.fn().mockResolvedValue({}),
       keys: vi.fn().mockResolvedValue([])

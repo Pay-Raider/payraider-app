@@ -58,7 +58,7 @@ describe('chart-utils', () => {
 
     it('should return false when window is undefined', () => {
       const originalWindow = global.window;
-      // @ts-ignore
+      // @ts-expect-error
       delete global.window;
       expect(isSafari()).toBe(false);
       global.window = originalWindow;
