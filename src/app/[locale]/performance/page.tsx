@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -58,16 +58,17 @@ const RATING_BG: Record<string, string> = {
 };
 
 export default function PerformancePage() {
-  const [vitals, setVitals] = useState<WebVitalSummary[]>([]);
-  const [apiLatencies, setApiLatencies] = useState<ApiLatencyEntry[]>([]);
-  const [errorCount, setErrorCount] = useState(0);
-  const [errorTimeline, setErrorTimeline] = useState<{ time: string; count: number }[]>([]);
+  const [rawMetrics, setRawMetrics] = useState<Metric[]>([]);
+  const [rawErrors, setRawErrors] = useState<AppError[]>([]);
 
   useEffect(() => {
-    const rawMetrics: Metric[] = JSON.parse(localStorage.getItem("mon_metrics") || "[]");
-    const rawErrors: AppError[] = JSON.parse(localStorage.getItem("mon_errors") || "[]");
+    const metrics: Metric[] = JSON.parse(localStorage.getItem("mon_metrics") || "[]");
+    const errors: AppError[] = JSON.parse(localStorage.getItem("mon_errors") || "[]");
+    setRawMetrics(metrics);
+    setRawErrors(errors);
+  }, []);
 
-    // Aggregate Web Vitals (latest value per metric)
+  const vitals = useMemo(() => {
     const vitalsMap = new Map<string, number>();
     for (const m of rawMetrics) {
       if (m.name.startsWith("web-vitals-")) {
@@ -75,16 +76,16 @@ export default function PerformancePage() {
         vitalsMap.set(key, m.value);
       }
     }
-    const vitalsSummary: WebVitalSummary[] = Array.from(vitalsMap.entries()).map(([name, value]) => ({
+    return Array.from(vitalsMap.entries()).map(([name, value]) => ({
       name: name.toUpperCase(),
       value,
       rating: getRating(name, value),
       threshold: VITALS_CONFIG[name] ?? { good: 0, poor: 0 },
       unit: VITALS_CONFIG[name]?.unit ?? "",
     }));
-    setVitals(vitalsSummary);
+  }, [rawMetrics]);
 
-    // Aggregate API latencies (average per endpoint)
+  const apiLatencies = useMemo(() => {
     const latencyMap = new Map<string, number[]>();
     for (const m of rawMetrics) {
       if (m.name === "api-latency" && m.metadata?.endpoint) {
@@ -93,21 +94,22 @@ export default function PerformancePage() {
         latencyMap.get(ep)!.push(m.value);
       }
     }
-    const latencies: ApiLatencyEntry[] = Array.from(latencyMap.entries()).map(([endpoint, values]) => ({
+    return Array.from(latencyMap.entries()).map(([endpoint, values]) => ({
       endpoint,
       latency: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
     }));
-    setApiLatencies(latencies);
+  }, [rawMetrics]);
 
-    // Error count and timeline (last 12 hours, bucketed by hour)
-    setErrorCount(rawErrors.length);
+  const errorCount = useMemo(() => rawErrors.length, [rawErrors]);
+
+  const errorTimeline = useMemo(() => {
     const buckets = new Map<string, number>();
     for (const e of rawErrors) {
       const hour = new Date(e.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       buckets.set(hour, (buckets.get(hour) ?? 0) + 1);
     }
-    setErrorTimeline(Array.from(buckets.entries()).map(([time, count]) => ({ time, count })));
-  }, []);
+    return Array.from(buckets.entries()).map(([time, count]) => ({ time, count }));
+  }, [rawErrors]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
