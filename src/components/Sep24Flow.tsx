@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useEffect, useRef, useState } from "react";
+import React, {  useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -31,7 +31,7 @@ type FlowKind = "deposit" | "withdraw";
 export function Sep24Flow() {
   // React Query hooks
   const { data: anchorsResponse, isLoading: loadingAnchors, error: anchorsError } = useSep24Anchors();
-  const anchors: Sep24AnchorInfo[] = anchorsResponse?.anchors ?? [];
+  const anchors: Sep24AnchorInfo[] = useMemo(() => anchorsResponse?.anchors ?? [], [anchorsResponse]);
 
   // Mutation hooks
   const startDepositMutation = useStartDepositFlow();
@@ -63,6 +63,8 @@ export function Sep24Flow() {
   });
 
   // Watch form values for real-time updates
+  // React Hook Form's watch() API cannot be analyzed by React Compiler; this is an unavoidable library limitation
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedTransferServer = watch("transferServer");
   const assetCode = watch("assetCode");
   const _amount = watch("amount");

@@ -204,12 +204,12 @@ export function Sep31PaymentFlow() {
 
   React.useEffect(() => {
     loadAnchors();
-  }, []);
+  }, [loadAnchors]);
 
   React.useEffect(() => {
     if (resolvedTransferServer) loadInfo();
     else setInfo(null);
-  }, [resolvedTransferServer]);
+  }, [resolvedTransferServer, loadInfo]);
 
   const validateComplianceFields = (): boolean => {
     const errors: Record<string, string> = {};
