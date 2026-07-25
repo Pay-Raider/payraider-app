@@ -19,16 +19,13 @@ import {
 
 export default function QuestsPage() {
   const pathname = usePathname();
-  const [progress, setProgress] = useState(getProgress());
   const [showLeaderboard, setShowLeaderboard] = useState(true);
 
   useEffect(() => {
     checkPathCompletion(pathname);
-    const newProgress = getProgress();
-    setProgress((prev) => 
-      JSON.stringify(prev) === JSON.stringify(newProgress) ? prev : newProgress
-    );
   }, [pathname]);
+
+  const progress = getProgress();
 
   const completedCount = getCompletedCount();
   const totalXP = getTotalXP();
