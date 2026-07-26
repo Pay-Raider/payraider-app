@@ -2,17 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { useNetwork } from '@/contexts/NetworkContext';
+import type { NetworkInfo } from '@/lib/api/types';
 
-export interface NetworkInfo {
-  network: 'mainnet' | 'testnet';
-  display_name: string;
-  rpc_url: string;
-  horizon_url: string;
-  network_passphrase: string;
-  color: string;
-  is_mainnet: boolean;
-  is_testnet: boolean;
-}
+export type { NetworkInfo };
 
 export interface NetworkSwitcherProps {
   className?: string;
@@ -21,13 +14,21 @@ export interface NetworkSwitcherProps {
 
 export function NetworkSwitcher({ className = '', onNetworkChange }: NetworkSwitcherProps) {
   const queryClient = useQueryClient();
-  const [currentNetwork, setCurrentNetwork] = useState<NetworkInfo | null>(null);
+  const { network: contextNetwork, setNetwork: setContextNetwork } = useNetwork();
+  const [currentNetwork, setCurrentNetwork] = useState<NetworkInfo | null>(contextNetwork);
   const [availableNetworks, setAvailableNetworks] = useState<NetworkInfo[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showWarning, setShowWarning] = useState(false);
   const [pendingNetwork, setPendingNetwork] = useState<NetworkInfo | null>(null);
+
+  // Keep local display state aligned with shared network context
+  useEffect(() => {
+    if (contextNetwork) {
+      setCurrentNetwork(contextNetwork);
+    }
+  }, [contextNetwork]);
 
   // Fetch current network info and available networks
   useEffect(() => {
@@ -40,6 +41,7 @@ export function NetworkSwitcher({ className = '', onNetworkChange }: NetworkSwit
         if (currentResponse.ok) {
           const current = await currentResponse.json();
           setCurrentNetwork(current);
+          setContextNetwork(current);
         }
 
         // Fetch available networks
@@ -57,7 +59,7 @@ export function NetworkSwitcher({ className = '', onNetworkChange }: NetworkSwit
     };
 
     fetchNetworkInfo();
-  }, []);
+  }, [setContextNetwork]);
 
   const handleNetworkSelect = (network: NetworkInfo) => {
     if (network.network === currentNetwork?.network) {
@@ -93,9 +95,9 @@ export function NetworkSwitcher({ className = '', onNetworkChange }: NetworkSwit
         // Clear stale React Query cache so data refetches for the new network
         queryClient.clear();
 
-        // For now, we'll update the local state to show the intended network
-        // In a real implementation, this would trigger a server restart
+        // Update local + shared context so explorer links / badges stay consistent
         setCurrentNetwork(pendingNetwork);
+        setContextNetwork(pendingNetwork);
         onNetworkChange?.(pendingNetwork);
       } else {
         throw new Error('Failed to switch network');

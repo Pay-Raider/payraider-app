@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Info, Phone, BookOpen, X, Menu } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationBell } from "./notifications";
+import { NetworkSwitcher } from "./NetworkSwitcher";
 
 const navLinkKeys = [
   { key: "aboutUs", href: "/about", icon: Info, descKey: "learnAbout" },
@@ -111,8 +112,9 @@ export function Navbar() {
             })}
           </ul>
 
-          {/* Right side: Theme toggle + notifications + hamburger (mobile) + brand tag (desktop) */}
+          {/* Right side: network switcher + theme + notifications + hamburger (mobile) + brand tag (desktop) */}
           <div className="flex items-center gap-2">
+            <NetworkSwitcher className="hidden sm:block" />
             <ThemeToggle />
             <NotificationBell />
 
@@ -144,6 +146,9 @@ export function Navbar() {
           role="menu"
           aria-hidden={!mobileOpen}
         >
+          <div className="px-4 pb-3 sm:hidden">
+            <NetworkSwitcher className="w-full" />
+          </div>
           {navLinkKeys.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
