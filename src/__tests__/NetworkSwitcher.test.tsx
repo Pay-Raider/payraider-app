@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NetworkSwitcher } from '@/components/NetworkSwitcher';
+import { NetworkProvider } from '@/contexts/NetworkContext';
 
 const MAINNET_NETWORK = {
   network: 'mainnet' as const,
@@ -25,9 +26,11 @@ const TESTNET_NETWORK = {
   is_testnet: true,
 };
 
-function renderWithQueryClient(ui: React.ReactElement, queryClient: QueryClient) {
+function renderWithProviders(ui: React.ReactElement, queryClient: QueryClient) {
   return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+    <QueryClientProvider client={queryClient}>
+      <NetworkProvider>{ui}</NetworkProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -66,7 +69,7 @@ describe('NetworkSwitcher', () => {
 
     queryClient.setQueryData(['anchors'], [{ id: 'stale-mainnet' }]);
 
-    renderWithQueryClient(<NetworkSwitcher />, queryClient);
+    renderWithProviders(<NetworkSwitcher />, queryClient);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /Network: Mainnet/i })).toBeInTheDocument();

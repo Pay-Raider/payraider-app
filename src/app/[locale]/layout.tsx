@@ -21,6 +21,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { StateProvider } from "@/components/StateProvider";
 import { CommandPaletteProvider } from "@/contexts/CommandPaletteContext";
 import { CommandPalette } from "@/components/CommandPalette";
+import { NetworkProvider } from "@/contexts/NetworkContext";
 
 type Props = {
   children: React.ReactNode;
@@ -67,6 +68,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               <WalletProvider>
                 <NotificationProvider>
                   <StateProvider>
+                    <NetworkProvider>
                     <OfflineBanner />
                     <ShortcutsInitializer />
                   <div className="flex min-h-screen">
@@ -87,6 +89,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                   <NotificationSystem />
                   <ShortcutHelpOverlay />
                   <CommandPalette />
+                    </NetworkProvider>
                   </StateProvider>
                 </NotificationProvider>
               </WalletProvider>
