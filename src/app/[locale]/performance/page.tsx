@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -57,16 +57,27 @@ const RATING_BG: Record<string, string> = {
   poor: "bg-red-500/10 border-red-500/20",
 };
 
-export default function PerformancePage() {
-  const [rawMetrics, setRawMetrics] = useState<Metric[]>([]);
-  const [rawErrors, setRawErrors] = useState<AppError[]>([]);
+function readLocalMetrics(): Metric[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem("mon_metrics") || "[]");
+  } catch {
+    return [];
+  }
+}
 
-  useEffect(() => {
-    const metrics: Metric[] = JSON.parse(localStorage.getItem("mon_metrics") || "[]");
-    const errors: AppError[] = JSON.parse(localStorage.getItem("mon_errors") || "[]");
-    setRawMetrics(metrics);
-    setRawErrors(errors);
-  }, []);
+function readLocalErrors(): AppError[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem("mon_errors") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+export default function PerformancePage() {
+  const [rawMetrics] = useState<Metric[]>(readLocalMetrics);
+  const [rawErrors] = useState<AppError[]>(readLocalErrors);
 
   const vitals = useMemo(() => {
     const vitalsMap = new Map<string, number>();
