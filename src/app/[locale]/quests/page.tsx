@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { Trophy, Star, Target, Award, ChevronDown } from 'lucide-react';
 import { MetricCard } from '@/components/dashboard/MetricCard';
@@ -17,12 +17,12 @@ import {
 export default function QuestsPage() {
   const pathname = usePathname();
   const [showLeaderboard, setShowLeaderboard] = useState(true);
-  const [progress, setProgress] = useState<ReturnType<typeof getProgress>>(getProgress);
 
   useEffect(() => {
     checkPathCompletion(pathname);
-    setProgress(getProgress());
   }, [pathname]);
+
+  const progress = useMemo(() => getProgress(), [pathname]);
 
   const completedCount = progress.length;
   const totalXP = progress.reduce((sum, p) => {
