@@ -5,25 +5,21 @@ import React from "react"
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { sep10AuthService } from '../../services/sep10Auth'
 import { logger } from "@/lib/logger"
-
-// Extend Window interface for the generic `stellar` wallet bridge.
-// freighter/albedo/xBullSDK/rabet are typed globally in services/sep10Auth.ts —
-// declaring them again here with different types would conflict.
-declare global {
-  interface Window {
-    stellar?: {
-      requestPublicKey: () => Promise<string>
-    }
-  }
-}
+import { detectWallet, getWallet, isWalletId, WALLETS, type WalletId } from "@/lib/wallets"
 
 interface WalletContextType {
   isConnected: boolean
   address: string | null
+  /** The wallet the address came from; it signs sign-in and payments. */
+  walletId: WalletId | null
   isConnecting: boolean
   isAuthenticated: boolean
   authToken: string | null
-  connectWallet: () => Promise<void>
+  /**
+   * Connect a wallet. Without an id (or when used directly as an onClick
+   * handler) the first installed extension wallet is used.
+   */
+  connectWallet: (walletId?: WalletId | unknown) => Promise<void>
   disconnectWallet: () => void
   authenticateWithSep10: () => Promise<void>
   logout: () => Promise<void>
@@ -33,6 +29,7 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined)
 
 const STORAGE_KEYS = {
   ADDRESS: 'stellar_wallet_address',
+  WALLET: 'stellar_wallet_id',
   AUTH_TOKEN: 'stellar_sep10_token',
   TOKEN_EXPIRY: 'stellar_sep10_token_expiry',
 }
@@ -40,6 +37,7 @@ const STORAGE_KEYS = {
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
+  const [walletId, setWalletId] = useState<WalletId | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authToken, setAuthToken] = useState<string | null>(null)
@@ -53,7 +51,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const tokenExpiry = localStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY)
 
         if (savedAddress) {
+          const savedWallet = localStorage.getItem(STORAGE_KEYS.WALLET)
           setAddress(savedAddress)
+          // Addresses saved before wallet choice existed came from Freighter.
+          setWalletId(isWalletId(savedWallet) ? savedWallet : 'freighter')
           setIsConnected(true)
         }
 
@@ -79,61 +80,24 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     checkWalletConnection()
   }, [])
 
-  const connectWallet = useCallback(async () => {
+  const connectWallet = useCallback(async (requested?: WalletId | unknown) => {
     setIsConnecting(true)
     try {
-      let publicKey: string | null = null
-
-      // Try Freighter wallet
-      if (typeof window !== 'undefined' && window.freighter) {
-        try {
-          publicKey = await window.freighter.getPublicKey()
-        } catch (error) {
-          logger.error('Freighter connection failed:', error)
-        }
-      }
-
-      // Try generic stellar interface
-      if (!publicKey && typeof window !== 'undefined' && window.stellar) {
-        try {
-          publicKey = await window.stellar.requestPublicKey()
-        } catch (error) {
-          logger.error('Stellar wallet connection failed:', error)
-        }
-      }
-
-      // Try Albedo wallet
-      if (!publicKey && typeof window !== 'undefined' && window.albedo) {
-        try {
-          const result = await window.albedo.publicKey({})
-          publicKey = result.pubkey
-        } catch (error) {
-          logger.error('Albedo connection failed:', error)
-        }
-      }
-
-      // Try Rabet wallet
-      if (!publicKey && typeof window !== 'undefined' && window.rabet) {
-        try {
-          const result = await window.rabet.connect()
-          publicKey = result.publicKey
-        } catch (error) {
-          logger.error('Rabet connection failed:', error)
-        }
-      }
-
-      if (publicKey) {
-        setAddress(publicKey)
-        setIsConnected(true)
-        localStorage.setItem(STORAGE_KEYS.ADDRESS, publicKey)
-      } else {
+      const wallet = isWalletId(requested) ? getWallet(requested) : await detectWallet()
+      if (!wallet) {
         throw new Error(
-          'No compatible Stellar wallet found. Please install Freighter, Albedo, xBull, or Rabet.'
+          `No Stellar wallet found. Install ${WALLETS.map(w => w.name).join(', ')} or choose xBull to use its web wallet.`
         )
       }
+
+      const publicKey = await wallet.connect()
+      setAddress(publicKey)
+      setWalletId(wallet.id)
+      setIsConnected(true)
+      localStorage.setItem(STORAGE_KEYS.ADDRESS, publicKey)
+      localStorage.setItem(STORAGE_KEYS.WALLET, wallet.id)
     } catch (error) {
       logger.error('Error connecting wallet:', error)
-      setIsConnecting(false)
       throw error
     } finally {
       setIsConnecting(false)
@@ -149,6 +113,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       // Perform SEP-10 authentication
       const result = await sep10AuthService.authenticate(address, {
         homeDomain: window.location.hostname,
+        wallet: walletId ?? undefined,
       })
 
       // Store token and expiry
@@ -162,7 +127,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       logger.error('SEP-10 authentication failed:', error)
       throw error
     }
-  }, [address])
+  }, [address, walletId])
 
   const logout = useCallback(async () => {
     if (authToken) {
@@ -188,8 +153,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     // Clear wallet connection
     setAddress(null)
+    setWalletId(null)
     setIsConnected(false)
     localStorage.removeItem(STORAGE_KEYS.ADDRESS)
+    localStorage.removeItem(STORAGE_KEYS.WALLET)
   }, [isAuthenticated, logout])
 
   return (
@@ -197,6 +164,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       value={{
         isConnected,
         address,
+        walletId,
         isConnecting,
         isAuthenticated,
         authToken,

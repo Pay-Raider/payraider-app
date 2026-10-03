@@ -98,13 +98,13 @@ describe('UpgradePanel', () => {
   });
 
   it('pays with Freighter and confirms in one step', async () => {
-    vi.mocked(payInvoice.payInvoiceWithFreighter).mockResolvedValue(HASH);
+    vi.mocked(payInvoice.payInvoice).mockResolvedValue(HASH);
     renderPanel();
     fireEvent.click(await screen.findByRole('button', { name: /Upgrade for 50 USDC/ }));
     fireEvent.click(await screen.findByRole('button', { name: /Pay with Freighter/ }));
 
     await waitFor(() => expect(apiKeys.confirmInvoice).toHaveBeenCalledWith('token', 'inv-1', HASH));
-    expect(payInvoice.payInvoiceWithFreighter).toHaveBeenCalledWith(INVOICE, 'GWALLET');
+    expect(payInvoice.payInvoice).toHaveBeenCalledWith(INVOICE, 'GWALLET', 'freighter');
   });
 
   it('shows the server message when a payment does not match', async () => {

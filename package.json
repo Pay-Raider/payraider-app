@@ -23,8 +23,10 @@
     "test:acceptance": "playwright test -c acceptance/playwright.config.ts"
   },
   "dependencies": {
+    "@creit.tech/xbull-wallet-connect": "0.4.0",
     "@ducanh2912/next-pwa": "10.2.9",
     "@hookform/resolvers": "5.9.1",
+    "@lobstrco/signer-extension-api": "2.0.0",
     "@prisma/client": "7.10.0",
     "@radix-ui/react-slot": "1.2.4",
     "@sentry/nextjs": "10.73.0",

@@ -12,12 +12,15 @@ import {
   type Invoice,
   type Subscription,
 } from "@/lib/api-keys";
-import { payInvoiceWithFreighter } from "@/lib/pay-invoice";
+import { payInvoice } from "@/lib/pay-invoice";
+import { getWallet, type WalletId } from "@/lib/wallets";
 import { logger } from "@/lib/logger";
 
 interface UpgradePanelProps {
   authToken: string;
   address: string;
+  /** Wallet the address is connected with; it signs the payment. */
+  walletId?: WalletId;
   keys: ApiKeyInfo[];
 }
 
@@ -51,11 +54,11 @@ function CopyField({ label, value }: { label: string; value: string }) {
 
 /**
  * Upgrade an API key to the paid plan by paying USDC on Stellar. The page
- * asks the backend for an invoice, the user pays it (with Freighter, or from
+ * asks the backend for an invoice, the user pays it (with the connected wallet, or from
  * any wallet using the shown details), and the backend verifies the payment
  * on the ledger before raising the key's limit.
  */
-export default function UpgradePanel({ authToken, address, keys }: UpgradePanelProps) {
+export default function UpgradePanel({ authToken, address, walletId = "freighter", keys }: UpgradePanelProps) {
   const activeKeys = keys.filter((k) => k.status === "active");
   const [plan, setPlan] = useState<BillingPlan | null | undefined>(undefined);
   const [keyId, setKeyId] = useState("");
@@ -209,7 +212,7 @@ export default function UpgradePanel({ authToken, address, keys }: UpgradePanelP
               disabled={busy !== null}
               onClick={() =>
                 run("pay", async () => {
-                  const hash = await payInvoiceWithFreighter(invoice, address);
+                  const hash = await payInvoice(invoice, address, walletId);
                   setTxHash(hash);
                   await confirm(hash);
                 })
@@ -217,7 +220,7 @@ export default function UpgradePanel({ authToken, address, keys }: UpgradePanelP
               className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 font-medium text-white disabled:opacity-60"
             >
               {busy === "pay" && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-              Pay with Freighter
+              Pay with {getWallet(walletId).name}
             </button>
             <span className="text-xs text-muted-foreground md:pb-2">or pay from any wallet, then:</span>
             <label className="flex-1">

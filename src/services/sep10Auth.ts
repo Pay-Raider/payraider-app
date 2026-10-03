@@ -2,7 +2,7 @@ import {
   Transaction,
   Operation,
 } from '@stellar/stellar-sdk';
-import { signMessage } from '@stellar/freighter-api';
+import { getWallet, type WalletId } from '@/lib/wallets';
 import { logger } from '@/lib/logger';
 
 import { config } from '@/config';
@@ -39,45 +39,6 @@ export interface Sep10Info {
   network_passphrase: string;
   signing_key: string;
   version: string;
-}
-
-interface FreighterApi {
-  getPublicKey(): Promise<string>;
-  signTransaction(
-    xdr: string,
-    opts: { network: string; networkPassphrase: string; accountToSign: string },
-  ): Promise<string>;
-}
-
-interface AlbedoApi {
-  publicKey(opts: Record<string, unknown>): Promise<{ pubkey: string }>;
-  tx(opts: {
-    xdr: string;
-    network: string;
-    pubkey: string;
-  }): Promise<{ signed_envelope_xdr: string }>;
-}
-
-interface XBullSDKApi {
-  signTransaction(opts: {
-    xdr: string;
-    network: string;
-    publicKey: string;
-  }): Promise<string>;
-}
-
-interface RabetApi {
-  connect(): Promise<{ publicKey: string }>;
-  sign(xdr: string, network: string): Promise<{ xdr: string }>;
-}
-
-declare global {
-  interface Window {
-    freighter?: FreighterApi;
-    albedo?: AlbedoApi;
-    xBullSDK?: XBullSDKApi;
-    rabet?: RabetApi;
-  }
 }
 
 /**
@@ -128,37 +89,30 @@ export class Sep10AuthService {
    * Sign the challenge with the account's key and return the base64
    * signature.
    *
-   * The backend's challenge is a signed message, not a Stellar transaction,
-   * so it is signed with Freighter's SEP-53 signMessage; the server verifies
-   * that signature against the account. (Asking wallets to sign it as a
-   * transaction XDR, as this used to, could never succeed.)
+   * The backend's challenge is a message, not a Stellar transaction, so the
+   * wallet signs it as a message (Freighter, xBull and LOBSTR use SEP-53);
+   * the server verifies that signature against the account.
    */
   async signChallenge(
     challenge: string,
     networkPassphrase: string,
     publicKey: string,
+    walletId: WalletId = "freighter",
   ): Promise<string> {
-    const result = await signMessage(challenge, {
-      networkPassphrase,
-      address: publicKey,
-    });
-
-    if (result.error || !result.signedMessage) {
-      logger.error("Freighter signing failed:", result.error);
-      throw new Error(
-        result.error?.message ||
-          "Could not sign the login challenge. Install or unlock the Freighter wallet and try again.",
-      );
+    const wallet = getWallet(walletId);
+    try {
+      return await wallet.signMessage(challenge, {
+        networkPassphrase,
+        address: publicKey,
+      });
+    } catch (error) {
+      logger.error(`${wallet.name} signing failed:`, error);
+      throw error instanceof Error
+        ? error
+        : new Error(
+            `Could not sign the login challenge. Unlock ${wallet.name} and try again.`,
+          );
     }
-
-    if (result.signerAddress && result.signerAddress !== publicKey) {
-      throw new Error("The wallet signed with a different account than the one requested.");
-    }
-
-    // Freighter v3 returns a Buffer, v4+ a base64 string.
-    return typeof result.signedMessage === "string"
-      ? result.signedMessage
-      : result.signedMessage.toString("base64");
   }
 
   /**
@@ -197,6 +151,7 @@ export class Sep10AuthService {
       homeDomain?: string;
       clientDomain?: string;
       memo?: string;
+      wallet?: WalletId;
     },
   ): Promise<VerificationResponse> {
     // Step 1: Get server info
@@ -217,6 +172,7 @@ export class Sep10AuthService {
       challengeResponse.transaction,
       challengeResponse.network_passphrase,
       publicKey,
+      options?.wallet,
     );
 
     // Step 4: Verify signed challenge

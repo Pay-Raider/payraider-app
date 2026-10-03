@@ -32,7 +32,7 @@ type ModalState =
 
 export default function DeveloperKeysPage() {
   // Keys belong to the wallet proven by its SEP-10 session.
-  const { isConnected, address, isAuthenticated, authToken, authenticateWithSep10 } = useWallet();
+  const { isConnected, address, walletId, isAuthenticated, authToken, authenticateWithSep10 } = useWallet();
   const [signingIn, setSigningIn] = useState(false);
   const [keys, setKeys] = useState<ApiKeyInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -286,7 +286,12 @@ export default function DeveloperKeysPage() {
       )}
 
       {authToken && address && (
-        <UpgradePanel authToken={authToken} address={address} keys={keys} />
+        <UpgradePanel
+          authToken={authToken}
+          address={address}
+          walletId={walletId ?? undefined}
+          keys={keys}
+        />
       )}
 
       {modal.type === "create" && (

@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![React](https://img.shields.io/badge/React-19-61dafb)
-![Stellar](https://img.shields.io/badge/Stellar-Freighter-black)
+![Stellar](https://img.shields.io/badge/Stellar-Freighter%20%7C%20xBull%20%7C%20LOBSTR-black)
 
 Part of [PayRaider](https://github.com/Pay-Raider): [backend](https://github.com/Pay-Raider/payraider-backend) · [plugin & SDKs](https://github.com/Pay-Raider/payraider-plugin) · [contracts](https://github.com/Pay-Raider/payraider-contracts) · [mobile](https://github.com/Pay-Raider/payraider-mobile)
 
@@ -55,7 +55,7 @@ Deploy on Render with the `render.yaml` Blueprint; see the [deployment guide](ht
 
 ### Wallet sign-in
 
-Sign-in uses [Freighter](https://www.freighter.app/): the app asks the wallet to sign a one-time challenge message, and the backend checks the signature. For sign-in to work, the backend's `SEP10_HOME_DOMAIN` must equal the host name this app is served from.
+Sign in with [Freighter](https://www.freighter.app/), [xBull](https://xbull.app/) or [LOBSTR](https://lobstr.co/signer-extension/): the app asks the wallet to sign a one-time challenge message, and the backend checks the signature. The same wallet signs USDC plan payments. Albedo and Rabet cannot sign messages, so they cannot be used to sign in. For sign-in to work, the backend's `SEP10_HOME_DOMAIN` must equal the host name this app is served from.
 
 ## Development
 
@@ -74,7 +74,7 @@ Browser tests (Playwright) live in `src/__tests__/e2e` and `acceptance/`.
 | --- | --- |
 | `src/app/[locale]/` | Pages, one folder per route |
 | `src/components/` | UI components |
-| `src/lib/` | API clients (`api-keys.ts`, `pay-invoice.ts`, `api/`), utilities |
+| `src/lib/` | API clients (`api-keys.ts`, `pay-invoice.ts`, `api/`), wallet adapters (`wallets.ts`), utilities |
 | `src/services/` | Wallet sign-in and anchor (SEP-6/24/31) services |
 | `messages/` | Translations (`en`, `es`, `zh`) |
 | `acceptance/` | End-to-end acceptance tests |

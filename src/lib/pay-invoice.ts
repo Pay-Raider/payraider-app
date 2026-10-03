@@ -1,4 +1,3 @@
-import { signTransaction } from "@stellar/freighter-api";
 import {
   Asset,
   BASE_FEE,
@@ -9,6 +8,7 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import type { Invoice } from "@/lib/api-keys";
+import { getWallet, type WalletId } from "@/lib/wallets";
 
 const HORIZON_URL: Record<"mainnet" | "testnet", string> = {
   mainnet: "https://horizon.stellar.org",
@@ -20,11 +20,15 @@ function network(): "mainnet" | "testnet" {
 }
 
 /**
- * Build the payment the invoice asks for, have Freighter sign it, submit it
- * and return the transaction hash. The memo and amount come straight from the
- * invoice so the backend's on-chain check matches.
+ * Build the payment the invoice asks for, have the payer's wallet sign it,
+ * submit it and return the transaction hash. The memo and amount come
+ * straight from the invoice so the backend's on-chain check matches.
  */
-export async function payInvoiceWithFreighter(invoice: Invoice, payer: string): Promise<string> {
+export async function payInvoice(
+  invoice: Invoice,
+  payer: string,
+  walletId: WalletId = "freighter",
+): Promise<string> {
   const net = network();
   const passphrase = net === "mainnet" ? Networks.PUBLIC : Networks.TESTNET;
   const server = new Horizon.Server(HORIZON_URL[net]);
@@ -45,16 +49,13 @@ export async function payInvoiceWithFreighter(invoice: Invoice, payer: string): 
     .setTimeout(180)
     .build();
 
-  const signed = await signTransaction(transaction.toXDR(), {
+  const signedXdr = await getWallet(walletId).signTransaction(transaction.toXDR(), {
     networkPassphrase: passphrase,
     address: payer,
   });
-  if (signed.error || !signed.signedTxXdr) {
-    throw new Error(signed.error?.message || "The wallet did not sign the payment.");
-  }
 
   const result = await server.submitTransaction(
-    TransactionBuilder.fromXDR(signed.signedTxXdr, passphrase),
+    TransactionBuilder.fromXDR(signedXdr, passphrase),
   );
   return result.hash;
 }

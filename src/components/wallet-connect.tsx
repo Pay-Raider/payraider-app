@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import { useWallet } from "../components/lib/wallet-context";
 import { LogOut, Wallet, Shield, CheckCircle } from "lucide-react";
 import { useState } from "react";
+import { WALLETS, type WalletId } from "@/lib/wallets";
 
 export function WalletButton() {
   const {
@@ -18,12 +19,17 @@ export function WalletButton() {
   } = useWallet();
   const [showMenu, setShowMenu] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
-  const handleConnect = async () => {
+  const handleConnect = async (walletId: WalletId) => {
+    setConnectError(null);
     try {
-      await connectWallet();
+      await connectWallet(walletId);
+      setShowPicker(false);
     } catch (error) {
       logger.error("Failed to connect wallet:", error);
+      setConnectError(error instanceof Error ? error.message : "Could not connect the wallet.");
     }
   };
 
@@ -125,13 +131,51 @@ export function WalletButton() {
   }
 
   return (
-    <button
-      onClick={handleConnect}
-      disabled={isConnecting}
-      className="px-6 py-2 bg-blue-500 text-white rounded-full font-medium hover:opacity-90 transition disabled:opacity-50 flex items-center gap-2"
-    >
-      <Wallet className="w-4 h-4" />
-      {isConnecting ? "Connecting..." : "Connect Wallet"}
-    </button>
+    <div className="relative">
+      <button
+        onClick={() => setShowPicker(!showPicker)}
+        disabled={isConnecting}
+        aria-haspopup="menu"
+        aria-expanded={showPicker}
+        className="px-6 py-2 bg-blue-500 text-white rounded-full font-medium hover:opacity-90 transition disabled:opacity-50 flex items-center gap-2"
+      >
+        <Wallet className="w-4 h-4" />
+        {isConnecting ? "Connecting..." : "Connect Wallet"}
+      </button>
+
+      {showPicker && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-50"
+        >
+          {WALLETS.map((wallet) => (
+            <div key={wallet.id} className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700">
+              <button
+                role="menuitem"
+                onClick={() => handleConnect(wallet.id)}
+                disabled={isConnecting}
+                className="flex-1 text-left px-4 py-2 text-sm transition disabled:opacity-50"
+              >
+                {wallet.name}
+              </button>
+              <a
+                href={wallet.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Get ${wallet.name}`}
+                className="px-4 py-2 text-xs text-muted-foreground hover:underline"
+              >
+                Get
+              </a>
+            </div>
+          ))}
+          {connectError && (
+            <p role="alert" className="px-4 pt-2 text-xs text-red-600 dark:text-red-400 border-t border-gray-200 dark:border-gray-700">
+              {connectError}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
