@@ -1,0 +1,19 @@
+# Render Blueprint for the PayRaider web app.
+# Set NEXT_PUBLIC_API_URL to your PayRaider API. The API's SEP10_HOME_DOMAIN
+# must equal this app's host name for wallet sign-in to work.
+services:
+- type: web
+  name: payraider-web
+  runtime: node
+  plan: free
+  region: frankfurt
+  buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+  startCommand: pnpm start
+  autoDeploy: true
+  envVars:
+  - key: NODE_VERSION
+    value: '22'
+  - key: NEXT_PUBLIC_API_URL
+    sync: false
+  - key: NEXT_PUBLIC_STELLAR_NETWORK
+    value: mainnet
