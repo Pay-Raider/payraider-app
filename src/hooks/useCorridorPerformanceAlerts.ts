@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { logger } from "@/lib/logger";
 import type { CorridorPerformanceAlert } from "@/lib/alerts-api";
+import { getWebSocketUrl } from "@/lib/ws-url";
 
 interface UseCorridorPerformanceAlertsOptions {
   onAlert?: (alert: CorridorPerformanceAlert) => void;
@@ -35,8 +36,8 @@ export function useCorridorPerformanceAlerts(
 
   const connect = useCallback(() => {
     try {
-      const wsUrl =
-        process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws";
+      const wsUrl = getWebSocketUrl();
+      if (!wsUrl) return;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 

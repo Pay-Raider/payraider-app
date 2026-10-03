@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useWebSocket, WsMessage } from "./useWebSocket";
 import { logger } from "@/lib/logger";
+import { getWebSocketUrl } from "@/lib/ws-url";
 
 export interface AnchorUpdate {
   anchor_id: string;
@@ -33,8 +34,7 @@ export function useRealtimeAnchors(
     new Map(),
   );
 
-  // Get WebSocket URL from environment or default
-  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws";
+  const wsUrl = getWebSocketUrl() ?? "";
 
   const handleMessage = useCallback(
     (message: WsMessage) => {

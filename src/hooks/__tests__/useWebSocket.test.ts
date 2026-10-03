@@ -118,3 +118,16 @@ describe('useWebSocket – resubscribe after reconnect (#1782)', () => {
     expect(subscribeMessages(lastSocket())).toEqual([]);
   });
 });
+
+describe('useWebSocket – disabled when no URL is configured', () => {
+  it('opens no socket for an empty URL', async () => {
+    // new WebSocket("") would resolve to the current page and open
+    // ws://<this site>/<page>, which is never the backend.
+    const { result } = renderHook(() => useWebSocket(''));
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(MockWebSocket.instances).toHaveLength(0);
+    expect(result.current.isConnected).toBe(false);
+  });
+});

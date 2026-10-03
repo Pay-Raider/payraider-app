@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NetworkSwitcher } from '@/components/NetworkSwitcher';
 import { NetworkProvider } from '@/contexts/NetworkContext';
 
@@ -26,63 +25,52 @@ const TESTNET_NETWORK = {
   is_testnet: true,
 };
 
-function renderWithProviders(ui: React.ReactElement, queryClient: QueryClient) {
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <NetworkProvider>{ui}</NetworkProvider>
-    </QueryClientProvider>,
+function jsonResponse(body: unknown, ok = true) {
+  return Promise.resolve(
+    new Response(JSON.stringify(body), {
+      status: ok ? 200 : 503,
+      headers: { 'Content-Type': 'application/json' },
+    }),
   );
 }
 
 describe('NetworkSwitcher', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn((url: string) => {
-      if (url.includes('/api/network/info')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => MAINNET_NETWORK,
-        });
-      }
-      if (url.includes('/api/network/available')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => [MAINNET_NETWORK, TESTNET_NETWORK],
-        });
-      }
-      if (url.includes('/api/network/switch')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ message: 'Network switched to testnet.' }),
-        });
-      }
-      return Promise.reject(new Error(`Unhandled fetch: ${url}`));
-    }));
+  const fetchMock = vi.fn();
 
-    vi.stubGlobal('alert', vi.fn());
+  beforeEach(() => {
+    fetchMock.mockReset();
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/network/info')) return jsonResponse(MAINNET_NETWORK);
+      if (url.endsWith('/network/available')) return jsonResponse([MAINNET_NETWORK, TESTNET_NETWORK]);
+      return Promise.reject(new Error(`Unhandled fetch: ${url}`));
+    });
+    vi.stubGlobal('fetch', fetchMock);
   });
 
-  it('clears React Query cache when network switch is confirmed', async () => {
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    const clearSpy = vi.spyOn(queryClient, 'clear');
+  it('reads the network from the backend, not the web app origin', async () => {
+    render(<NetworkProvider><NetworkSwitcher /></NetworkProvider>);
 
-    queryClient.setQueryData(['anchors'], [{ id: 'stale-mainnet' }]);
+    await screen.findByRole('button', { name: 'Network: Mainnet' });
+    const urls = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(urls.some((u) => u.endsWith('/network/info'))).toBe(true);
+    expect(urls.every((u) => /^https?:\/\//.test(u))).toBe(true);
+  });
 
-    renderWithProviders(<NetworkSwitcher />, queryClient);
+  it('lists known networks and explains the network is fixed per deployment', async () => {
+    render(<NetworkProvider><NetworkSwitcher /></NetworkProvider>);
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Network: Mainnet/i })).toBeInTheDocument();
-    });
+    fireEvent.click(await screen.findByRole('button', { name: 'Network: Mainnet' }));
 
-    fireEvent.click(screen.getByRole('button', { name: /Network: Mainnet/i }));
-    fireEvent.click(screen.getByRole('option', { name: /Testnet/i }));
-    fireEvent.click(screen.getByLabelText('Confirm switch to Testnet'));
+    await waitFor(() => expect(screen.getByText('Testnet')).toBeInTheDocument());
+    expect(screen.getByText(/This deployment serves Mainnet/)).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/network/switch'))).toBe(false);
+  });
 
-    await waitFor(() => {
-      expect(clearSpy).toHaveBeenCalledTimes(1);
-    });
+  it('shows the API as offline when it cannot be reached', async () => {
+    fetchMock.mockImplementation(() => Promise.reject(new TypeError('Failed to fetch')));
+    render(<NetworkProvider><NetworkSwitcher /></NetworkProvider>);
 
-    expect(queryClient.getQueryData(['anchors'])).toBeUndefined();
+    expect(await screen.findByText('API offline')).toBeInTheDocument();
   });
 });

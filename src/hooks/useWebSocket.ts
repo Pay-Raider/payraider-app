@@ -80,7 +80,9 @@ export function useWebSocket(
   const connectRef = useRef<() => void>(() => {});
 
   const connect = useCallback(() => {
-    if (isConnectingRef.current) {
+    // An empty URL means the socket is disabled. new WebSocket("") would
+    // resolve against the page and try to open ws://<this site>/<page>.
+    if (!url || isConnectingRef.current) {
       return;
     }
 

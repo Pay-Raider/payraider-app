@@ -180,10 +180,11 @@ export async function GET() {
     });
   } catch (error) {
     logger.error("Dashboard API Error:", error);
-    // Return error state or fallback mock data if critical
+    // The failure is upstream (the PayRaider API), so report a gateway error
+    // rather than a crash in this app.
     return NextResponse.json(
-      { error: "Failed to fetch dashboard data" },
-      { status: 500 },
+      { error: "The PayRaider API is unavailable. Try again shortly." },
+      { status: 502 },
     );
   }
 }

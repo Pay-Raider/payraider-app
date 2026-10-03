@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getWebSocketUrl } from "@/lib/ws-url";
 
 interface Alert {
   alert_type: 'SuccessRateDrop' | 'LatencyIncrease' | 'LiquidityDecrease';
@@ -13,7 +14,9 @@ export default function AlertNotifications() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
   useEffect(() => {
-    const websocket = new WebSocket('ws://localhost:8080/ws/alerts');
+    const wsUrl = getWebSocketUrl();
+    if (!wsUrl) return;
+    const websocket = new WebSocket(wsUrl);
 
     websocket.onmessage = (event) => {
       const alert = JSON.parse(event.data);

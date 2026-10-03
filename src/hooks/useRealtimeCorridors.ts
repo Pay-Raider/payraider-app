@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useWebSocket, WsMessage } from "./useWebSocket";
 import { logger } from "@/lib/logger";
+import { getWebSocketUrl } from "@/lib/ws-url";
 
 export interface CorridorUpdate {
   corridor_key: string;
@@ -65,8 +66,7 @@ export function useRealtimeCorridors(
   const [healthAlerts, setHealthAlerts] = useState<HealthAlert[]>([]);
   const [recentPayments, setRecentPayments] = useState<NewPayment[]>([]);
 
-  // Get WebSocket URL from environment or default
-  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080/ws";
+  const wsUrl = getWebSocketUrl() ?? "";
 
   const handleMessage = useCallback(
     (message: WsMessage) => {

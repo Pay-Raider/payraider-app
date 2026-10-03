@@ -79,16 +79,6 @@ export interface NetworkInfo {
   is_testnet: boolean;
 }
 
-export interface SwitchNetworkRequest {
-  network: "mainnet" | "testnet";
-}
-
-export interface SwitchNetworkResponse {
-  success: boolean;
-  message: string;
-  network_info: NetworkInfo;
-}
-
 export interface VolumeDataPoint {
   timestamp: string;
   volume_usd: number;

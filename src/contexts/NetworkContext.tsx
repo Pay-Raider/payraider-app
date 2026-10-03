@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import type { NetworkInfo } from '@/lib/api/types';
 import { logger } from '@/lib/logger';
+import { getCurrentNetwork } from '@/lib/api/networkAPIFunction';
 
 interface NetworkContextType {
   network: NetworkInfo | null;
@@ -46,11 +47,8 @@ export function NetworkProvider({ children }: NetworkProviderProps) {
   const refreshNetwork = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/network/info');
-      if (response.ok) {
-        const current = (await response.json()) as NetworkInfo;
-        setNetworkState(current);
-      }
+      // The network is fixed per backend deployment; read it from the API.
+      setNetworkState(await getCurrentNetwork());
     } catch (err) {
       logger.error('Failed to refresh network info:', err as string);
     } finally {
