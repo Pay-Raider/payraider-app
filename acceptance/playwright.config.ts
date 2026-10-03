@@ -1,27 +1,23 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
+/**
+ * Cross-cutting acceptance checks against a running app (accessibility scan,
+ * network isolation). Run with: pnpm test:acceptance
+ * Set BASE_URL to test a deployed instance instead of localhost.
+ */
 export default defineConfig({
-  testDir: './src/__tests__/e2e',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
+  testDir: "./acceptance",
+  timeout: 30_000,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
-    trace: 'on-first-retry',
+    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    trace: "on-first-retry",
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: 'pnpm dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: true,
-      },
 });
