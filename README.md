@@ -40,6 +40,8 @@ pnpm build
 pnpm start
 ```
 
+Deploy on Render with the `render.yaml` Blueprint; see the [deployment guide](https://github.com/Pay-Raider/payraider-backend/blob/main/docs/DEPLOY.md).
+
 ## Configuration
 
 | Variable | Required | Purpose |
