@@ -1,17 +1,37 @@
-import { readFileSync } from "fs";
-import { join } from "path";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-static";
+// The spec belongs to the backend (Pay-Raider/payraider-backend), which serves
+// it at /api/docs/openapi.json. Proxy it so the docs page stays same-origin.
+// Rendered per request so a build without a running backend does not bake in
+// an error; the upstream fetch is cached for an hour.
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const specPath = join(process.cwd(), "../docs/openapi.json");
-  const spec = readFileSync(specPath, "utf-8");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    return NextResponse.json(
+      { error: "NEXT_PUBLIC_API_URL is not configured" },
+      { status: 503 },
+    );
+  }
 
-  return new NextResponse(spec, {
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=3600",
-    },
-  });
+  try {
+    const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/docs/openapi.json`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: `Backend responded ${res.status}` },
+        { status: 502 },
+      );
+    }
+    return new NextResponse(await res.text(), {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "Backend unreachable" }, { status: 502 });
+  }
 }

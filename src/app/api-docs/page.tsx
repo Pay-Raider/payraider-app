@@ -15,7 +15,7 @@ declare global {
 }
 
 /**
- * Generated API docs rendered from the committed OpenAPI spec (docs/openapi.json).
+ * Generated API docs rendered from the backend's OpenAPI spec (proxied by /api/openapi).
  * Replaces the hand-rolled endpoint catalogue, playground, and examples pages.
  */
 export default function ApiDocsPage() {
