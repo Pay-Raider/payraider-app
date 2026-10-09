@@ -13,7 +13,7 @@ export async function exportChart(
 
         // We apply some styling to maintain appearance during export
         const style = {
-            backgroundColor: '#211710', // match dark theme typical bg
+            backgroundColor: '#3f2a1d', // match dark theme typical bg
         };
 
         switch (format) {

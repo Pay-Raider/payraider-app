@@ -153,7 +153,7 @@ export async function getMuxedAnalytics(
   return api.get<MuxedAccountAnalytics>(`/analytics/muxed${q ? `?${q}` : ""}`);
 }
 
-interface PreflightCorridor {
+export interface PreflightCorridor {
   id: string;
   source_asset: string;
   destination_asset: string;
@@ -163,11 +163,42 @@ interface PreflightCorridor {
   health_score: number;
 }
 
-interface PreflightApiResponse {
-  decision: "proceed" | "caution" | "hold" | "unknown";
+export type PreflightDecision = "proceed" | "caution" | "hold" | "unknown";
+
+export interface PreflightCheckResult {
+  name: string;
+  status: "pass" | "warn" | "fail";
+  detail: string;
+}
+
+/** Response of GET /api/v1/preflight (payraider-backend src/api/preflight.rs). */
+export interface PreflightResult {
+  decision: PreflightDecision;
   summary: string;
+  score: number | null;
   corridor: PreflightCorridor | null;
+  checks: PreflightCheckResult[];
   alternatives: PreflightCorridor[];
+  evaluated_at: string;
+}
+
+type PreflightApiResponse = PreflightResult;
+
+/** Run the pre-payment check and return the backend's full answer. */
+export async function checkPayment(request: {
+  source_asset: string;
+  destination_asset: string;
+  amount_usd?: number;
+}): Promise<PreflightResult> {
+  const params = new URLSearchParams({
+    source_asset: request.source_asset,
+    destination_asset: request.destination_asset,
+  });
+  if (request.amount_usd !== undefined && Number.isFinite(request.amount_usd) && request.amount_usd > 0) {
+    params.set("amount_usd", String(request.amount_usd));
+  }
+  const response = await api.get<PreflightResult>(`/preflight?${params}`);
+  return { ...response, checks: response.checks ?? [], alternatives: response.alternatives ?? [] };
 }
 
 /**

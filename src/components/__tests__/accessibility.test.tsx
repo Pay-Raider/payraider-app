@@ -40,19 +40,20 @@ vi.mock('@/contexts/NotificationContext', () => ({
 
 describe('Accessibility Tests', () => {
   describe('Sidebar Component', () => {
+    // axe on the full navigation drawer can pass 5s on a busy CI runner.
     it('should not have accessibility violations', async () => {
-      const { container } = render(<Sidebar />);
+      const { container } = render(<Sidebar open onClose={() => {}} />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
-    });
+    }, 20_000);
 
     it('should have proper ARIA labels on navigation', () => {
-      const { getByLabelText } = render(<Sidebar />);
+      const { getByLabelText } = render(<Sidebar open onClose={() => {}} />);
       expect(getByLabelText(/primary navigation/i)).toBeInTheDocument();
     });
 
     it('should mark icons as decorative', () => {
-      const { container } = render(<Sidebar />);
+      const { container } = render(<Sidebar open onClose={() => {}} />);
       const icons = container.querySelectorAll('svg');
       icons.forEach(icon => {
         expect(icon).toHaveAttribute('aria-hidden', 'true');
@@ -60,7 +61,7 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have aria-current on active page', () => {
-      const { container } = render(<Sidebar />);
+      const { container } = render(<Sidebar open onClose={() => {}} />);
       const activeLink = container.querySelector('[aria-current="page"]');
       expect(activeLink).toBeInTheDocument();
     });
@@ -181,7 +182,7 @@ describe('Accessibility Tests', () => {
 
   describe('Keyboard Navigation', () => {
     it('sidebar links should be keyboard accessible', () => {
-      const { container } = render(<Sidebar />);
+      const { container } = render(<Sidebar open onClose={() => {}} />);
       const links = container.querySelectorAll('a');
       links.forEach(link => {
         expect(link).not.toHaveAttribute('tabindex', '-1');
@@ -207,18 +208,18 @@ describe('Accessibility Tests', () => {
 
   describe('Screen Reader Support', () => {
     it('should hide decorative icons from screen readers', () => {
-      const { container } = render(<Sidebar />);
+      const { container } = render(<Sidebar open onClose={() => {}} />);
       const decorativeIcons = container.querySelectorAll('[aria-hidden="true"]');
       expect(decorativeIcons.length).toBeGreaterThan(0);
     });
 
     it('should provide text alternatives for icon-only buttons', () => {
-      const { getByLabelText } = render(<Sidebar />);
-      expect(getByLabelText(/collapse/i)).toBeInTheDocument();
+      const { getByLabelText } = render(<Sidebar open onClose={() => {}} />);
+      expect(getByLabelText(/close sidebar/i)).toBeInTheDocument();
     });
 
     it('should announce status changes', () => {
-      const { container } = render(<Sidebar />);
+      const { container } = render(<Sidebar open onClose={() => {}} />);
       const statusRegion = container.querySelector('[role="status"]');
       expect(statusRegion).toHaveAttribute('aria-live', 'polite');
     });

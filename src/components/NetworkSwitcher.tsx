@@ -41,9 +41,9 @@ export function NetworkSwitcher({ className = '' }: NetworkSwitcherProps) {
 
   if (!currentNetwork) {
     return (
-      <div className={`flex items-center space-x-2 ${className}`} title="The API could not be reached">
-        <WifiOff className="w-4 h-4 text-red-500" />
-        <span className="text-sm text-red-500">API offline</span>
+      <div className={`flex items-center gap-1.5 whitespace-nowrap ${className}`} title="The API could not be reached">
+        <WifiOff className="w-4 h-4 text-error" />
+        <span className="text-sm text-error">API offline</span>
       </div>
     );
   }

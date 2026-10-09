@@ -19,8 +19,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   no_trustline: "#a47b47",
   transaction_failed: "#ec4899",
   offer_crossing: "#eab308",
-  timed_out: "#d18f55",
-  other: "#86705c",
+  timed_out: "#eab069",
+  other: "#9a7a5f",
 };
 
 function BreakdownBar({ item }: { item: FailureCategoryBreakdown }) {

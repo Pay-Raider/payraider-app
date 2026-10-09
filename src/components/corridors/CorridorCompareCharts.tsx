@@ -51,7 +51,7 @@ export function SuccessRateCompareChart({ corridors }: CompareChartsProps) {
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#4f3f33"
+            stroke="#5a3d2a"
             opacity={0.1}
           />
           <XAxis
@@ -68,10 +68,10 @@ export function SuccessRateCompareChart({ corridors }: CompareChartsProps) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#2b1f17",
+              backgroundColor: "#3a261a",
               border: "none",
               borderRadius: "8px",
-              color: "#faf6f1",
+              color: "#faf4ea",
             }}
             itemStyle={{ fontSize: "12px" }}
           />
@@ -122,7 +122,7 @@ export function VolumeCompareChart({ corridors }: CompareChartsProps) {
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#4f3f33"
+            stroke="#5a3d2a"
             opacity={0.1}
           />
           <XAxis
@@ -143,10 +143,10 @@ export function VolumeCompareChart({ corridors }: CompareChartsProps) {
               return [`$${value.toLocaleString()}`, "Volume"];
             }}
             contentStyle={{
-              backgroundColor: "#2b1f17",
+              backgroundColor: "#3a261a",
               border: "none",
               borderRadius: "8px",
-              color: "#faf6f1",
+              color: "#faf4ea",
             }}
           />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />
@@ -193,7 +193,7 @@ export function SlippageCompareChart({ corridors }: CompareChartsProps) {
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#4f3f33"
+            stroke="#5a3d2a"
             opacity={0.1}
           />
           <XAxis
@@ -209,10 +209,10 @@ export function SlippageCompareChart({ corridors }: CompareChartsProps) {
               return [`${value.toFixed(2)} bps`, "Slippage"];
             }}
             contentStyle={{
-              backgroundColor: "#2b1f17",
+              backgroundColor: "#3a261a",
               border: "none",
               borderRadius: "8px",
-              color: "#faf6f1",
+              color: "#faf4ea",
             }}
           />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />

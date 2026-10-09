@@ -151,7 +151,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
               onClick={() => handlePeriodClick(period)}
               className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 ${
                 timePeriod === period
-                  ? "bg-accent text-accent-foreground shadow-[0_0_15px_rgba(209, 143, 85,0.4)]"
+                  ? "bg-accent text-accent-foreground shadow-[0_0_15px_rgba(234, 176, 105,0.4)]"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/5"
               }`}
             >
@@ -249,7 +249,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                           >
                             {cell ? (
                               <div
-                                className={`w-full h-full rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(209, 143, 85,0.2)] flex flex-col items-center justify-center border border-white/10 ${getLiquidityColor(
+                                className={`w-full h-full rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(234, 176, 105,0.2)] flex flex-col items-center justify-center border border-white/10 ${getLiquidityColor(
                                   cell.liquidity,
                                 )} ${getOpacity(cell.liquidity)}`}
                               >
@@ -289,7 +289,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
               <div className="bg-slate-900/95 backdrop-blur-xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 min-w-[240px] border border-white/10">
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_#d18f55]"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_#eab069]"></div>
                     <span className="font-medium text-xs tracking-tighter">
                       {tooltipData.sourceAsset}{" "}
                       <ArrowRight className="inline w-3 h-3 mx-1 text-muted-foreground" />{" "}

@@ -114,11 +114,11 @@ function TrendChart({ data }: { data: SettlementTrendPoint[] }) {
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
           <XAxis
             dataKey="bucket"
-            tick={{ fontSize: 9, fontFamily: "monospace", fill: "#86705c" }}
+            tick={{ fontSize: 9, fontFamily: "monospace", fill: "#9a7a5f" }}
             interval="preserveStartEnd"
           />
           <YAxis
-            tick={{ fontSize: 9, fontFamily: "monospace", fill: "#86705c" }}
+            tick={{ fontSize: 9, fontFamily: "monospace", fill: "#9a7a5f" }}
             tickFormatter={(v) => formatMs(v)}
           />
           <Tooltip

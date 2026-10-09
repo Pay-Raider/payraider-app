@@ -64,7 +64,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
               tickMargin={10}
               tick={{
                 fontSize: 10,
-                fill: "#a88f78",
+                fill: "#b89a7c",
                 fontWeight: 500,
                 fontFamily: "monospace",
               }}
@@ -75,7 +75,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
               tickFormatter={(value) => `${value}s`}
               tick={{
                 fontSize: 10,
-                fill: "#a88f78",
+                fill: "#b89a7c",
                 fontWeight: 500,
                 fontFamily: "monospace",
               }}
@@ -86,7 +86,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
                 backgroundColor: "rgba(15, 23, 42, 0.9)",
                 borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#faf6f1",
+                color: "#faf4ea",
                 fontSize: "12px",
                 fontFamily: "monospace",
               })}
@@ -108,7 +108,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
                     entry.speed > 5
                       ? "#f43f5e"
                       : entry.speed > 3
-                        ? "#d18f55"
+                        ? "#eab069"
                         : "#10b981"
                   }
                   fillOpacity={0.8}

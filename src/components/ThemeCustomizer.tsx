@@ -8,7 +8,7 @@ import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 // ─── Accent colour presets ────────────────────────────────────────────────────
 const ACCENT_PRESETS = [
-  { label: "Indigo", value: "#d18f55" },
+  { label: "Indigo", value: "#eab069" },
   { label: "Violet", value: "#b8905c" },
   { label: "Sky", value: "#c9a677" },
   { label: "Emerald", value: "#10b981" },
@@ -43,7 +43,7 @@ function ThemeCard({ preference: _preference, label, icon: Icon, active, onClick
       aria-label={`Set theme to ${label}`}
       className={`relative flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer w-full text-left ${
         active
-          ? "border-accent bg-accent/10 shadow-[0_0_20px_rgba(209, 143, 85,0.2)]"
+          ? "border-accent bg-accent/10 shadow-[0_0_20px_rgba(234, 176, 105,0.2)]"
           : "border-border hover:border-accent/40 bg-card"
       }`}
     >
@@ -83,7 +83,7 @@ export function ThemeCustomizer() {
   const { prefs, setPrefs } = useUserPreferences();
 
   // Accent colour stored in user prefs; apply to CSS variable on change
-  const accentColor: string = (prefs as unknown as Record<string, unknown>).accentColor as string ?? "#d18f55";
+  const accentColor: string = (prefs as unknown as Record<string, unknown>).accentColor as string ?? "#eab069";
   const fontSize: FontSizeValue = ((prefs as unknown as Record<string, unknown>).fontSize as FontSizeValue) ?? "md";
 
   const applyAccent = (color: string) => {
@@ -110,19 +110,19 @@ export function ThemeCustomizer() {
       preference: "light",
       label: "Light",
       icon: Sun,
-      preview: { bg: "#faf6f1", card: "#e4d5c4", text: "#211710" },
+      preview: { bg: "#faf4ea", card: "#e8d8c2", text: "#3f2a1d" },
     },
     {
       preference: "dark",
       label: "Dark",
       icon: Moon,
-      preview: { bg: "#17100b", card: "#2b1f17", text: "#faf6f1" },
+      preview: { bg: "#2c1b10", card: "#3a261a", text: "#faf4ea" },
     },
     {
       preference: "system",
       label: "System",
       icon: Monitor,
-      preview: { bg: "linear-gradient(135deg,#17100b 50%,#faf6f1 50%)", card: "#d18f55", text: "#a88f78" },
+      preview: { bg: "linear-gradient(135deg,#2c1b10 50%,#faf4ea 50%)", card: "#eab069", text: "#b89a7c" },
     },
   ];
 

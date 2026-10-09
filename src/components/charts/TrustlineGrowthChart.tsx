@@ -116,8 +116,8 @@ export function TrustlineGrowthChart({
           >
             <defs>
               <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#d18f55" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#d18f55" stopOpacity={0} />
+                <stop offset="5%" stopColor="#eab069" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#eab069" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -150,20 +150,20 @@ export function TrustlineGrowthChart({
                 fontSize: "10px",
                 fontFamily: "monospace",
               })}
-              labelStyle={{ color: "#a88f78", marginBottom: "4px" }}
+              labelStyle={{ color: "#b89a7c", marginBottom: "4px" }}
               itemStyle={{ fontFamily: "monospace", padding: "2px 0" }}
             />
             <Area
               type="monotone"
               dataKey="total"
               name="Total Trustlines"
-              stroke="#d18f55"
+              stroke="#eab069"
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#colorTotal)"
               activeDot={{
                 r: 4,
-                fill: "#d18f55",
+                fill: "#eab069",
                 stroke: "#fff",
                 strokeWidth: 2,
               }}
@@ -189,7 +189,7 @@ export function TrustlineGrowthChart({
 
       <div className="flex items-center gap-6 mt-6 pt-4 border-t border-white/5">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-[#d18f55]" />
+          <div className="w-3 h-3 rounded bg-[#eab069]" />
           <span className="text-xs text-muted-foreground cursor-default">
             Total Trustlines
           </span>

@@ -291,7 +291,7 @@ export function CorridorHealthForecastChart({
             {/* Actual health */}
             <Line
               dataKey="actual"
-              stroke="#d18f55"
+              stroke="#eab069"
               strokeWidth={2}
               dot={false}
               name="Actual"
@@ -300,7 +300,7 @@ export function CorridorHealthForecastChart({
             {/* Forecast */}
             <Line
               dataKey="forecast"
-              stroke="#e3ad78"
+              stroke="#f0c48c"
               strokeWidth={2}
               strokeDasharray="5 4"
               dot={false}

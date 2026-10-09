@@ -60,10 +60,10 @@ export function WalletButton() {
       <div className="relative">
         <button
           onClick={() => setShowMenu(!showMenu)}
-          className={`px-4 py-2 rounded-full font-medium hover:opacity-90 transition flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition flex items-center gap-2 border ${
             isAuthenticated
-              ? "bg-green-500 text-white"
-              : "bg-blue-500 text-white"
+              ? "border-success/40 bg-success/10 text-success"
+              : "border-border bg-surface text-foreground hover:bg-[var(--sidebar-hover-bg)]"
           }`}
         >
           {isAuthenticated ? (
@@ -80,7 +80,7 @@ export function WalletButton() {
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-50">
+          <div className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-2xl shadow-lg py-2 z-50">
             <div className="px-4 py-2 text-sm text-muted-foreground dark:text-muted-foreground border-b border-gray-200 dark:border-gray-700">
               <div className="font-mono text-xs break-all">{address}</div>
               {isAuthenticated && (
@@ -137,7 +137,7 @@ export function WalletButton() {
         disabled={isConnecting}
         aria-haspopup="menu"
         aria-expanded={showPicker}
-        className="px-6 py-2 bg-blue-500 text-white rounded-full font-medium hover:opacity-90 transition disabled:opacity-50 flex items-center gap-2"
+        className="whitespace-nowrap px-4 py-2 bg-accent text-accent-foreground rounded-full text-sm font-semibold hover:brightness-110 transition disabled:opacity-50 flex items-center gap-2"
       >
         <Wallet className="w-4 h-4" />
         {isConnecting ? "Connecting..." : "Connect Wallet"}
@@ -146,7 +146,7 @@ export function WalletButton() {
       {showPicker && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-50"
+          className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-2xl shadow-lg py-2 z-50"
         >
           {WALLETS.map((wallet) => (
             <div key={wallet.id} className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700">

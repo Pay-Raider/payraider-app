@@ -71,8 +71,8 @@ export function CorridorPerformanceChart({ snapshots, metric }: CorridorPerforma
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#a88f78" }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#a88f78" }} />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#b89a7c" }} />
+            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#b89a7c" }} />
             <Tooltip content={CustomTooltip} />
             <ReferenceLine y={90} stroke="#22c55e" strokeDasharray="3 3" strokeOpacity={0.5} />
             <ReferenceLine y={80} stroke="#ef4444" strokeDasharray="3 3" strokeOpacity={0.5} />
@@ -93,8 +93,8 @@ export function CorridorPerformanceChart({ snapshots, metric }: CorridorPerforma
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#a88f78" }} />
-            <YAxis tick={{ fontSize: 10, fill: "#a88f78" }} />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#b89a7c" }} />
+            <YAxis tick={{ fontSize: 10, fill: "#b89a7c" }} />
             <Tooltip content={CustomTooltip} />
             <Bar dataKey="latency" fill="rgba(234,179,8,0.3)" name="Latency (ms)" radius={[2, 2, 0, 0]} />
             <Line type="monotone" dataKey="latency" stroke="#eab308" strokeWidth={2} dot={false} name="Latency (ms)" />
@@ -107,8 +107,8 @@ export function CorridorPerformanceChart({ snapshots, metric }: CorridorPerforma
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#a88f78" }} />
-            <YAxis tick={{ fontSize: 10, fill: "#a88f78" }} tickFormatter={(v) => `$${v}k`} />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#b89a7c" }} />
+            <YAxis tick={{ fontSize: 10, fill: "#b89a7c" }} tickFormatter={(v) => `$${v}k`} />
             <Tooltip content={CustomTooltip} />
             <Area
               type="monotone"
@@ -127,8 +127,8 @@ export function CorridorPerformanceChart({ snapshots, metric }: CorridorPerforma
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#a88f78" }} />
-            <YAxis tick={{ fontSize: 10, fill: "#a88f78" }} tickFormatter={(v) => `$${v}k`} />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#b89a7c" }} />
+            <YAxis tick={{ fontSize: 10, fill: "#b89a7c" }} tickFormatter={(v) => `$${v}k`} />
             <Tooltip content={CustomTooltip} />
             <Area
               type="monotone"

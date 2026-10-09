@@ -313,29 +313,29 @@ const HealthDashboard = () => {
                         >
                           <stop
                             offset="5%"
-                            stopColor="#d18f55"
+                            stopColor="#eab069"
                             stopOpacity={0.3}
                           />
                           <stop
                             offset="95%"
-                            stopColor="#d18f55"
+                            stopColor="#eab069"
                             stopOpacity={0}
                           />
                         </linearGradient>
                       </defs>
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#211710",
+                          backgroundColor: "#3f2a1d",
                           border: "1px solid rgba(255,255,255,0.1)",
                           fontSize: "10px",
                           fontFamily: "monospace",
                         }}
-                        itemStyle={{ color: "#d18f55" }}
+                        itemStyle={{ color: "#eab069" }}
                       />
                       <Area
                         type="monotone"
                         dataKey="score"
-                        stroke="#d18f55"
+                        stroke="#eab069"
                         fillOpacity={1}
                         fill="url(#colorScore)"
                         strokeWidth={2}

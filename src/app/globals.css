@@ -4,7 +4,7 @@
    OS setting, so the theme toggle and the styling always agree. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ═══ PayRaider design system: espresso & caramel ═══════════════════════════
+/* ═══ PayRaider design system: chocolate & caramel ═══════════════════════════
    Brown neutrals, a caramel accent, cream text. Tailwind's cool palettes
    (slate, gray, indigo, blue, violet, ...) are remapped to the same warm
    ramps below, so every existing utility class picks up the theme. */
@@ -38,22 +38,22 @@
 
 @theme {
   /* Warm neutral ramp (replaces slate / gray / zinc / neutral / stone) */
-  --color-slate-50: #faf6f1;  --color-slate-100: #f2e9df; --color-slate-200: #e4d5c4;
-  --color-slate-300: #cdb8a2; --color-slate-400: #a88f78; --color-slate-500: #86705c;
-  --color-slate-600: #6a5646; --color-slate-700: #4f3f33; --color-slate-800: #362a21;
-  --color-slate-900: #241a13; --color-slate-950: #170f0a;
-  --color-gray-50: #faf6f1;   --color-gray-100: #f2e9df;  --color-gray-200: #e4d5c4;
-  --color-gray-300: #cdb8a2;  --color-gray-400: #a88f78;  --color-gray-500: #86705c;
-  --color-gray-600: #6a5646;  --color-gray-700: #4f3f33;  --color-gray-800: #362a21;
-  --color-gray-900: #241a13;  --color-gray-950: #170f0a;
-  --color-zinc-50: #faf6f1;   --color-zinc-100: #f2e9df;  --color-zinc-200: #e4d5c4;
-  --color-zinc-300: #cdb8a2;  --color-zinc-400: #a88f78;  --color-zinc-500: #86705c;
-  --color-zinc-600: #6a5646;  --color-zinc-700: #4f3f33;  --color-zinc-800: #362a21;
-  --color-zinc-900: #241a13;  --color-zinc-950: #170f0a;
-  --color-neutral-50: #faf6f1;  --color-neutral-100: #f2e9df; --color-neutral-200: #e4d5c4;
-  --color-neutral-300: #cdb8a2; --color-neutral-400: #a88f78; --color-neutral-500: #86705c;
-  --color-neutral-600: #6a5646; --color-neutral-700: #4f3f33; --color-neutral-800: #362a21;
-  --color-neutral-900: #241a13; --color-neutral-950: #170f0a;
+  --color-slate-50: #faf4ea;  --color-slate-100: #f4eadb; --color-slate-200: #e8d8c2;
+  --color-slate-300: #d4bea2; --color-slate-400: #b89a7c; --color-slate-500: #9a7a5f;
+  --color-slate-600: #7a5a42; --color-slate-700: #5a3d2a; --color-slate-800: #3f2a1d;
+  --color-slate-900: #2c1b10; --color-slate-950: #1f130b;
+  --color-gray-50: #faf4ea;   --color-gray-100: #f4eadb;  --color-gray-200: #e8d8c2;
+  --color-gray-300: #d4bea2;  --color-gray-400: #b89a7c;  --color-gray-500: #9a7a5f;
+  --color-gray-600: #7a5a42;  --color-gray-700: #5a3d2a;  --color-gray-800: #3f2a1d;
+  --color-gray-900: #2c1b10;  --color-gray-950: #1f130b;
+  --color-zinc-50: #faf4ea;   --color-zinc-100: #f4eadb;  --color-zinc-200: #e8d8c2;
+  --color-zinc-300: #d4bea2;  --color-zinc-400: #b89a7c;  --color-zinc-500: #9a7a5f;
+  --color-zinc-600: #7a5a42;  --color-zinc-700: #5a3d2a;  --color-zinc-800: #3f2a1d;
+  --color-zinc-900: #2c1b10;  --color-zinc-950: #1f130b;
+  --color-neutral-50: #faf4ea;  --color-neutral-100: #f4eadb; --color-neutral-200: #e8d8c2;
+  --color-neutral-300: #d4bea2; --color-neutral-400: #b89a7c; --color-neutral-500: #9a7a5f;
+  --color-neutral-600: #7a5a42; --color-neutral-700: #5a3d2a; --color-neutral-800: #3f2a1d;
+  --color-neutral-900: #2c1b10; --color-neutral-950: #1f130b;
 
   /* Caramel / copper ramp (replaces indigo / blue / violet / purple / sky / cyan) */
   --color-indigo-50: #fbf3ea;  --color-indigo-100: #f5e2cc; --color-indigo-200: #ebc49c;
@@ -83,110 +83,112 @@
   --color-cyan-900: #3a2b1b; --color-cyan-950: #22180f;
 }
 
-/* ─── Espresso (dark, default) ─────────────────────────────────────────── */
+/* ─── Chocolate (dark, default) ─────────────────────────────────────────── */
 :root {
-  --background: #17100b;
-  --foreground: #f4ebdf;
-  --surface: #1d140e;
-  --card: #211710;
-  --card-foreground: #f4ebdf;
+  --background: #2c1b10;
+  --foreground: #f8eddd;
+  --surface: #36231a;
+  --card: #3f2a1d;
+  --card-foreground: #f8eddd;
 
-  --accent: #d18f55;            /* caramel: 6.97:1 on background */
-  --accent-foreground: #1e140d; /* 6.69:1 on accent */
-  --accent-soft: rgba(209, 143, 85, 0.12);
+  --accent: #eab069;            /* gold caramel: 8.58:1 on background */
+  --accent-foreground: #2c1b10; /* 8.58:1 on accent */
+  --accent-soft: rgba(234, 176, 105, 0.14);
 
-  --border: #3a2a1f;
-  --muted: #2b1f17;
-  --muted-foreground: #c9b8a6;  /* 9.76:1 */
+  --border: #5a3c28;
+  --muted: #3a261a;
+  --muted-foreground: #dcc6ab;  /* 10.0:1 */
 
-  --text-primary: #f4ebdf;
-  --text-secondary: #e6d8c7;
-  --text-muted: #c9b8a6;
-  --text-disabled: #9c8774;     /* 5.50:1 */
+  --text-primary: #f8eddd;
+  --text-secondary: #ecdcc5;
+  --text-muted: #dcc6ab;
+  --text-disabled: #b69a7e;     /* 6.22:1 */
 
-  --link-primary: #e3ad78;
-  --link-hover: #efc79c;
+  --link-primary: #f0c48c;
+  --link-hover: #f7d9b0;
 
-  --success: #7fc98f;
-  --warning: #e8b44f;
-  --error: #f08a7b;
+  --success: #9ad7a4;
+  --warning: #f2c46b;
+  --error: #f6a294;
 
-  --glass-bg: rgba(33, 23, 16, 0.82);
+  --glass-bg: rgba(54, 35, 26, 0.9);
   --glass-border: rgba(244, 235, 223, 0.08);
-  --glass-card-from: #231912;
-  --glass-card-to: #1f150f;
+  --glass-card-from: #432c1f;
+  --glass-card-to: #3b271b;
   --glass-card-border: rgba(244, 235, 223, 0.07);
   --glass-card-shadow: rgba(0, 0, 0, 0.35);
-  --glow-accent-shadow: rgba(209, 143, 85, 0.25);
+  --glow-accent-shadow: rgba(234, 176, 105, 0.25);
   --glow-success-shadow: rgba(127, 201, 143, 0.2);
 
-  --navbar-scrolled-bg: rgba(23, 16, 11, 0.88);
-  --navbar-scrolled-border: rgba(209, 143, 85, 0.14);
+  --navbar-scrolled-bg: rgba(44, 27, 16, 0.92);
+  --navbar-scrolled-border: rgba(234, 176, 105, 0.14);
   --navbar-scrolled-shadow: rgba(0, 0, 0, 0.35);
   --navbar-link-hover-bg: rgba(244, 235, 223, 0.05);
-  --navbar-link-hover-border: rgba(209, 143, 85, 0.2);
-  --navbar-link-active-bg: rgba(209, 143, 85, 0.12);
-  --navbar-link-active-border: rgba(209, 143, 85, 0.3);
+  --navbar-link-hover-border: rgba(234, 176, 105, 0.2);
+  --navbar-link-active-bg: rgba(234, 176, 105, 0.12);
+  --navbar-link-active-border: rgba(234, 176, 105, 0.3);
   --navbar-hamburger-border: rgba(244, 235, 223, 0.08);
   --navbar-hamburger-bg: rgba(244, 235, 223, 0.03);
-  --navbar-hamburger-hover-bg: rgba(209, 143, 85, 0.12);
-  --navbar-mobile-panel-bg: rgba(23, 16, 11, 0.97);
-  --navbar-mobile-panel-border: rgba(209, 143, 85, 0.12);
+  --navbar-hamburger-hover-bg: rgba(234, 176, 105, 0.12);
+  --navbar-mobile-panel-bg: rgba(44, 27, 16, 0.98);
+  --navbar-mobile-panel-border: rgba(234, 176, 105, 0.12);
   --navbar-mobile-link-hover-bg: rgba(244, 235, 223, 0.04);
-  --navbar-mobile-link-hover-border: rgba(209, 143, 85, 0.15);
-  --navbar-mobile-link-active-bg: rgba(209, 143, 85, 0.12);
-  --navbar-mobile-link-active-border: rgba(209, 143, 85, 0.3);
-  --navbar-mobile-icon-bg: rgba(209, 143, 85, 0.14);
+  --navbar-mobile-link-hover-border: rgba(234, 176, 105, 0.15);
+  --navbar-mobile-link-active-bg: rgba(234, 176, 105, 0.12);
+  --navbar-mobile-link-active-border: rgba(234, 176, 105, 0.3);
+  --navbar-mobile-icon-bg: rgba(234, 176, 105, 0.14);
 
-  --contact-input-border: #3a2a1f;
-  --contact-input-bg: #1d140e;
-  --contact-input-focus-border: rgba(209, 143, 85, 0.6);
-  --contact-input-focus-shadow: rgba(209, 143, 85, 0.15);
-  --contact-option-bg: #211710;
+  --contact-input-border: #5a3c28;
+  --contact-input-bg: #36231a;
+  --contact-input-focus-border: rgba(234, 176, 105, 0.6);
+  --contact-input-focus-shadow: rgba(234, 176, 105, 0.15);
+  --contact-option-bg: #3f2a1d;
 
-  --sidebar-hover-bg: rgba(244, 235, 223, 0.05);
+  --sidebar-hover-bg: rgba(248, 237, 221, 0.06);
+  --page-glow: rgba(234, 176, 105, 0.16);
+  --page-glow-2: rgba(156, 92, 52, 0.18);
   color-scheme: dark;
 }
 
 /* ─── Latte (light) ────────────────────────────────────────────────────── */
 html.light,
 [data-theme="light"] {
-  --background: #faf5ee;
-  --foreground: #2a1c13;
-  --surface: #f4ece1;
-  --card: #ffffff;
-  --card-foreground: #2a1c13;
+  --background: #f4e8d6;
+  --foreground: #2c1b10;
+  --surface: #efe0ca;
+  --card: #fbf4ea;
+  --card-foreground: #2c1b10;
 
-  --accent: #8f4e22;            /* 5.90:1 on background */
-  --accent-foreground: #ffffff; /* 6.40:1 on accent */
+  --accent: #8c4a1c;            /* 5.58:1 on background */
+  --accent-foreground: #fbf4ea; /* 6.18:1 on accent */
   --accent-soft: rgba(143, 78, 34, 0.09);
 
-  --border: #e6d9ca;
-  --muted: #f1e7db;
-  --muted-foreground: #5f4a3a;  /* 7.66:1 */
+  --border: #dcc6a8;
+  --muted: #ead8bf;
+  --muted-foreground: #5c412d;  /* 7.72:1 */
 
-  --text-primary: #2a1c13;
+  --text-primary: #2c1b10;
   --text-secondary: #3d2b1f;
-  --text-muted: #5f4a3a;
-  --text-disabled: #7a6352;
+  --text-muted: #5c412d;
+  --text-disabled: #7a5c45;
 
-  --link-primary: #8f4e22;
+  --link-primary: #8c4a1c;
   --link-hover: #6c3a1c;
 
-  --success: #2f7a43;
-  --warning: #9a5b0c;
-  --error: #b3392a;
+  --success: #2d6e3c;
+  --warning: #8a520b;
+  --error: #a8362a;
 
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(251, 244, 234, 0.92);
   --glass-border: rgba(42, 28, 19, 0.08);
-  --glass-card-from: #ffffff;
-  --glass-card-to: #fdf9f4;
+  --glass-card-from: #fbf4ea;
+  --glass-card-to: #f7ecdc;
   --glass-card-border: rgba(42, 28, 19, 0.08);
   --glass-card-shadow: rgba(74, 46, 26, 0.08);
   --glow-accent-shadow: rgba(143, 78, 34, 0.18);
   --glow-success-shadow: rgba(47, 122, 67, 0.15);
 
-  --navbar-scrolled-bg: rgba(250, 245, 238, 0.9);
+  --navbar-scrolled-bg: rgba(244, 232, 214, 0.94);
   --navbar-scrolled-border: rgba(143, 78, 34, 0.12);
   --navbar-scrolled-shadow: rgba(74, 46, 26, 0.06);
   --navbar-link-hover-bg: rgba(42, 28, 19, 0.04);
@@ -196,7 +198,7 @@ html.light,
   --navbar-hamburger-border: rgba(42, 28, 19, 0.08);
   --navbar-hamburger-bg: rgba(42, 28, 19, 0.02);
   --navbar-hamburger-hover-bg: rgba(143, 78, 34, 0.1);
-  --navbar-mobile-panel-bg: rgba(250, 245, 238, 0.98);
+  --navbar-mobile-panel-bg: rgba(244, 232, 214, 0.98);
   --navbar-mobile-panel-border: rgba(143, 78, 34, 0.1);
   --navbar-mobile-link-hover-bg: rgba(42, 28, 19, 0.03);
   --navbar-mobile-link-hover-border: rgba(143, 78, 34, 0.12);
@@ -204,13 +206,15 @@ html.light,
   --navbar-mobile-link-active-border: rgba(143, 78, 34, 0.22);
   --navbar-mobile-icon-bg: rgba(143, 78, 34, 0.1);
 
-  --contact-input-border: #e6d9ca;
-  --contact-input-bg: #ffffff;
+  --contact-input-border: #dcc6a8;
+  --contact-input-bg: #fbf4ea;
   --contact-input-focus-border: rgba(143, 78, 34, 0.5);
   --contact-input-focus-shadow: rgba(143, 78, 34, 0.1);
-  --contact-option-bg: #ffffff;
+  --contact-option-bg: #fbf4ea;
 
-  --sidebar-hover-bg: rgba(42, 28, 19, 0.04);
+  --sidebar-hover-bg: rgba(44, 27, 16, 0.05);
+  --page-glow: rgba(234, 176, 105, 0.28);
+  --page-glow-2: rgba(200, 140, 90, 0.16);
   color-scheme: light;
 }
 
@@ -230,6 +234,12 @@ html.theme-transition *::after {
 
 body {
   background-color: var(--background);
+  /* A warm glow at the top of every page so the brown reads as a colour,
+     not as a near-black. */
+  background-image:
+    radial-gradient(1200px 520px at 50% -180px, var(--page-glow), transparent 70%),
+    radial-gradient(900px 600px at 100% 0%, var(--page-glow-2), transparent 60%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "ss01", "cv11";
@@ -278,6 +288,76 @@ td,
   box-shadow:
     0 1px 0 0 rgba(244, 235, 223, 0.03) inset,
     0 12px 32px -12px var(--glass-card-shadow);
+}
+
+/* ─── App header (desktop top navigation) ──────────────────────────────── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--background) 82%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+}
+
+.app-nav-link:hover {
+  color: var(--foreground);
+  background: var(--sidebar-hover-bg);
+}
+
+.app-nav-link--active {
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+
+.app-nav-link--active:hover {
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+
+.app-nav-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 230px;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+}
+
+.app-nav-menu-item {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+
+.app-nav-menu-item:hover {
+  color: var(--foreground);
+  background: var(--sidebar-hover-bg);
+}
+
+.app-nav-menu-item--active {
+  color: var(--foreground);
+  background: var(--accent-soft);
 }
 
 /* ─── Accent glow ──────────────────────────────────────────────────────── */

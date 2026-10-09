@@ -113,7 +113,7 @@ export function TVLChart({ data }: TVLChartProps) {
                 fontSize: '10px',
                 fontFamily: 'monospace'
               })}
-              labelStyle={{ color: '#a88f78', marginBottom: '4px' }}
+              labelStyle={{ color: '#b89a7c', marginBottom: '4px' }}
             />
             <Line
               type="monotone"

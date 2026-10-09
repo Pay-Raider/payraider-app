@@ -55,7 +55,7 @@ export function PoolPerformanceChart({
     { key: string; color: string; label: string }
   > = {
     apy: { key: "apy", color: "#10b981", label: "APY %" },
-    volume: { key: "volume", color: "#d18f55", label: "Volume" },
+    volume: { key: "volume", color: "#eab069", label: "Volume" },
     fees: { key: "fees", color: "#f59e0b", label: "Fees" },
     tvl: { key: "tvl", color: "#b8905c", label: "TVL" },
   };
@@ -107,7 +107,7 @@ export function PoolPerformanceChart({
                 fontFamily: "monospace",
               })}
               itemStyle={{ color: config.color, fontWeight: "bold" }}
-              labelStyle={{ color: "#a88f78", marginBottom: "4px" }}
+              labelStyle={{ color: "#b89a7c", marginBottom: "4px" }}
               formatter={(value?: TooltipValueType) => {
                 if (typeof value !== "number")
                   return ["-", config.label.toUpperCase()];

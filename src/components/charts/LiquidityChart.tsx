@@ -109,8 +109,8 @@ export function LiquidityChart({ data }: LiquidityChartProps) {
                 fontFamily: 'monospace',
                 textTransform: 'uppercase'
               }}
-              itemStyle={{ color: '#d18f55', fontWeight: 'bold' }}
-              labelStyle={{ color: '#a88f78', marginBottom: '4px' }}
+              itemStyle={{ color: '#eab069', fontWeight: 'bold' }}
+              labelStyle={{ color: '#b89a7c', marginBottom: '4px' }}
               formatter={(value?: TooltipValueType): [string, string] => [
                 formatCurrency(typeof value === 'number' ? value : Number(value ?? 0)),
                 'GLOBAL_DEPTH',
@@ -119,10 +119,10 @@ export function LiquidityChart({ data }: LiquidityChartProps) {
             <Line
               type="monotone"
               dataKey="liquidity_usd"
-              stroke="#d18f55"
+              stroke="#eab069"
               strokeWidth={3}
               dot={false}
-              activeDot={{ r: 4, fill: '#d18f55', stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: '#eab069', stroke: '#fff', strokeWidth: 2 }}
               name="Liquidity"
             />
           </LineChart>

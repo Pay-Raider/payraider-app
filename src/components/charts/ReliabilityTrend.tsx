@@ -92,12 +92,12 @@ export function ReliabilityTrend({ data }: ReliabilityTrendProps) {
             </defs>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#2b1f17"
+              stroke="#3a261a"
               vertical={false}
             />
             <XAxis
               dataKey="timestamp"
-              tick={{ fontSize: 12, fill: "#86705c" }}
+              tick={{ fontSize: 12, fill: "#9a7a5f" }}
               tickLine={false}
               axisLine={false}
               tickMargin={10}
@@ -108,7 +108,7 @@ export function ReliabilityTrend({ data }: ReliabilityTrendProps) {
             />
             <YAxis
               domain={[60, 100]}
-              tick={{ fontSize: 12, fill: "#86705c" }}
+              tick={{ fontSize: 12, fill: "#9a7a5f" }}
               tickLine={false}
               axisLine={false}
               tickMargin={10}

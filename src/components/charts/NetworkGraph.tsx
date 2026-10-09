@@ -60,11 +60,11 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ data }) => {
       if (link.health >= 70) return "rgba(250, 204, 21, 0.4)"; // Yellow
       return "rgba(248, 113, 113, 0.4)"; // Red
     }
-    return "rgba(209, 143, 85, 0.4)"; // Default accent
+    return "rgba(234, 176, 105, 0.4)"; // Default accent
   };
 
   const getNodeColor = (node: Node) => {
-    if (node.type === "anchor") return "#d18f55"; // Indigo/Accent
+    if (node.type === "anchor") return "#eab069"; // Indigo/Accent
     return "#f43f5e"; // Rose/Asset
   };
 

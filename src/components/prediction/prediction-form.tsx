@@ -1,261 +1,214 @@
 "use client";
-import { logger } from "@/lib/logger";
+
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowRight,
-  TrendingUp,
   AlertTriangle,
-  CheckCircle,
-  Clock,
-  Zap,
-  ArrowRightLeft,
-  Info,
+  ArrowLeftRight,
+  ArrowRight,
+  Check,
+  CircleHelp,
+  Copy,
+  OctagonX,
+  ShieldCheck,
+  X,
 } from "lucide-react";
+import { logger } from "@/lib/logger";
 import {
-  getPaymentPrediction
-} from "../../lib/api/api";
-import { AlternativeRoute, PredictionResponse } from "@/lib/api/types";
+  checkPayment,
+  wilsonInterval,
+  type PreflightDecision,
+  type PreflightResult,
+} from "@/lib/api/api";
 
-// Common asset options for dropdowns
-const ASSETS = [
-  "USDC",
-  "XLM",
-  "EURC",
-  "PHP",
-  "NGN",
-  "BRL",
-  "KES",
-  "JPY",
-  "GBP",
-  "EUR",
-];
+const ASSETS = ["USDC", "XLM", "EURC", "PHP", "NGN", "BRL", "KES", "JPY", "GBP", "EUR"];
 
-// Risk level colors and icons
-const RISK_CONFIG = {
-  low: {
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/20",
-    border: "border-emerald-500/30",
-    gradient: "from-emerald-500 to-green-400",
-    icon: CheckCircle,
+const DECISIONS: Record<
+  PreflightDecision,
+  { label: string; hint: string; icon: typeof Check; tone: string; ring: string }
+> = {
+  proceed: {
+    label: "Proceed",
+    hint: "The corridor is healthy for this amount.",
+    icon: ShieldCheck,
+    tone: "text-success bg-success/10",
+    ring: "border-success/40",
   },
-  medium: {
-    color: "text-amber-400",
-    bg: "bg-amber-500/20",
-    border: "border-amber-500/30",
-    gradient: "from-amber-500 to-yellow-400",
+  caution: {
+    label: "Caution",
+    hint: "Something is marginal. Pay with care or reroute.",
     icon: AlertTriangle,
+    tone: "text-warning bg-warning/10",
+    ring: "border-warning/40",
   },
-  high: {
-    color: "text-red-400",
-    bg: "bg-red-500/20",
-    border: "border-red-500/30",
-    gradient: "from-red-500 to-rose-400",
-    icon: AlertTriangle,
+  hold: {
+    label: "Hold",
+    hint: "A check failed. Don't pay on this corridor now.",
+    icon: OctagonX,
+    tone: "text-error bg-error/10",
+    ring: "border-error/40",
+  },
+  unknown: {
+    label: "Unknown",
+    hint: "No recent payments on this corridor, so no guess is made.",
+    icon: CircleHelp,
+    tone: "text-muted-foreground bg-muted",
+    ring: "border-border",
   },
 };
 
-// Circular gauge component for success probability
-function SuccessGauge({
-  probability,
-  riskLevel,
-}: {
-  probability: number;
-  riskLevel: "low" | "medium" | "high";
-}) {
-  const percentage = Math.round(probability * 100);
-  const circumference = 2 * Math.PI * 45;
-  const strokeDashoffset = circumference - probability * circumference;
-  const config = RISK_CONFIG[riskLevel];
+const CHECK_LABELS: Record<string, string> = {
+  success_rate: "Success rate",
+  liquidity: "Liquidity",
+  sample_size: "Sample size",
+  health_score: "Health score",
+};
 
+const STATUS = {
+  pass: { icon: Check, tone: "bg-success/15 text-success", label: "Pass" },
+  warn: { icon: AlertTriangle, tone: "bg-warning/15 text-warning", label: "Warning" },
+  fail: { icon: X, tone: "bg-error/15 text-error", label: "Fail" },
+} as const;
+
+const fieldClass =
+  "w-full rounded-xl border border-border bg-surface px-4 py-3 text-foreground transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)]";
+
+function DecisionLegend() {
   return (
-    <div className="relative w-40 h-40 mx-auto">
-      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-        {/* Background circle */}
-        <circle
-          cx="50"
-          cy="50"
-          r="45"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="8"
-          className="text-gray-700/50"
-        />
-        {/* Progress circle */}
-        <motion.circle
-          cx="50"
-          cy="50"
-          r="45"
-          fill="none"
-          stroke="url(#gaugeGradient)"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-        />
-        <defs>
-          <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop
-              offset="0%"
-              className={`stop-color-${riskLevel}`}
-              style={{
-                stopColor:
-                  riskLevel === "low"
-                    ? "#10b981"
-                    : riskLevel === "medium"
-                      ? "#f59e0b"
-                      : "#ef4444",
-              }}
-            />
-            <stop
-              offset="100%"
-              style={{
-                stopColor:
-                  riskLevel === "low"
-                    ? "#34d399"
-                    : riskLevel === "medium"
-                      ? "#fbbf24"
-                      : "#f87171",
-              }}
-            />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <motion.span
-          className={`text-4xl font-bold ${config.color}`}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          {percentage}%
-        </motion.span>
-        <span className="text-xs text-gray-400">
-          Success Rate
-        </span>
-      </div>
+    <ul className="grid gap-3 sm:grid-cols-2">
+      {(Object.keys(DECISIONS) as PreflightDecision[]).map((key) => {
+        const d = DECISIONS[key];
+        const Icon = d.icon;
+        return (
+          <li key={key} className="flex gap-3 rounded-xl border border-border bg-surface p-4">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${d.tone}`}>
+              <Icon className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="font-semibold text-foreground">{d.label}</p>
+              <p className="text-sm text-muted-foreground">{d.hint}</p>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-2xl font-semibold text-foreground">{value}</p>
+      {sub && <p className="mt-0.5 font-mono text-xs text-muted-foreground">{sub}</p>}
     </div>
   );
 }
 
-// Confidence interval bar
-function ConfidenceBar({ interval }: { interval: [number, number] }) {
-  const [lower, upper] = interval;
-  const lowerPct = lower * 100;
-  const upperPct = upper * 100;
-  const width = upperPct - lowerPct;
+function Result({ result, requestPath }: { result: PreflightResult; requestPath: string }) {
+  const d = DECISIONS[result.decision] ?? DECISIONS.unknown;
+  const Icon = d.icon;
+  const corridor = result.corridor;
+  const [low, high] = corridor
+    ? wilsonInterval(corridor.successful_payments, corridor.total_attempts)
+    : [0, 0];
+  const [copied, setCopied] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-xs text-muted-foreground">
-        <span>0%</span>
-        <span className="flex items-center gap-1">
-          <Info className="w-3 h-3" />
-          Confidence Range
-        </span>
-        <span>100%</span>
-      </div>
-      <div className="relative h-3 bg-gray-700/50 rounded-full overflow-hidden">
-        <motion.div
-          className="absolute h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
-          initial={{ left: "50%", width: 0 }}
-          animate={{ left: `${lowerPct}%`, width: `${width}%` }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-        />
-        {/* Markers */}
-        <motion.div
-          className="absolute top-0 w-0.5 h-full bg-white/80"
-          initial={{ left: "50%" }}
-          animate={{ left: `${lowerPct}%` }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-        />
-        <motion.div
-          className="absolute top-0 w-0.5 h-full bg-white/80"
-          initial={{ left: "50%" }}
-          animate={{ left: `${upperPct}%` }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-        />
-      </div>
-      <div className="flex justify-center gap-4 text-sm">
-        <span className="text-gray-300">
-          <span className="text-blue-400 font-semibold">
-            {(lower * 100).toFixed(1)}%
-          </span>{" "}
-          -{" "}
-          <span className="text-cyan-400 font-semibold">
-            {(upper * 100).toFixed(1)}%
-          </span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// Alternative route card
-function RouteCard({
-  route,
-  index,
-}: {
-  route: AlternativeRoute;
-  index: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 + index * 0.1 }}
-      className="p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-blue-500/30 transition-all group"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-blue-500/20 rounded-lg">
-            <ArrowRightLeft className="w-4 h-4 text-link-primary" />
-          </div>
-          <span className="text-sm font-medium text-gray-200">
-            {route.source_asset}
-            {route.via_asset && (
-              <span className="text-gray-500"> → {route.via_asset}</span>
-            )}
-            <span className="text-gray-500"> → </span>
-            {route.destination_asset}
-          </span>
+    <div className="space-y-6" data-testid="preflight-result">
+      <div className={`rounded-2xl border ${d.ring} ${d.tone} p-6`}>
+        <div className="flex items-center gap-3">
+          <Icon className="h-7 w-7" aria-hidden="true" />
+          <p className="font-display text-3xl font-semibold">{d.label}</p>
         </div>
-        <span className="text-emerald-400 font-semibold text-sm">
-          {(route.estimated_success_rate * 100).toFixed(1)}%
-        </span>
+        <p className="mt-3 leading-relaxed text-foreground">{result.summary}</p>
       </div>
-      <p className="text-xs text-muted-foreground">{route.description}</p>
-    </motion.div>
-  );
-}
 
-// Loading skeleton
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-6 animate-pulse">
-      <div className="flex justify-center">
-        <div className="w-40 h-40 rounded-full bg-gray-700/50" />
+      {corridor && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Stat
+            label="Success rate"
+            value={`${corridor.success_rate.toFixed(1)}%`}
+            sub={`95%: ${(low * 100).toFixed(1)}–${(high * 100).toFixed(1)}%`}
+          />
+          <Stat label="Payments observed" value={corridor.total_attempts.toLocaleString()} />
+          <Stat label="Health score" value={`${corridor.health_score.toFixed(0)}`} sub="out of 100" />
+        </div>
+      )}
+
+      {result.checks.length > 0 && (
+        <section>
+          <h3 className="text-lg font-semibold text-foreground">Checks</h3>
+          <ul className="mt-3 divide-y divide-border rounded-2xl border border-border bg-surface">
+            {result.checks.map((check) => {
+              const s = STATUS[check.status] ?? STATUS.warn;
+              const StatusIcon = s.icon;
+              return (
+                <li key={check.name} className="flex gap-3 p-4">
+                  <span
+                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${s.tone}`}
+                    aria-label={s.label}
+                  >
+                    <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="font-medium text-foreground">{CHECK_LABELS[check.name] ?? check.name}</p>
+                    <p className="text-sm text-muted-foreground">{check.detail}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {result.alternatives.length > 0 && (
+        <section>
+          <h3 className="text-lg font-semibold text-foreground">Healthier routes</h3>
+          <ul className="mt-3 space-y-2">
+            {result.alternatives.map((alt) => (
+              <li
+                key={alt.id}
+                className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3"
+              >
+                <span className="font-mono text-sm text-foreground">
+                  {alt.source_asset} → {alt.destination_asset}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-success">{alt.success_rate.toFixed(1)}%</span>{" "}
+                  success · health {alt.health_score.toFixed(0)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+        <code className="truncate font-mono text-xs text-muted-foreground">GET {requestPath}</code>
+        <button
+          type="button"
+          onClick={() => {
+            void navigator.clipboard?.writeText(requestPath).then(() => setCopied(true));
+          }}
+          className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-accent hover:underline"
+        >
+          <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+          {copied ? "Copied" : "Copy"}
+        </button>
       </div>
-      <div className="h-3 bg-gray-700/50 rounded-full" />
-      <div className="h-20 bg-gray-700/50 rounded-xl" />
-      <div className="space-y-3">
-        <div className="h-16 bg-gray-700/50 rounded-xl" />
-        <div className="h-16 bg-gray-700/50 rounded-xl" />
-      </div>
+      <p className="text-xs text-muted-foreground">
+        Checked {new Date(result.evaluated_at).toLocaleString()} from recent payments on the Stellar ledger.
+      </p>
     </div>
   );
 }
 
 const PredictionForm = () => {
   const [sourceAsset, setSourceAsset] = useState("USDC");
-  const [destAsset, setDestAsset] = useState("XLM");
-  const [amount, setAmount] = useState("100.0");
-  const [timeOfDay, setTimeOfDay] = useState("12:00");
-
-  const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
+  const [destAsset, setDestAsset] = useState("NGN");
+  const [amount, setAmount] = useState("2500");
+  const [result, setResult] = useState<PreflightResult | null>(null);
+  const [requestPath, setRequestPath] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -263,290 +216,153 @@ const PredictionForm = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setPrediction(null);
+    setResult(null);
+    const amountUsd = parseFloat(amount);
+    const params = new URLSearchParams({ source_asset: sourceAsset, destination_asset: destAsset });
+    if (amountUsd > 0) params.set("amount_usd", String(amountUsd));
+    setRequestPath(`/api/v1/preflight?${params}`);
 
     try {
-      const response = await getPaymentPrediction({
-        source_asset: sourceAsset,
-        destination_asset: destAsset,
-        amount: parseFloat(amount),
-        time_of_day: timeOfDay,
-      });
-      setPrediction(response);
+      setResult(
+        await checkPayment({
+          source_asset: sourceAsset,
+          destination_asset: destAsset,
+          amount_usd: amountUsd > 0 ? amountUsd : undefined,
+        }),
+      );
     } catch (err) {
       setError("Could not reach the PayRaider API to check this corridor. Please try again.");
-      logger.error(err as string);
+      logger.error("Pre-payment check failed", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
-      {/* Header */}
-      <header className="border-b border-gray-800/50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                Corridor Success Rate Predictor
-              </h1>
-              <p className="text-sm text-gray-400">
-                Predict payment success before you send
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-10">
+      <header className="max-w-2xl">
+        <p className="text-sm font-medium text-accent">Pre-payment check</p>
+        <h1 className="mt-2 text-4xl font-semibold text-foreground md:text-5xl">Check a payment</h1>
+        <p className="mt-3 text-lg text-muted-foreground">
+          Name the payment and get one decision, with the reasons, before any money moves.
+        </p>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Form */}
-          <div>
-            <form
-              onSubmit={handleSubmit}
-              className="p-6 bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl space-y-6"
-            >
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Zap className="w-5 h-5 text-yellow-400" />
-                Payment Details
-              </h2>
-
-              {/* Source Asset */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="source-asset"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Source Asset
-                </label>
-                <select
-                  id="source-asset"
-                  value={sourceAsset}
-                  onChange={(e) => setSourceAsset(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                >
-                  {ASSETS.map((asset) => (
-                    <option key={asset} value={asset}>
-                      {asset}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Destination Asset */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="dest-asset"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Destination Asset
-                </label>
-                <select
-                  id="dest-asset"
-                  value={destAsset}
-                  onChange={(e) => setDestAsset(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                >
-                  {ASSETS.map((asset) => (
-                    <option key={asset} value={asset}>
-                      {asset}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Amount */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="amount"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Amount (USD equivalent)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    id="amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="w-full pl-8 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Time of Day */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="time-of-day"
-                  className="block text-sm font-medium text-gray-300 flex items-center gap-2"
-                >
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  Time of Day (UTC)
-                </label>
-                <input
-                  type="time"
-                  id="time-of-day"
-                  value={timeOfDay}
-                  onChange={(e) => setTimeOfDay(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-                  required
-                />
-              </div>
-
-              {/* Submit Button */}
-              <motion.button
-                type="submit"
-                disabled={loading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl hover:from-blue-500 hover:to-cyan-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,380px)_1fr]">
+        <form
+          onSubmit={handleSubmit}
+          className="h-fit space-y-5 rounded-2xl border border-border bg-card p-6 lg:sticky lg:top-24"
+        >
+          <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
+            <div className="space-y-2">
+              <label htmlFor="source-asset" className="block text-sm font-medium text-foreground">
+                Sending
+              </label>
+              <select
+                id="source-asset"
+                value={sourceAsset}
+                onChange={(e) => setSourceAsset(e.target.value)}
+                className={fieldClass}
               >
-                {loading ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                    />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    Predict Success
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </motion.button>
-            </form>
+                {ASSETS.map((asset) => (
+                  <option key={asset} value={asset}>
+                    {asset}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSourceAsset(destAsset);
+                setDestAsset(sourceAsset);
+              }}
+              aria-label="Swap assets"
+              className="mb-1.5 flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-accent"
+            >
+              <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <div className="space-y-2">
+              <label htmlFor="dest-asset" className="block text-sm font-medium text-foreground">
+                Receiving
+              </label>
+              <select
+                id="dest-asset"
+                value={destAsset}
+                onChange={(e) => setDestAsset(e.target.value)}
+                className={fieldClass}
+              >
+                {ASSETS.map((asset) => (
+                  <option key={asset} value={asset}>
+                    {asset}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Results Panel */}
-          <div className="p-6 bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl">
-            <h2 className="text-lg font-semibold text-white mb-6">
-              Prediction Results
-            </h2>
-
-            <AnimatePresence mode="wait">
-              {loading && (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <LoadingSkeleton />
-                </motion.div>
-              )}
-
-              {error && (
-                <motion.div
-                  key="error"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-center"
-                >
-                  {error}
-                </motion.div>
-              )}
-
-              {!loading && !error && !prediction && (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center h-64 text-muted-foreground"
-                >
-                  <TrendingUp className="w-12 h-12 mb-4 opacity-30" />
-                  <p className="text-center">
-                    Enter payment details and click
-                    <br />
-                    &quot;Predict Success&quot; to see results
-                  </p>
-                </motion.div>
-              )}
-
-              {prediction && !loading && (
-                <motion.div
-                  key="results"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-6"
-                >
-                  {/* Success Gauge */}
-                  <SuccessGauge
-                    probability={prediction.success_probability}
-                    riskLevel={prediction.risk_level}
-                  />
-
-                  {/* Risk Badge */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className={`p-4 rounded-xl ${RISK_CONFIG[prediction.risk_level].bg} ${RISK_CONFIG[prediction.risk_level].border} border`}
-                  >
-                    <div className="flex items-start gap-3">
-                      {React.createElement(
-                        RISK_CONFIG[prediction.risk_level].icon,
-                        {
-                          className: `w-5 h-5 ${RISK_CONFIG[prediction.risk_level].color} shrink-0 mt-0.5`,
-                        },
-                      )}
-                      <div>
-                        <div
-                          className={`text-sm font-semibold ${RISK_CONFIG[prediction.risk_level].color} uppercase tracking-wide mb-1`}
-                        >
-                          {prediction.risk_level} Risk
-                        </div>
-                        <p className="text-sm text-gray-300">
-                          {prediction.recommendation}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Confidence Interval */}
-                  <ConfidenceBar interval={prediction.confidence_interval} />
-
-                  {/* Alternative Routes */}
-                  {prediction.alternative_routes.length > 0 && (
-                    <div className="space-y-3">
-                      <h3 className="text-sm font-medium text-muted-foreground tracking-wide">
-                        Better Routes Available
-                      </h3>
-                      {prediction.alternative_routes.map((route, index) => (
-                        <RouteCard key={index} route={route} index={index} />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Model Info */}
-                  <div className="pt-4 border-t border-gray-700/50 text-xs text-muted-foreground text-center">
-                    Model version: {prediction.model_version}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="space-y-2">
+            <label htmlFor="amount" className="block text-sm font-medium text-foreground">
+              Amount in USD
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+              <input
+                type="number"
+                id="amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className={`${fieldClass} pl-8 font-mono`}
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">Leave empty to skip the liquidity check.</p>
           </div>
-        </div>
-      </main>
+
+          <button
+            type="submit"
+            disabled={loading || sourceAsset === destAsset}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 font-semibold text-accent-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? "Checking…" : "Run check"}
+            {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+          </button>
+          {sourceAsset === destAsset && (
+            <p className="text-sm text-warning">Choose two different assets.</p>
+          )}
+          <p className="text-center text-xs text-muted-foreground">Free to use. No sign-up or API key.</p>
+        </form>
+
+        <section aria-live="polite" className="min-w-0">
+          {loading && (
+            <div className="space-y-4" aria-busy="true">
+              <div className="h-32 animate-pulse rounded-2xl bg-muted" />
+              <div className="grid grid-cols-3 gap-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-24 animate-pulse rounded-xl bg-muted" />
+                ))}
+              </div>
+              <div className="h-48 animate-pulse rounded-2xl bg-muted" />
+            </div>
+          )}
+
+          {error && !loading && (
+            <div role="alert" className="rounded-2xl border border-error/40 bg-error/10 p-6 text-error">
+              {error}
+            </div>
+          )}
+
+          {result && !loading && <Result result={result} requestPath={requestPath} />}
+
+          {!result && !loading && !error && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">Four possible answers</h2>
+              <DecisionLegend />
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Navbar } from "@/components/navbar";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { usePathname } from "@/i18n/navigation";
 
@@ -29,20 +29,14 @@ export function MobileAwareLayout({ children }: MobileAwareLayoutProps) {
 
   return (
     <>
+      {/* Navigation drawer for small screens; desktop uses the top bar. */}
       <Sidebar open={mobileSidebarOpen} onClose={closeSidebar} />
 
-      {/* Main content area — offset by sidebar width on desktop */}
-      <div className="flex min-h-screen">
-        <main
-          id="main-content"
-          className="flex-1 min-w-0 md:ml-20 lg:ml-64 transition-all duration-300 relative"
-          tabIndex={-1}
-        >
-          {/* Top navbar — passes hamburger callback on mobile */}
-          <Navbar onMobileMenuOpen={openSidebar} />
-
-          {/* Page content — extra bottom padding on mobile for bottom nav */}
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-8 md:py-10 pb-24 md:pb-10">
+      <div className="flex min-h-screen flex-col">
+        <AppHeader onMobileMenuOpen={openSidebar} />
+        <main id="main-content" className="relative min-w-0 flex-1" tabIndex={-1}>
+          {/* Extra bottom padding on mobile for the bottom nav */}
+          <div className="mx-auto w-full max-w-7xl px-4 py-8 pb-24 md:px-8 md:py-12 md:pb-12">
             {children}
           </div>
         </main>

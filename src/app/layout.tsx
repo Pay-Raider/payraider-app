@@ -17,7 +17,7 @@ const code = JetBrains_Mono({ subsets: ["latin"], variable: "--font-code", displ
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#17100b",
+  themeColor: "#2c1b10",
 };
 
 export const metadata: Metadata = {

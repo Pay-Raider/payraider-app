@@ -14,14 +14,14 @@ export const NotificationBell: React.FC = () => {
 
   return (
     <>
-      <div className="relative">
+      <div className="relative flex items-center">
         {/* Notification Bell Button */}
         <button
           onClick={() => setShowHistory(true)}
           className="relative p-2 text-muted-foreground dark:text-muted-foreground hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
         >
-          <Bell className="h-6 w-6" />
+          <Bell className="h-5 w-5" />
 
           {/* Unread Count Badge */}
           <AnimatePresence>

@@ -10,8 +10,6 @@ import {
   Settings,
   Activity,
   Bell,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   LayoutDashboard,
   Waves,
@@ -26,14 +24,20 @@ import {
   Shield,
   Gauge,
   X,
+  Home,
+  ShieldCheck,
+  Anchor,
 } from "lucide-react";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { Logo } from "@/components/brand/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BookmarksSidebarSection } from "@/components/BookmarksSidebarSection";
 
 // Pinned items always show at the top, ungrouped.
 const pinnedItems = [
-  { key: "home", icon: LayoutDashboard, path: "/" },
+  { key: "home", icon: Home, path: "/" },
+  { key: "checkPayment", icon: ShieldCheck, path: "/prediction" },
+  { key: "anchors", icon: Anchor, path: "/anchors" },
   { key: "terminal", icon: LayoutDashboard, path: "/dashboard" },
 ];
 
@@ -133,8 +137,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
   const t = useTranslations("layout.sidebar");
   const tGroups = useTranslations("layout.sidebar.groups");
   const { prefs, setPrefs } = useUserPreferences();
-  const collapsed = prefs.sidebarCollapsed;
-  const setCollapsed = (val: boolean) => setPrefs({ sidebarCollapsed: val });
+  // The sidebar is now only the mobile drawer, which always shows labels.
+  const collapsed = false;
 
   // Preferences saved before grouped navigation existed have no such field.
   const collapsedGroups = prefs.sidebarCollapsedGroups ?? [];
@@ -150,20 +154,13 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
     <div className="flex flex-col h-full">
       {/* Logo Section */}
       <div className="px-5 h-16 flex items-center gap-3 border-b border-border">
-        <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center shrink-0" aria-hidden="true">
-          <TrendingUp className="w-[18px] h-[18px] text-accent-foreground" aria-hidden="true" />
-        </div>
-        {!collapsed && (
-          <span className="font-display text-xl font-semibold tracking-tight text-foreground whitespace-nowrap overflow-hidden">
-            Pay<span className="text-accent">Raider</span>
-          </span>
-        )}
+        <Logo size={30} />
         {/* Mobile close button */}
         {onClose && (
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="md:hidden ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+            className="ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
           >
             <X className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -249,23 +246,6 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
           </div>
         )}
 
-        {/* Only show collapse toggle on desktop */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
-          aria-expanded={!collapsed}
-          className="hidden md:flex w-full items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground transition-all duration-300"
-        >
-          {collapsed ? (
-            <ChevronRight className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
-          ) : (
-            <ChevronLeft className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
-          )}
-          {!collapsed && (
-            <span className="text-sm font-medium">{t("collapse")}</span>
-          )}
-        </button>
-
         <Link
           href="/settings"
           aria-label="Navigate to Settings"
@@ -283,28 +263,19 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
 
   return (
     <>
-      {/* Desktop sidebar — always visible on md+ */}
-      <aside
-        aria-label="Sidebar navigation"
-        className={`hidden md:block fixed top-0 left-0 h-screen overflow-y-auto bg-surface border-r border-border transition-all duration-300 z-50 ${collapsed ? "w-20" : "w-64"
-          }`}
-      >
-        {sidebarContent}
-      </aside>
-
       {/* Mobile sidebar — drawer overlay */}
       {open && (
         <>
           {/* Backdrop */}
           <div
-            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
             onClick={onClose}
             aria-hidden="true"
           />
           {/* Drawer */}
           <aside
             aria-label="Sidebar navigation"
-            className="md:hidden fixed top-0 left-0 h-screen w-72 overflow-y-auto bg-surface border-r border-border z-50 animate-in slide-in-from-left duration-300"
+            className="lg:hidden fixed top-0 left-0 h-screen w-72 overflow-y-auto bg-surface border-r border-border z-[70] animate-in slide-in-from-left duration-300"
           >
             {sidebarContent}
           </aside>

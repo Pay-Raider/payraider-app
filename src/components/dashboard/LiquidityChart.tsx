@@ -51,8 +51,8 @@ export const LiquidityChart: React.FC<LiquidityChartProps> = ({ data }) => {
           >
             <defs>
               <linearGradient id="liquidityFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#d18f55" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#d18f55" stopOpacity={0} />
+                <stop offset="5%" stopColor="#eab069" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#eab069" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -67,7 +67,7 @@ export const LiquidityChart: React.FC<LiquidityChartProps> = ({ data }) => {
               tickMargin={10}
               tick={{
                 fontSize: 10,
-                fill: "#a88f78",
+                fill: "#b89a7c",
                 fontWeight: 500,
                 fontFamily: "monospace",
               }}
@@ -81,7 +81,7 @@ export const LiquidityChart: React.FC<LiquidityChartProps> = ({ data }) => {
               }}
               tick={{
                 fontSize: 10,
-                fill: "#a88f78",
+                fill: "#b89a7c",
                 fontWeight: 500,
                 fontFamily: "monospace",
               }}
@@ -91,11 +91,11 @@ export const LiquidityChart: React.FC<LiquidityChartProps> = ({ data }) => {
                 backgroundColor: "rgba(15, 23, 42, 0.9)",
                 borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#faf6f1",
+                color: "#faf4ea",
                 fontSize: "12px",
                 fontFamily: "monospace",
               })}
-              cursor={{ stroke: "rgba(209, 143, 85, 0.2)", strokeWidth: 1 }}
+              cursor={{ stroke: "rgba(234, 176, 105, 0.2)", strokeWidth: 1 }}
               formatter={(value?: TooltipValueType) => {
                 if (typeof value !== "number") return ["-", "Total Liquidity"];
                 return [`$${(value / 1000000).toFixed(2)}M`, "Total Liquidity"];
@@ -104,7 +104,7 @@ export const LiquidityChart: React.FC<LiquidityChartProps> = ({ data }) => {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#d18f55"
+              stroke="#eab069"
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#liquidityFill)"

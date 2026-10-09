@@ -109,7 +109,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
                 fontSize: '10px',
                 fontFamily: 'monospace',
               })}
-              labelStyle={{ color: '#a88f78', marginBottom: '4px' }}
+              labelStyle={{ color: '#b89a7c', marginBottom: '4px' }}
             />
             <Legend
               verticalAlign="top"
@@ -119,7 +119,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
             <Line
               type="monotone"
               dataKey="median"
-              stroke="#d18f55"
+              stroke="#eab069"
               strokeWidth={2}
               dot={false}
               name="Median"

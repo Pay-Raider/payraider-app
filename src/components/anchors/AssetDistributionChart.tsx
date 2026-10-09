@@ -21,7 +21,7 @@ interface AssetChartDatum extends IssuedAsset {
 }
 
 const COLORS = [
-  "#d18f55", // Indigo 500
+  "#eab069", // Indigo 500
   "#ec4899", // Pink 500
   "#10b981", // Emerald 500
   "#f59e0b", // Amber 500
