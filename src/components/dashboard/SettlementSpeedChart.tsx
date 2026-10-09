@@ -31,10 +31,10 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+          <h3 className="text-sm font-bold tracking-tight text-muted-foreground">
             Speed Distributions // Finality
           </h3>
-          <p className="text-[10px] text-muted-foreground/50 font-mono uppercase mt-1">
+          <p className="text-xs text-muted-foreground/50 mt-1">
             Network Latency (24h)
           </p>
         </div>
@@ -64,7 +64,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
               tickMargin={10}
               tick={{
                 fontSize: 10,
-                fill: "#94a3b8",
+                fill: "#a88f78",
                 fontWeight: 500,
                 fontFamily: "monospace",
               }}
@@ -75,7 +75,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
               tickFormatter={(value) => `${value}s`}
               tick={{
                 fontSize: 10,
-                fill: "#94a3b8",
+                fill: "#a88f78",
                 fontWeight: 500,
                 fontFamily: "monospace",
               }}
@@ -86,7 +86,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
                 backgroundColor: "rgba(15, 23, 42, 0.9)",
                 borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#f8fafc",
+                color: "#faf6f1",
                 fontSize: "12px",
                 fontFamily: "monospace",
               })}
@@ -108,7 +108,7 @@ export const SettlementSpeedChart: React.FC<SettlementSpeedChartProps> = ({
                     entry.speed > 5
                       ? "#f43f5e"
                       : entry.speed > 3
-                        ? "#6366f1"
+                        ? "#d18f55"
                         : "#10b981"
                   }
                   fillOpacity={0.8}

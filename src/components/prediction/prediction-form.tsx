@@ -133,7 +133,7 @@ function SuccessGauge({
         >
           {percentage}%
         </motion.span>
-        <span className="text-xs text-gray-400 uppercase tracking-wider">
+        <span className="text-xs text-gray-400">
           Success Rate
         </span>
       </div>
@@ -528,7 +528,7 @@ const PredictionForm = () => {
                   {/* Alternative Routes */}
                   {prediction.alternative_routes.length > 0 && (
                     <div className="space-y-3">
-                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                      <h3 className="text-sm font-medium text-muted-foreground tracking-wide">
                         Better Routes Available
                       </h3>
                       {prediction.alternative_routes.map((route, index) => (

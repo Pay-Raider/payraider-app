@@ -107,7 +107,7 @@ export default function LiquidityPoolsPage() {
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest italic">
+        <div className="text-sm text-accent animate-pulse italic">
           Scanning Liquidity Pools... // 404-LP
         </div>
       </div>
@@ -119,14 +119,14 @@ export default function LiquidityPoolsPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
-            DeFi Analytics // 06
+          <div className="text-xs text-accent mb-2">
+            DeFi analytics
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
             <Droplets className="w-8 h-8 text-accent" />
             Liquidity Pools
           </h2>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Real-time pool performance, APY tracking, and impermanent loss
             analysis
           </p>
@@ -136,13 +136,13 @@ export default function LiquidityPoolsPage() {
             variant="outline"
             className="text-[10px] font-mono border-border/50 px-3 py-1 bg-accent/5"
           >
-            {pools.length} ACTIVE_POOLS
+            {pools.length} active pools
           </Badge>
           <Badge
             variant="outline"
             className="text-[10px] font-mono border-emerald-500/30 px-3 py-1 bg-emerald-500/5 text-emerald-400"
           >
-            LIVE_FEED
+            Live feed
           </Badge>
         </div>
       </div>
@@ -184,11 +184,11 @@ export default function LiquidityPoolsPage() {
       {/* Pool Rankings Table */}
       <div className="glass-card rounded-2xl p-1 border border-border/50">
         <div className="p-6 pb-4">
-          <h3 className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-2">
+          <h3 className="text-xs font-mono text-muted-foreground tracking-tight mb-1 flex items-center gap-2">
             <BarChart3 className="w-3 h-3 text-accent" />
             Pool Rankings
           </h3>
-          <p className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-wider">
+          <p className="text-xs text-muted-foreground/50">
             Click a pool to view its performance chart below
           </p>
         </div>
@@ -196,7 +196,7 @@ export default function LiquidityPoolsPage() {
           <table className="w-full text-xs font-mono">
             <thead>
               <tr className="border-b border-border/30">
-                <th className="text-left px-6 py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                <th className="text-left px-6 py-3 text-xs text-muted-foreground font-medium">
                   Pool
                 </th>
                 <SortableHeader
@@ -234,7 +234,7 @@ export default function LiquidityPoolsPage() {
                   ascending={sortAsc}
                   onClick={handleSort}
                 />
-                <th className="text-right px-6 py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                <th className="text-right px-6 py-3 text-xs text-muted-foreground font-medium">
                   Trades
                 </th>
               </tr>
@@ -307,7 +307,7 @@ export default function LiquidityPoolsPage() {
                 <button
                   key={m}
                   onClick={() => setChartMetric(m)}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all duration-200 border ${
+                  className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 border ${
                     chartMetric === m
                       ? "bg-accent/20 border-accent/50 text-accent"
                       : "bg-transparent border-border/30 text-muted-foreground hover:border-accent/30 hover:text-foreground"
@@ -323,10 +323,10 @@ export default function LiquidityPoolsPage() {
           {/* Pool Detail Panel */}
           <div className="lg:col-span-4 glass-card rounded-2xl p-6 border border-border/50 space-y-6">
             <div>
-              <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+              <div className="text-xs text-accent mb-2">
                 Selected Pool // Detail
               </div>
-              <h3 className="text-2xl font-black tracking-tighter uppercase italic">
+              <h3 className="text-2xl font-semibold tracking-tight">
                 {selectedPool.reserve_a_asset_code}/
                 {selectedPool.reserve_b_asset_code}
               </h3>
@@ -337,7 +337,7 @@ export default function LiquidityPoolsPage() {
 
             {/* Pool Composition */}
             <div className="space-y-3">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+              <div className="text-xs text-muted-foreground">
                 Reserves
               </div>
               <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
@@ -393,7 +393,7 @@ export default function LiquidityPoolsPage() {
             {/* Volume & Fees */}
             <div className="space-y-2">
               <div className="flex justify-between items-center p-3 rounded-xl bg-slate-900/20 border border-white/5">
-                <span className="text-[10px] font-mono text-muted-foreground uppercase">
+                <span className="text-xs text-muted-foreground">
                   24h Volume
                 </span>
                 <span className="text-sm font-mono font-bold text-indigo-400">
@@ -401,7 +401,7 @@ export default function LiquidityPoolsPage() {
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-xl bg-slate-900/20 border border-white/5">
-                <span className="text-[10px] font-mono text-muted-foreground uppercase">
+                <span className="text-xs text-muted-foreground">
                   24h Fees
                 </span>
                 <span className="text-sm font-mono font-bold text-amber-400">
@@ -409,7 +409,7 @@ export default function LiquidityPoolsPage() {
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-xl bg-slate-900/20 border border-white/5">
-                <span className="text-[10px] font-mono text-muted-foreground uppercase">
+                <span className="text-xs text-muted-foreground">
                   Total Value
                 </span>
                 <span className="text-sm font-mono font-bold text-foreground">
@@ -425,10 +425,10 @@ export default function LiquidityPoolsPage() {
       <div className="glass-card rounded-2xl p-6 border border-border/50">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-1">
+            <div className="text-xs text-accent mb-1">
               Comparison Matrix // Quick View
             </div>
-            <h3 className="text-lg font-black tracking-tight uppercase italic">
+            <h3 className="text-lg font-semibold tracking-tight">
               Pool Efficiency Index
             </h3>
           </div>
@@ -461,7 +461,7 @@ export default function LiquidityPoolsPage() {
               <div className="text-lg font-black font-mono text-emerald-400 mb-1">
                 {formatPercent(pool.apy)}
               </div>
-              <div className="text-[9px] font-mono text-muted-foreground uppercase">
+              <div className="text-xs text-muted-foreground">
                 APY
               </div>
               <div className="mt-2 flex justify-between">
@@ -504,7 +504,7 @@ function SortableHeader({
   return (
     <th
       onClick={() => onClick(sortKey)}
-      className="text-right px-6 py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold cursor-pointer hover:text-accent transition-colors select-none"
+      className="text-right px-6 py-3 text-xs text-muted-foreground font-medium cursor-pointer hover:text-accent transition-colors select-none"
     >
       <span className="inline-flex items-center gap-1">
         {label}
@@ -533,7 +533,7 @@ function DetailStat({
     <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
       <div className="flex items-center gap-1 mb-1">
         <span className={`${color}`}>{icon}</span>
-        <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider">
+        <span className="text-xs text-muted-foreground">
           {label}
         </span>
       </div>

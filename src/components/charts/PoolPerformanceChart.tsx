@@ -55,22 +55,22 @@ export function PoolPerformanceChart({
     { key: string; color: string; label: string }
   > = {
     apy: { key: "apy", color: "#10b981", label: "APY %" },
-    volume: { key: "volume", color: "#6366f1", label: "Volume" },
+    volume: { key: "volume", color: "#d18f55", label: "Volume" },
     fees: { key: "fees", color: "#f59e0b", label: "Fees" },
-    tvl: { key: "tvl", color: "#06b6d4", label: "TVL" },
+    tvl: { key: "tvl", color: "#b8905c", label: "TVL" },
   };
 
   const config = lineConfigs[metric];
 
   return (
     <div className="glass-card rounded-2xl p-6 border border-border/50">
-      <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+      <div className="text-xs text-accent mb-2">
         Pool Analytics // 06.A
       </div>
-      <h2 className="text-xl font-black tracking-tighter uppercase italic mb-2">
+      <h2 className="text-xl font-semibold tracking-tight mb-2">
         {config.label} Over Time
       </h2>
-      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-6">
+      <p className="text-xs text-muted-foreground mb-6">
         Historical {config.label.toLowerCase()} performance tracking
       </p>
 
@@ -107,7 +107,7 @@ export function PoolPerformanceChart({
                 fontFamily: "monospace",
               })}
               itemStyle={{ color: config.color, fontWeight: "bold" }}
-              labelStyle={{ color: "#94a3b8", marginBottom: "4px" }}
+              labelStyle={{ color: "#a88f78", marginBottom: "4px" }}
               formatter={(value?: TooltipValueType) => {
                 if (typeof value !== "number")
                   return ["-", config.label.toUpperCase()];

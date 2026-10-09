@@ -19,7 +19,7 @@ interface CompareChartsProps {
   corridors: CorridorDetailData[];
 }
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b"];
+const COLORS = ["#c27a42", "#10b981", "#f59e0b"];
 
 export function SuccessRateCompareChart({ corridors }: CompareChartsProps) {
   const allTimestamps = Array.from(
@@ -51,7 +51,7 @@ export function SuccessRateCompareChart({ corridors }: CompareChartsProps) {
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#334155"
+            stroke="#4f3f33"
             opacity={0.1}
           />
           <XAxis
@@ -68,10 +68,10 @@ export function SuccessRateCompareChart({ corridors }: CompareChartsProps) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1e293b",
+              backgroundColor: "#2b1f17",
               border: "none",
               borderRadius: "8px",
-              color: "#f8fafc",
+              color: "#faf6f1",
             }}
             itemStyle={{ fontSize: "12px" }}
           />
@@ -122,7 +122,7 @@ export function VolumeCompareChart({ corridors }: CompareChartsProps) {
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#334155"
+            stroke="#4f3f33"
             opacity={0.1}
           />
           <XAxis
@@ -143,10 +143,10 @@ export function VolumeCompareChart({ corridors }: CompareChartsProps) {
               return [`$${value.toLocaleString()}`, "Volume"];
             }}
             contentStyle={{
-              backgroundColor: "#1e293b",
+              backgroundColor: "#2b1f17",
               border: "none",
               borderRadius: "8px",
-              color: "#f8fafc",
+              color: "#faf6f1",
             }}
           />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />
@@ -193,7 +193,7 @@ export function SlippageCompareChart({ corridors }: CompareChartsProps) {
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#334155"
+            stroke="#4f3f33"
             opacity={0.1}
           />
           <XAxis
@@ -209,10 +209,10 @@ export function SlippageCompareChart({ corridors }: CompareChartsProps) {
               return [`${value.toFixed(2)} bps`, "Slippage"];
             }}
             contentStyle={{
-              backgroundColor: "#1e293b",
+              backgroundColor: "#2b1f17",
               border: "none",
               borderRadius: "8px",
-              color: "#f8fafc",
+              color: "#faf6f1",
             }}
           />
           <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />

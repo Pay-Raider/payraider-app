@@ -1,12 +1,23 @@
 import React from "react";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+// Self-hosted by next/font at build time, so they load under font-src 'self'.
+const heading = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+  axes: ["SOFT", "opsz"],
+});
+const body = DM_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const code = JetBrains_Mono({ subsets: ["latin"], variable: "--font-code", display: "swap" });
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#6366f1",
+  themeColor: "#17100b",
 };
 
 export const metadata: Metadata = {
@@ -31,7 +42,11 @@ export default async function RootLayout({
   const locale = headersList.get("x-next-intl-locale") ?? "en";
 
   return (
-    <html lang={locale} className="dark" suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`dark ${heading.variable} ${body.variable} ${code.variable}`}
+      suppressHydrationWarning
+    >
       <body
         className="font-sans antialiased text-foreground selection:bg-accent/30"
         suppressHydrationWarning

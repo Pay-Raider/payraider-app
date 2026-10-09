@@ -63,11 +63,11 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
     <Link href={`/governance/${proposal.id}`}>
       <div className="glass-card rounded-2xl p-6 border border-border/50 hover:border-accent/30 transition-all duration-300 group cursor-pointer">
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-foreground group-hover:text-accent transition-colors line-clamp-2">
+          <h3 className="text-sm font-bold tracking-tight text-foreground group-hover:text-accent transition-colors line-clamp-2">
             {proposal.title}
           </h3>
           <span
-            className={`shrink-0 inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-widest ${status.className}`}
+            className={`shrink-0 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${status.className}`}
           >
             {status.label}
           </span>

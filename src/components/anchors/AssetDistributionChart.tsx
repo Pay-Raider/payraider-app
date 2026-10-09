@@ -21,12 +21,12 @@ interface AssetChartDatum extends IssuedAsset {
 }
 
 const COLORS = [
-  "#6366f1", // Indigo 500
+  "#d18f55", // Indigo 500
   "#ec4899", // Pink 500
   "#10b981", // Emerald 500
   "#f59e0b", // Amber 500
-  "#8b5cf6", // Violet 500
-  "#3b82f6", // Blue 500
+  "#b8905c", // Violet 500
+  "#c27a42", // Blue 500
   "#ef4444", // Red 500
   "#14b8a6", // Teal 500
 ];
@@ -120,7 +120,7 @@ export function AssetDistributionChart({
         {/* Center Text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-center">
-            <div className="text-xs text-slate-400 uppercase tracking-wider">
+            <div className="text-xs text-slate-400">
               Total Vol
             </div>
             <div className="text-lg font-bold text-white font-mono">

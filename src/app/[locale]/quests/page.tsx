@@ -47,14 +47,14 @@ export default function QuestsPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-accent mb-2">
             Gamification // Stellar Quest Style
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
             <Trophy className="w-8 h-8 text-accent" />
             Quests & Achievements
           </h2>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Complete challenges to learn the platform and earn badges
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function QuestsPage() {
       <div className="glass-card rounded-2xl p-6 border border-border/50">
         <div className="flex items-center gap-2 mb-4">
           <Target className="w-5 h-5 text-accent" />
-          <h3 className="text-sm font-mono font-bold uppercase tracking-widest text-foreground">
+          <h3 className="text-sm font-mono font-bold tracking-tight text-foreground">
             Challenges
           </h3>
           <p className="text-[10px] font-mono text-muted-foreground ml-2">
@@ -124,7 +124,7 @@ export default function QuestsPage() {
       <div className="glass-card rounded-2xl p-6 border border-border/50">
         <div className="flex items-center gap-2 mb-4">
           <Award className="w-5 h-5 text-amber-400" />
-          <h3 className="text-sm font-mono font-bold uppercase tracking-widest text-foreground">
+          <h3 className="text-sm font-mono font-bold tracking-tight text-foreground">
             Achievements
           </h3>
         </div>
@@ -164,7 +164,7 @@ export default function QuestsPage() {
         >
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-accent" />
-            <h3 className="text-sm font-mono font-bold uppercase tracking-widest text-foreground">
+            <h3 className="text-sm font-mono font-bold tracking-tight text-foreground">
               Leaderboard
             </h3>
           </div>
@@ -179,16 +179,16 @@ export default function QuestsPage() {
             <table className="w-full text-xs font-mono">
               <thead>
                 <tr className="border-b border-border/30">
-                  <th className="text-left py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                  <th className="text-left py-3 text-xs text-muted-foreground font-medium">
                     Rank
                   </th>
-                  <th className="text-left py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                  <th className="text-left py-3 text-xs text-muted-foreground font-medium">
                     Player
                   </th>
-                  <th className="text-right py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                  <th className="text-right py-3 text-xs text-muted-foreground font-medium">
                     XP
                   </th>
-                  <th className="text-right py-3 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                  <th className="text-right py-3 text-xs text-muted-foreground font-medium">
                     Quests
                   </th>
                 </tr>

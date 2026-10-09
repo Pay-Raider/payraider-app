@@ -147,7 +147,7 @@ function FilterRow({
     <div className="flex flex-wrap gap-2 items-end p-3 bg-white/5 rounded-xl border border-border/30">
       {/* Field selector */}
       <div className="flex flex-col gap-1 min-w-[140px]">
-        <label className="text-[9px] font-mono uppercase text-muted-foreground">Field</label>
+        <label className="text-xs text-muted-foreground">Field</label>
         <select
           className="bg-background border border-border/40 rounded-md px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-accent"
           value={selectedField?.key ?? ""}
@@ -165,7 +165,7 @@ function FilterRow({
       {/* Operator */}
       {selectedField && selectedField.type !== "select" && (
         <div className="flex flex-col gap-1 min-w-[120px]">
-          <label className="text-[9px] font-mono uppercase text-muted-foreground">
+          <label className="text-xs text-muted-foreground">
             Operator
           </label>
           <select
@@ -196,7 +196,7 @@ function FilterRow({
       {/* Value */}
       {selectedField?.type === "select" && (
         <div className="flex flex-col gap-1 min-w-[160px]">
-          <label className="text-[9px] font-mono uppercase text-muted-foreground">Values</label>
+          <label className="text-xs text-muted-foreground">Values</label>
           <div className="flex flex-wrap gap-1">
             {selectedField.options?.map((opt) => (
               <button
@@ -210,7 +210,7 @@ function FilterRow({
                 }
                 className={`px-2 py-0.5 rounded-full text-[10px] font-mono border transition-colors ${
                   selectedOptions.includes(opt.value)
-                    ? "bg-accent text-white border-accent"
+                    ? "bg-accent text-accent-foreground border-accent"
                     : "border-border/40 text-muted-foreground hover:border-accent/50"
                 }`}
               >
@@ -223,7 +223,7 @@ function FilterRow({
 
       {(selectedField?.type === "text" || selectedField?.type === "number") && (
         <div className="flex flex-col gap-1 min-w-[160px]">
-          <label className="text-[9px] font-mono uppercase text-muted-foreground">Value</label>
+          <label className="text-xs text-muted-foreground">Value</label>
           <Input
             type={selectedField.type === "number" ? "number" : "text"}
             value={value}
@@ -236,7 +236,7 @@ function FilterRow({
 
       {selectedField?.type === "range" && (
         <div className="flex flex-col gap-1 min-w-[180px]">
-          <label className="text-[9px] font-mono uppercase text-muted-foreground">
+          <label className="text-xs text-muted-foreground">
             Value: {value || selectedField.min}
           </label>
           <input
@@ -255,7 +255,7 @@ function FilterRow({
       <div className="flex items-end gap-2">
         <Button
           size="sm"
-          className="h-8 text-[10px] font-mono uppercase"
+          className="h-8 text-xs"
           onClick={handleAdd}
           disabled={!selectedField}
         >
@@ -264,7 +264,7 @@ function FilterRow({
         <Button
           size="sm"
           variant="outline"
-          className="h-8 text-[10px] font-mono uppercase"
+          className="h-8 text-xs"
           onClick={onCancel}
         >
           Cancel
@@ -384,14 +384,14 @@ export function AdvancedFilterPanel({
         {/* Add filter button */}
         <button
           onClick={() => setShowFilterRow((v) => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border/40 text-[10px] font-mono uppercase tracking-widest hover:border-accent/50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border/40 text-xs hover:border-accent/50 transition-colors"
           aria-expanded={showFilterRow}
           aria-label="Add filter"
         >
           <SlidersHorizontal className="w-3 h-3" />
           Filter
           {activeFilters.length > 0 && (
-            <Badge className="text-[9px] h-4 px-1.5 ml-1 bg-accent text-white border-0">
+            <Badge className="text-[9px] h-4 px-1.5 ml-1 bg-accent text-accent-foreground border-0">
               {activeFilters.length}
             </Badge>
           )}
@@ -401,7 +401,7 @@ export function AdvancedFilterPanel({
         <div className="relative" ref={savedPanelRef}>
           <button
             onClick={() => setShowSaved((v) => !v)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border/40 text-[10px] font-mono uppercase tracking-widest hover:border-accent/50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border/40 text-xs hover:border-accent/50 transition-colors"
             aria-label="Saved searches"
           >
             {savedSearches.length > 0 ? (

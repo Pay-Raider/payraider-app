@@ -51,7 +51,7 @@ export function DataRefreshIndicator({
     >
       {/* ── Last updated badge ─────────────────────────────────── */}
       <div
-        className="px-3 py-1.5 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground whitespace-nowrap"
+        className="px-3 py-1.5 glass rounded-lg text-xs text-muted-foreground whitespace-nowrap"
         title={
           lastUpdated
             ? `${t("lastUpdated")}: ${lastUpdated.toLocaleString(locale)}`
@@ -64,7 +64,7 @@ export function DataRefreshIndicator({
 
       {/* ── Countdown ring badge ────────────────────────────────── */}
       <div
-        className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground whitespace-nowrap"
+        className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg text-xs text-muted-foreground whitespace-nowrap"
         title={`Auto-refresh in ${secondsUntilRefresh}s`}
       >
         {/* Animated circular progress ring */}

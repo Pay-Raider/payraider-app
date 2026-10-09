@@ -27,7 +27,7 @@ export const CorridorHealth: React.FC<CorridorHealthProps> = ({ corridors }) => 
     return (
         <div className="p-6 h-full">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Corridor Analytics</h3>
+                <h3 className="text-sm font-bold tracking-tight text-muted-foreground">Corridor Analytics</h3>
                 <Badge variant="outline" className="text-[10px] font-mono border-border/50">ACTIVE_MONITORING</Badge>
             </div>
             <div className="space-y-4">
@@ -38,12 +38,12 @@ export const CorridorHealth: React.FC<CorridorHealthProps> = ({ corridors }) => 
                                 {getStatusIcon(corridor.status)}
                                 <span className="font-bold text-sm tracking-tight">{corridor.name}</span>
                             </div>
-                            <span className="text-[10px] font-mono text-muted-foreground uppercase">{corridor.uptime}% UP</span>
+                            <span className="text-xs text-muted-foreground">{corridor.uptime}% UP</span>
                         </div>
 
                         <div className="flex items-end justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mb-1">Volume 24h</p>
+                                <p className="text-xs text-muted-foreground/50 mb-1">Volume 24h</p>
                                 <div className="text-sm font-mono font-bold">
                                     {new Intl.NumberFormat('en-US', {
                                         style: 'currency',

@@ -17,7 +17,7 @@ export const TopAssetsTable: React.FC<TopAssetsTableProps> = ({ assets }) => {
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Asset Liquidity // Top Movers</h3>
+                <h3 className="text-sm font-bold tracking-tight text-muted-foreground">Asset Liquidity // Top Movers</h3>
                 <Badge variant="outline" className="text-[10px] font-mono border-border/50">LATEST_SNAPSHOT</Badge>
             </div>
 
@@ -25,10 +25,10 @@ export const TopAssetsTable: React.FC<TopAssetsTableProps> = ({ assets }) => {
                 <table className="w-full text-sm text-left">
                     <thead>
                         <tr className="border-b border-border/50">
-                            <th className="pb-4 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Asset Pair</th>
-                            <th className="pb-4 font-bold uppercase tracking-widest text-[10px] text-muted-foreground text-right">Price</th>
-                            <th className="pb-4 font-bold uppercase tracking-widest text-[10px] text-muted-foreground text-right">Change</th>
-                            <th className="pb-4 font-bold uppercase tracking-widest text-[10px] text-muted-foreground text-right">Volume (24h)</th>
+                            <th className="pb-4 font-medium text-xs text-muted-foreground">Asset Pair</th>
+                            <th className="pb-4 font-medium text-xs text-muted-foreground text-right">Price</th>
+                            <th className="pb-4 font-medium text-xs text-muted-foreground text-right">Change</th>
+                            <th className="pb-4 font-medium text-xs text-muted-foreground text-right">Volume (24h)</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border/20">

@@ -19,7 +19,7 @@ export function BookmarksDashboardWidget() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Bookmark className="w-4 h-4 text-accent" aria-hidden="true" />
-          <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent">
+          <h3 className="text-[10px] font-mono tracking-tight text-accent">
             Bookmarks
           </h3>
         </div>
@@ -31,7 +31,7 @@ export function BookmarksDashboardWidget() {
       <div className="space-y-3">
         {corridorBookmarks.length > 0 && (
           <div>
-            <p className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/50 mb-2">
+            <p className="text-xs text-muted-foreground/50 mb-2">
               Corridors
             </p>
             <ul role="list" className="space-y-1">
@@ -68,7 +68,7 @@ export function BookmarksDashboardWidget() {
 
         {anchorBookmarks.length > 0 && (
           <div>
-            <p className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/50 mb-2">
+            <p className="text-xs text-muted-foreground/50 mb-2">
               Anchors
             </p>
             <ul role="list" className="space-y-1">

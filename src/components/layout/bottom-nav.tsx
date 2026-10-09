@@ -55,7 +55,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 glass border-t border-border md:hidden z-50"
+      className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border md:hidden z-50"
       aria-label="Mobile bottom navigation"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
@@ -77,7 +77,7 @@ export function BottomNav() {
               <div className={`transition-transform ${active ? "scale-110" : ""}`}>
                 {item.icon}
               </div>
-              <span className={`text-[9px] font-mono uppercase tracking-wider ${active ? "text-accent" : ""}`}>
+              <span className={`text-[11px] font-medium ${active ? "text-accent" : ""}`}>
                 {item.name}
               </span>
               {active && (

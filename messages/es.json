@@ -34,7 +34,7 @@
       "privacy": "Privacidad",
       "settings": "Configuración",
       "collapse": "Colapsar",
-      "systemNominal": "Sistema Nominal",
+      "systemNominal": "Todo funciona con normalidad",
       "alerts": "Alertas",
       "performance": "Rendimiento",
       "expandSidebar": "Expandir barra lateral",
@@ -53,7 +53,7 @@
     }
   },
   "navbar": {
-    "liveNetwork": "RED EN VIVO",
+    "liveNetwork": "En vivo en Stellar",
     "aboutUs": "Sobre Nosotros",
     "howToUse": "Cómo Usar",
     "contactUs": "Contacto",
@@ -66,8 +66,8 @@
   "home": {
     "hero": {
       "liveBadge": "Verificación previa al pago para off-ramps en Stellar",
-      "title": "VERIFICA EL CORREDOR",
-      "titleHighlight": "ANTES DE PAGAR",
+      "title": "Verifica el corredor",
+      "titleHighlight": "antes de pagar.",
       "subtitle": "Los pagos fallan cuando un corredor está degradado o no tiene liquidez suficiente para el monto. PayRaider revisa los pagos recientes del corredor y responde continuar, precaución o detener, con los motivos y una ruta más sana, en una sola llamada a la API.",
       "enterTerminal": "Verificar un corredor",
       "connectIdentity": "Conectar billetera",
@@ -92,7 +92,7 @@
       "networkStatus": "Estado de Red",
       "apiKeys": "Claves API",
       "governance": "Gobernanza",
-      "copyright": "© 2026 PAYRAIDER // v1.4.0-STABLE"
+      "copyright": "© 2026 PayRaider"
     },
     "steps": {
       "label": "Cómo funciona",
@@ -112,6 +112,24 @@
         "title": "Paga o cambia de ruta",
         "body": "Envía por un corredor sano o usa una de las alternativas más sanas hacia la misma moneda."
       }
+    },
+    "example": {
+      "label": "Respuesta de ejemplo",
+      "payment": "USDC → NGN · $2,500",
+      "decision": "Precaución",
+      "summary": "La liquidez es justa para este monto. Paga con cuidado o usa la alternativa.",
+      "checks": {
+        "successRate": "Tasa de éxito",
+        "successRateValue": "97,0% de 212 pagos",
+        "liquidity": "Liquidez",
+        "liquidityValue": "15% de la profundidad observada",
+        "sampleSize": "Muestra",
+        "sampleSizeValue": "212 pagos recientes",
+        "health": "Salud",
+        "healthValue": "83 / 100"
+      },
+      "alternative": "Ruta más sana",
+      "alternativeValue": "XLM → NGN · 99,1% de éxito"
     }
   },
   "contact": {

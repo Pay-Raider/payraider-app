@@ -46,11 +46,11 @@ export function TVLChart({ data }: TVLChartProps) {
     <div ref={chartRef} className="glass-card rounded-2xl p-6 border border-border/50">
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">Network Capital // 03.B</div>
-          <h2 className="text-xl font-black tracking-tighter uppercase italic mb-2">
+          <div className="text-xs text-accent mb-2">Network Capital // 03.B</div>
+          <h2 className="text-xl font-semibold tracking-tight mb-2">
             Total Value Locked
           </h2>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-6">
+          <p className="text-xs text-muted-foreground mb-6">
             Aggregated TVL across verified anchors
           </p>
         </div>
@@ -60,7 +60,7 @@ export function TVLChart({ data }: TVLChartProps) {
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             Current
           </p>
           <p className="text-xl font-black font-mono tracking-tighter text-emerald-400">
@@ -68,7 +68,7 @@ export function TVLChart({ data }: TVLChartProps) {
           </p>
         </div>
         <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             Average
           </p>
           <p className="text-xl font-black font-mono tracking-tighter text-foreground/80">
@@ -76,7 +76,7 @@ export function TVLChart({ data }: TVLChartProps) {
           </p>
         </div>
         <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             Volatility
           </p>
           <p className="text-xl font-black font-mono tracking-tighter text-accent">
@@ -113,7 +113,7 @@ export function TVLChart({ data }: TVLChartProps) {
                 fontSize: '10px',
                 fontFamily: 'monospace'
               })}
-              labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+              labelStyle={{ color: '#a88f78', marginBottom: '4px' }}
             />
             <Line
               type="monotone"

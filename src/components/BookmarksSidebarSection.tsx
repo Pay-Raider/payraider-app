@@ -31,7 +31,7 @@ export function BookmarksSidebarSection({ collapsed }: { collapsed: boolean }) {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 hover:text-foreground transition-colors"
+        className="w-full flex items-center justify-between px-4 py-1.5 text-xs font-medium text-muted-foreground/70 hover:text-foreground transition-colors"
       >
         <span className="flex items-center gap-1.5">
           <Bookmark className="w-3 h-3" aria-hidden="true" />
@@ -47,7 +47,7 @@ export function BookmarksSidebarSection({ collapsed }: { collapsed: boolean }) {
         <ul role="list" className="space-y-1 m-0 p-0 list-none mt-1">
           {corridorBookmarks.length > 0 && (
             <>
-              <li className="px-4 pt-1 pb-0.5 text-[9px] font-mono uppercase tracking-widest text-muted-foreground/50">
+              <li className="px-4 pt-1 pb-0.5 text-xs text-muted-foreground/50">
                 Corridors
               </li>
               {corridorBookmarks.map((b) => (
@@ -78,7 +78,7 @@ export function BookmarksSidebarSection({ collapsed }: { collapsed: boolean }) {
 
           {anchorBookmarks.length > 0 && (
             <>
-              <li className="px-4 pt-1 pb-0.5 text-[9px] font-mono uppercase tracking-widest text-muted-foreground/50">
+              <li className="px-4 pt-1 pb-0.5 text-xs text-muted-foreground/50">
                 Anchors
               </li>
               {anchorBookmarks.map((b) => (

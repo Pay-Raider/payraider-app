@@ -32,7 +32,7 @@ export function QuestCard({ quest, completed }: QuestCardProps) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="font-black text-foreground uppercase tracking-tight">
+              <h3 className="font-semibold text-foreground tracking-tight">
                 {quest.title}
               </h3>
               {completed && (
@@ -51,7 +51,7 @@ export function QuestCard({ quest, completed }: QuestCardProps) {
               <span className="rounded-lg bg-accent/20 px-2 py-0.5 text-[10px] font-mono font-bold text-accent">
                 +{quest.xp} XP
               </span>
-              <span className="text-[9px] font-mono uppercase text-muted-foreground/70">
+              <span className="text-xs text-muted-foreground/70">
                 {quest.category}
               </span>
             </div>

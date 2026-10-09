@@ -208,7 +208,7 @@ export function CostCalculator() {
         <button
           type="submit"
           disabled={!canSubmit || loading}
-          className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
         >
           {loading ? (
             <>
@@ -233,7 +233,7 @@ export function CostCalculator() {
       {result ? (
         <div className="space-y-4">
           <div className="glass rounded-2xl border border-border/60 p-5">
-            <p className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+            <p className="text-xs text-muted-foreground mb-2">
               Summary
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -268,7 +268,7 @@ export function CostCalculator() {
                     {route.route_name}
                   </h3>
                   {route.route === result.best_route.route ? (
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-accent/20 text-accent font-semibold uppercase tracking-[0.15em]">
+                    <span className="text-xs px-2 py-1 rounded-full bg-accent/20 text-accent font-semibold">
                       Best
                     </span>
                   ) : null}

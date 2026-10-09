@@ -98,7 +98,7 @@ function AnchorDetailPageContent({
           <div className="space-y-6">
             {/* Top Failure Reasons */}
             <div>
-              <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+              <h4 className="text-xs font-semibold text-slate-500 mb-3">
                 Top Failure Reasons
               </h4>
               <div className="space-y-3">
@@ -129,7 +129,7 @@ function AnchorDetailPageContent({
 
             {/* Recent Failed Corridors */}
             <div>
-              <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+              <h4 className="text-xs font-semibold text-slate-500 mb-3">
                 Recent Failed Corridors
               </h4>
               <div className="space-y-3">

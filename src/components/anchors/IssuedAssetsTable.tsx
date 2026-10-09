@@ -39,7 +39,7 @@ export function IssuedAssetsTable({
     <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm h-full flex flex-col">
       <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
         <h3 className="font-semibold text-white">Issued Assets</h3>
-        <span className="text-xs text-slate-500 uppercase tracking-wider font-mono">
+        <span className="text-xs text-slate-500">
           {assets.length} Total
         </span>
       </div>

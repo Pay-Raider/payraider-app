@@ -139,7 +139,7 @@ export default function PerformancePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {vitals.map((v) => (
               <div key={v.name} className={`glass-card rounded-2xl p-5 border ${RATING_BG[v.rating]}`}>
-                <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-1">{v.name}</div>
+                <div className="text-xs text-muted-foreground mb-1">{v.name}</div>
                 <div className={`text-2xl font-bold tabular-nums ${RATING_COLOR[v.rating]}`}>
                   {v.unit === "ms" ? `${Math.round(v.value)}ms` : v.value.toFixed(3)}
                 </div>

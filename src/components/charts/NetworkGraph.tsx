@@ -60,11 +60,11 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ data }) => {
       if (link.health >= 70) return "rgba(250, 204, 21, 0.4)"; // Yellow
       return "rgba(248, 113, 113, 0.4)"; // Red
     }
-    return "rgba(99, 102, 241, 0.4)"; // Default accent
+    return "rgba(209, 143, 85, 0.4)"; // Default accent
   };
 
   const getNodeColor = (node: Node) => {
-    if (node.type === "anchor") return "#6366f1"; // Indigo/Accent
+    if (node.type === "anchor") return "#d18f55"; // Indigo/Accent
     return "#f43f5e"; // Rose/Asset
   };
 
@@ -145,26 +145,26 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ data }) => {
       <div className="absolute top-6 left-6 p-4 glass border border-white/10 rounded-2xl flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-accent rounded" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Anchor
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-rose-500 rounded-full" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Asset
           </span>
         </div>
         <div className="h-px bg-white/5 my-1" />
         <div className="flex items-center gap-2">
           <div className="w-6 h-0.5 bg-green-400/40" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Healthy Corridor
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-6 h-0.5 bg-red-400/40" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-medium text-muted-foreground">
             Degraded Corridor
           </span>
         </div>
@@ -175,7 +175,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ data }) => {
         <div className="absolute bottom-6 left-6 p-4 glass-dark border border-white/10 rounded-2xl min-w-[200px] animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="flex items-center justify-between mb-2">
             <span
-              className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${hoverNode.type === "anchor" ? "bg-accent/20 text-accent" : "bg-rose-500/20 text-rose-400"}`}
+              className={`text-xs font-medium px-2 py-0.5 rounded ${hoverNode.type === "anchor" ? "bg-accent/20 text-accent" : "bg-rose-500/20 text-rose-400"}`}
             >
               {hoverNode.type}
             </span>
@@ -192,7 +192,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ data }) => {
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-[10px] font-mono uppercase text-green-400">
+                <span className="text-xs text-green-400">
                   Trading Active
                 </span>
               </div>

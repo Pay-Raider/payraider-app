@@ -41,7 +41,7 @@
       "performance": "Performance",
       "expandSidebar": "Expand Sidebar",
       "collapseSidebar": "Collapse Sidebar",
-      "systemNominal": "System Nominal",
+      "systemNominal": "All systems normal",
       "forecasting": "Forecasting",
       "groups": {
         "networkData": "Network Data",
@@ -53,7 +53,7 @@
     }
   },
   "navbar": {
-    "liveNetwork": "LIVE NETWORK",
+    "liveNetwork": "Live on Stellar",
     "aboutUs": "About Us",
     "howToUse": "How to Use",
     "contactUs": "Contact Us",
@@ -66,8 +66,8 @@
   "home": {
     "hero": {
       "liveBadge": "Pre-payment check for Stellar off-ramps",
-      "title": "CHECK THE CORRIDOR",
-      "titleHighlight": "BEFORE YOU PAY",
+      "title": "Check the corridor",
+      "titleHighlight": "before you pay.",
       "subtitle": "Payouts fail when a corridor is degraded or too thin for the amount. PayRaider looks at recent payments on the corridor and answers proceed, caution or hold, with the reasons and a healthier route, in one API call.",
       "enterTerminal": "Check a corridor",
       "connectIdentity": "Connect wallet",
@@ -92,7 +92,7 @@
       "networkStatus": "Network Status",
       "apiKeys": "API Keys",
       "governance": "Governance",
-      "copyright": "© 2026 PAYRAIDER // v1.4.0-STABLE"
+      "copyright": "© 2026 PayRaider"
     },
     "steps": {
       "label": "How it works",
@@ -112,6 +112,24 @@
         "title": "Pay or reroute",
         "body": "Send on a healthy corridor, or take one of the healthier alternatives to the same currency."
       }
+    },
+    "example": {
+      "label": "Example response",
+      "payment": "USDC → NGN · $2,500",
+      "decision": "Caution",
+      "summary": "Liquidity is marginal for this amount. Pay with care or use the alternative.",
+      "checks": {
+        "successRate": "Success rate",
+        "successRateValue": "97.0% of 212 payments",
+        "liquidity": "Liquidity",
+        "liquidityValue": "15% of observed depth",
+        "sampleSize": "Sample size",
+        "sampleSizeValue": "212 recent payments",
+        "health": "Health score",
+        "healthValue": "83 / 100"
+      },
+      "alternative": "Healthier route",
+      "alternativeValue": "XLM → NGN · 99.1% success"
     }
   },
   "contact": {

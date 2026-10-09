@@ -38,8 +38,8 @@ const DefaultLoading = () => (
       style={{
         width: '32px',
         height: '32px',
-        border: '3px solid #e5e7eb',
-        borderTopColor: '#3b82f6',
+        border: '3px solid #e4d5c4',
+        borderTopColor: '#c27a42',
         borderRadius: '50%',
         animation: 'spin 0.8s linear infinite',
       }}

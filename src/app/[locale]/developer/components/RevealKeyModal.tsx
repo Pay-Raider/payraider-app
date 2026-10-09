@@ -101,7 +101,7 @@ export default function RevealKeyModal({
           <div className="flex justify-end pt-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+              className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity font-medium"
             >
               Done
             </button>

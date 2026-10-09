@@ -64,7 +64,7 @@ export const ApiUsageDashboard: React.FC<ApiUsageDashboardProps> = ({ data }) =>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Endpoints */}
                 <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-bold uppercase tracking-tighter italic mb-4">
+                    <h3 className="text-lg font-bold tracking-tight mb-4">
                         Populous Endpoints // Statistics
                     </h3>
                     <div className="h-[300px]">
@@ -83,7 +83,7 @@ export const ApiUsageDashboard: React.FC<ApiUsageDashboardProps> = ({ data }) =>
                                     contentStyle={{ backgroundColor: "#111", border: "1px solid #333" }}
                                     itemStyle={{ fontSize: "12px" }}
                                 />
-                                <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                                <Bar dataKey="count" fill="#c27a42" radius={[0, 4, 4, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -91,7 +91,7 @@ export const ApiUsageDashboard: React.FC<ApiUsageDashboardProps> = ({ data }) =>
 
                 {/* Status Code Distribution */}
                 <div className="glass-card rounded-2xl p-6">
-                    <h3 className="text-lg font-bold uppercase tracking-tighter italic mb-4">
+                    <h3 className="text-lg font-bold tracking-tight mb-4">
                         Response Status // Distribution
                     </h3>
                     <div className="h-[300px]">
@@ -128,11 +128,11 @@ export const ApiUsageDashboard: React.FC<ApiUsageDashboardProps> = ({ data }) =>
 
             {/* Latency by Endpoint */}
             <div className="glass-card rounded-2xl p-6">
-                <h3 className="text-lg font-bold uppercase tracking-tighter italic mb-4">
+                <h3 className="text-lg font-bold tracking-tight mb-4">
                     Latency Diagnostics // Per Endpoint
                 </h3>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm font-mono uppercase tracking-widest">
+                    <table className="w-full text-left text-sm">
                         <thead className="border-b border-border/50 text-[10px] text-muted-foreground">
                             <tr>
                                 <th className="py-3 px-2">Endpoint</th>
@@ -186,7 +186,7 @@ const AnalyticsCard: React.FC<AnalyticsCardProps> = ({ icon, label, value, color
             <div className={`w-10 h-10 rounded-xl ${bgColors[color]} flex items-center justify-center mb-4`}>
                 {icon}
             </div>
-            <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em] mb-1">
+            <div className="text-xs text-muted-foreground mb-1">
                 {label}
             </div>
             <div className="text-2xl font-black italic tracking-tighter uppercase whitespace-break-spaces">

@@ -165,10 +165,10 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                 <Download className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <h3 className="text-lg font-black tracking-tight uppercase italic text-white leading-none">
+                <h3 className="text-lg font-semibold tracking-tight text-white leading-none">
                   Data Export
                 </h3>
-                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Target: {title}
                 </p>
               </div>
@@ -184,7 +184,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
           <div className="p-6 space-y-6">
             {/* Format Selection */}
             <div className="space-y-3">
-              <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs text-muted-foreground flex items-center gap-2">
                 <FileCode className="w-3 h-3" />
                 Select Output Format
               </label>
@@ -200,7 +200,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                     disabled={isExporting}
                     className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all ${
                       format === item.id
-                        ? "bg-accent border-accent text-white shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]"
+                        ? "bg-accent border-accent text-accent-foreground shadow-[0_0_20px_rgba(var(--accent-rgb),0.3)]"
                         : "bg-slate-900/50 border-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
                     }`}
                   >
@@ -213,7 +213,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
 
             {/* Date Range Selection */}
             <div className="space-y-3">
-              <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+              <label className="text-xs text-muted-foreground flex items-center gap-2">
                 <Calendar className="w-3 h-3" />
                 Temporal Parameters
               </label>
@@ -228,7 +228,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                     key={range.id}
                     onClick={() => setDateRange(range.id as "7d" | "30d" | "90d" | "custom")}
                     disabled={isExporting}
-                    className={`px-4 py-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
+                    className={`px-4 py-3 rounded-xl border text-xs font-medium transition-all ${
                       dateRange === range.id
                         ? "bg-white/10 border-white/20 text-white"
                         : "bg-slate-900/50 border-white/5 text-muted-foreground hover:border-white/20 hover:text-white"
@@ -242,7 +242,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
               {dateRange === "custom" && (
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300 grid grid-cols-2 gap-2 pt-2">
                   <div className="space-y-1">
-                    <span className="text-[9px] font-mono text-muted-foreground uppercase ml-1">Start Date</span>
+                    <span className="text-xs text-muted-foreground ml-1">Start Date</span>
                     <input
                       type="date"
                       value={customStart}
@@ -251,7 +251,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[9px] font-mono text-muted-foreground uppercase ml-1">End Date</span>
+                    <span className="text-xs text-muted-foreground ml-1">End Date</span>
                     <input
                       type="date"
                       value={customEnd}
@@ -279,7 +279,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
             {isExporting && (
               <div className="space-y-4 pt-2">
                 <div className="flex justify-between items-end mb-1">
-                  <span className="text-[10px] font-mono text-accent uppercase tracking-widest animate-pulse">
+                  <span className="text-xs text-accent animate-pulse">
                     {success ? "Satellite Link Verified // 200" : "Extracting Telemetry Data..."}
                   </span>
                   <span className="text-[10px] font-mono text-white" aria-label={`${progress} percent`}>
@@ -314,8 +314,8 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                 isExporting
                   ? "bg-slate-800 text-slate-500 cursor-not-allowed"
                   : success
-                    ? "bg-green-500 text-white"
-                    : "bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-accent/40 active:scale-95"
+                    ? "bg-green-500 text-accent-foreground"
+                    : "bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg hover:shadow-accent/40 active:scale-95"
               }`}
             >
               {isExporting ? (
@@ -335,7 +335,7 @@ export function ExportDialog({ isOpen, onClose, type, title }: ExportDialogProps
                 </>
               )}
             </button>
-            <p className="text-[9px] font-mono text-muted-foreground/40 text-center mt-4 uppercase tracking-[0.2em]">
+            <p className="text-xs text-muted-foreground/40 text-center mt-4">
               Security clearance level: ALPHA_VETA // 002
             </p>
           </div>

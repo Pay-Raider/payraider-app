@@ -44,21 +44,21 @@ export default function ApiAnalyticsPage() {
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </Link>
-                        <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em]">Telemetry // System</div>
+                        <div className="text-xs text-accent">Telemetry // System</div>
                     </div>
-                    <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+                    <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
                         <Activity className="w-8 h-8 text-blue-500" />
                         API Usage Metrics
                     </h2>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="px-4 py-2 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                    <div className="px-4 py-2 glass rounded-lg text-xs text-muted-foreground">
                         Last Scan: {lastUpdated?.toLocaleTimeString()}
                     </div>
                     <button
                         onClick={loadData}
                         disabled={loading}
-                        className="px-4 py-2 bg-accent text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-50"
+                        className="px-4 py-2 bg-accent text-accent-foreground rounded-lg text-xs font-medium hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-50"
                     >
                         <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
                         Refresh
@@ -68,20 +68,20 @@ export default function ApiAnalyticsPage() {
 
             {error ? (
                 <div className="glass border-red-500/30 p-8 rounded-2xl text-center space-y-4">
-                    <div className="text-red-500 font-mono uppercase tracking-widest text-sm italic">
+                    <div className="text-red-500 text-sm italic">
                         Telemetry Failure // Link Unavailable
                     </div>
                     <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
                     <button
                         onClick={loadData}
-                        className="px-6 py-2 border border-white/10 rounded-lg text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all"
+                        className="px-6 py-2 border border-white/10 rounded-lg text-xs hover:bg-white/5 transition-all"
                     >
                         Retry Scan
                     </button>
                 </div>
             ) : loading && !data ? (
                 <div className="flex h-[40vh] items-center justify-center">
-                    <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest italic tracking-widest">
+                    <div className="text-sm text-accent animate-pulse italic">
                         Intercepting Data Packets... // SI-9
                     </div>
                 </div>

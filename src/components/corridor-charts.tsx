@@ -59,7 +59,7 @@ export function SuccessRateChart({ data }: SuccessRateChartProps) {
           <Line
             type="monotone"
             dataKey="success_rate"
-            stroke="#3b82f6"
+            stroke="#c27a42"
             dot={false}
             strokeWidth={2}
             name="Success Rate %"
@@ -148,7 +148,7 @@ export function LiquidityTrendChart({ data }: LiquidityTrendChartProps) {
             yAxisId="left"
             type="monotone"
             dataKey="liquidity_usd"
-            stroke="#8b5cf6"
+            stroke="#b8905c"
             dot={false}
             strokeWidth={2}
             name="Liquidity Depth"

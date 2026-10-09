@@ -133,13 +133,13 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-accent mb-2">
             Market Concentration // 05.B
           </div>
-          <h2 className="text-2xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
             Liquidity Distribution
           </h2>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Visualizing liquidity depth across market corridors
           </p>
         </div>
@@ -149,9 +149,9 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
             <button
               key={period}
               onClick={() => handlePeriodClick(period)}
-              className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 ${
+              className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all duration-300 ${
                 timePeriod === period
-                  ? "bg-accent text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+                  ? "bg-accent text-accent-foreground shadow-[0_0_15px_rgba(209, 143, 85,0.4)]"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/5"
               }`}
             >
@@ -167,7 +167,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
             {/* Legend */}
             <div className="flex items-center justify-between mb-8 px-2">
               <div className="flex items-center gap-4">
-                <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground flex items-center gap-2">
                   <Info className="w-3 h-3 text-accent" />
                   Liquidity Density
                 </span>
@@ -180,12 +180,12 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                   <div className="w-3 h-3 bg-emerald-500/50 border border-emerald-500/30 rounded-sm"></div>
                   <div className="w-3 h-3 bg-accent/60 border border-accent/50 rounded-sm"></div>
                 </div>
-                <div className="flex gap-4 text-[9px] font-mono font-bold text-muted-foreground/50 uppercase tracking-widest">
+                <div className="flex gap-4 text-xs font-medium text-muted-foreground/50">
                   <span>Thin</span>
                   <span>Deep</span>
                 </div>
               </div>
-              <div className="hidden lg:flex items-center gap-2 text-[9px] font-mono text-muted-foreground uppercase tracking-widest italic opacity-50">
+              <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground italic opacity-50">
                 <Maximize2 className="w-3 h-3" />
                 Click cells to navigate
               </div>
@@ -199,7 +199,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                     key={`y-${asset}`}
                     className="h-14 sm:h-18 lg:h-22 flex items-center justify-end pr-6"
                   >
-                    <span className="text-[10px] font-mono font-black text-muted-foreground/60 uppercase tracking-tighter">
+                    <span className="text-xs font-medium text-muted-foreground/60 tracking-tighter">
                       {asset}
                     </span>
                   </div>
@@ -215,7 +215,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                       key={`x-${asset}`}
                       className="w-14 sm:w-18 lg:w-22 flex items-end justify-center pb-4"
                     >
-                      <span className="transform -rotate-45 origin-bottom-left whitespace-nowrap text-[10px] font-mono font-black text-muted-foreground/60 uppercase tracking-tighter">
+                      <span className="transform -rotate-45 origin-bottom-left whitespace-nowrap text-xs font-medium text-muted-foreground/60 tracking-tighter">
                         {asset}
                       </span>
                     </div>
@@ -249,7 +249,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                           >
                             {cell ? (
                               <div
-                                className={`w-full h-full rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(99,102,241,0.2)] flex flex-col items-center justify-center border border-white/10 ${getLiquidityColor(
+                                className={`w-full h-full rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_rgba(209, 143, 85,0.2)] flex flex-col items-center justify-center border border-white/10 ${getLiquidityColor(
                                   cell.liquidity,
                                 )} ${getOpacity(cell.liquidity)}`}
                               >
@@ -289,8 +289,8 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
               <div className="bg-slate-900/95 backdrop-blur-xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 min-w-[240px] border border-white/10">
                 <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_#6366f1]"></div>
-                    <span className="font-mono font-black text-[10px] uppercase tracking-tighter">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_#d18f55]"></div>
+                    <span className="font-medium text-xs tracking-tighter">
                       {tooltipData.sourceAsset}{" "}
                       <ArrowRight className="inline w-3 h-3 mx-1 text-muted-foreground" />{" "}
                       {tooltipData.destinationAsset}
@@ -306,7 +306,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Depth Index
                     </span>
                     <span className="font-mono text-accent font-black text-sm tabular-nums">
@@ -320,7 +320,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="text-xs font-medium text-muted-foreground">
                       24h Flux
                     </span>
                     <span className="font-mono text-emerald-400 font-black text-sm tabular-nums">
@@ -329,7 +329,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="text-xs font-medium text-muted-foreground">
                       Latency
                     </span>
                     <span className="font-mono text-amber-400 font-black text-sm tabular-nums">
@@ -340,7 +340,7 @@ export const LiquidityHeatmap: React.FC<LiquidityHeatmapProps> = ({
                     </span>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-[9px] font-mono font-black text-accent uppercase tracking-widest italic animate-pulse">
+                  <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-xs font-medium text-accent italic animate-pulse">
                     <span>Initiate Remote Scan</span>
                     <ArrowRight className="w-3 h-3" />
                   </div>

@@ -111,7 +111,7 @@ describe('chart-utils', () => {
       expect(style.backgroundColor).toBeDefined();
       expect(style.borderRadius).toBe('12px');
       expect(style.border).toBe('1px solid rgba(255, 255, 255, 0.1)');
-      expect(style.color).toBe('#f8fafc');
+      expect(style.color).toBe('#faf6f1');
       expect(style.fontSize).toBe('12px');
       expect(style.fontFamily).toBe('monospace');
     });
@@ -130,7 +130,7 @@ describe('chart-utils', () => {
   describe('getTooltipLabelStyle', () => {
     it('should return consistent label style', () => {
       const style = getTooltipLabelStyle();
-      expect(style.color).toBe('#94a3b8');
+      expect(style.color).toBe('#a88f78');
       expect(style.marginBottom).toBe('4px');
     });
 

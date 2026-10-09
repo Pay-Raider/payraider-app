@@ -82,7 +82,7 @@ export default function TrustlinesPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin glow-accent" />
-          <p className="text-sm font-mono text-muted-foreground uppercase tracking-widest">
+          <p className="text-sm text-muted-foreground">
             Syncing Ledger States...
           </p>
         </div>
@@ -98,14 +98,14 @@ export default function TrustlinesPage() {
           <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center border border-accent/50 glow-accent shrink-0">
             <Users className="w-5 h-5 text-accent" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
             Trustline
             <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4 ml-2">
               Analysis
             </span>
           </h1>
         </div>
-        <p className="text-xs sm:text-sm font-mono text-muted-foreground uppercase tracking-widest mt-2 md:mt-0 pl-1 md:pl-14">
+        <p className="text-xs sm:text-sm text-muted-foreground mt-2 md:mt-0 pl-1 md:pl-14">
           Monitor asset adoption, holder distribution, and network growth
         </p>
       </div>
@@ -117,7 +117,7 @@ export default function TrustlinesPage() {
           <div className="flex items-center justify-between mb-4 relative z-10">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-emerald-400" />
-              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs text-muted-foreground">
                 Total Trustlines
               </span>
             </div>
@@ -137,7 +137,7 @@ export default function TrustlinesPage() {
           <div className="flex items-center justify-between mb-4 relative z-10">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs text-muted-foreground">
                 Tracked Assets
               </span>
             </div>
@@ -157,7 +157,7 @@ export default function TrustlinesPage() {
           <div className="flex items-center justify-between mb-4 relative z-10">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-emerald-400" />
-              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs text-muted-foreground">
                 Growth Trend
               </span>
             </div>
@@ -179,7 +179,7 @@ export default function TrustlinesPage() {
           <div className="p-4 border-b border-white/5 bg-slate-900/50 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-accent" />
-              <h2 className="text-sm font-bold uppercase tracking-wider">
+              <h2 className="text-sm font-bold tracking-tight">
                 Top Assets
               </h2>
             </div>
@@ -220,7 +220,7 @@ export default function TrustlinesPage() {
                       <div className="font-mono text-sm">
                         {formatNumber(asset.total_trustlines)}
                       </div>
-                      <div className="text-[9px] font-mono text-emerald-400 uppercase">
+                      <div className="text-xs text-emerald-400">
                         Trustlines
                       </div>
                     </div>
@@ -241,7 +241,7 @@ export default function TrustlinesPage() {
               {/* Asset Header Info */}
               <div className="glass-card rounded-2xl p-6 border border-border/50 flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0">
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-black tracking-tighter flex items-center gap-2">
+                  <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight flex items-center gap-2">
                     {selectedAsset.asset_code}
                     <BadgeCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 inline-block mb-1" />
                   </h2>
@@ -250,7 +250,7 @@ export default function TrustlinesPage() {
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-1">
+                  <div className="text-xs text-muted-foreground mb-1">
                     Total Supply
                   </div>
                   <div className="text-lg sm:text-xl font-black font-mono tracking-tighter">
@@ -267,7 +267,7 @@ export default function TrustlinesPage() {
 
               {/* Distribution */}
               <div className="glass-card rounded-2xl p-6 border border-border/50">
-                <h3 className="text-sm font-bold uppercase tracking-wider mb-6">
+                <h3 className="text-sm font-bold tracking-tight mb-6">
                   Holder Distribution
                 </h3>
 
@@ -301,7 +301,7 @@ export default function TrustlinesPage() {
                     />
                   </div>
 
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase text-center mt-2">
+                  <p className="text-xs text-muted-foreground text-center mt-2">
                     {selectedAsset.unauthorized_trustlines > 0
                       ? "Includes trustlines pending authorization or revoked"
                       : "All trustlines are fully authorized"}
@@ -312,7 +312,7 @@ export default function TrustlinesPage() {
           ) : (
             <div className="glass-card rounded-2xl p-6 border border-border/50 flex flex-col items-center justify-center h-full">
               <Users className="w-12 h-12 text-muted-foreground/30 mb-4" />
-              <p className="text-sm font-mono text-muted-foreground uppercase tracking-widest text-center">
+              <p className="text-sm text-muted-foreground text-center">
                 Select an asset from the leaderboard
                 <br />
                 to view detailed insights

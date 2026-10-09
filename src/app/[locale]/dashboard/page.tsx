@@ -208,7 +208,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <div className="px-6 py-4 glass border-red-500/50 text-red-500 font-mono text-sm uppercase tracking-widest">
+        <div className="px-6 py-4 glass border-red-500/50 text-red-500 text-sm">
           {t("error")}: {error}
         </div>
       </div>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
             {data.liquidity.length > 0 ? (
               <LiquidityChart data={data.liquidity} />
             ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
                 {t("waitingLiquidity")}
               </div>
             )}
@@ -254,7 +254,7 @@ export default function DashboardPage() {
             {data.assets.length > 0 ? (
               <TopAssetsTable assets={data.assets} />
             ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
                 {t("waitingAsset")}
               </div>
             )}
@@ -266,7 +266,7 @@ export default function DashboardPage() {
             {data.corridors.length > 0 ? (
               <CorridorHealth corridors={data.corridors} />
             ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
                 {t("waitingCorridor")}
               </div>
             )}
@@ -278,7 +278,7 @@ export default function DashboardPage() {
             {data.settlement.length > 0 ? (
               <SettlementSpeedChart data={data.settlement} />
             ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground font-mono text-xs uppercase tracking-widest">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
                 {t("waitingSettlement")}
               </div>
             )}
@@ -294,10 +294,10 @@ export default function DashboardPage() {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
           <div>
-            <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+            <div className="text-xs text-accent mb-2">
               {t("intelligenceTerminal")}
             </div>
-            <h2 className="text-4xl font-black tracking-tighter uppercase italic">
+            <h2 className="text-4xl font-semibold tracking-tight">
               {t("networkOverview")}
             </h2>
           </div>

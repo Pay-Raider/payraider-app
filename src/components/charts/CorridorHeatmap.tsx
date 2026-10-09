@@ -247,28 +247,28 @@ export const CorridorHeatmap: React.FC<CorridorHeatmapProps> = ({
         <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-border/50">
           <button
             onClick={() => setActiveMetric("health")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "health" ? "bg-accent text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "health" ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Activity className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Health</span>
           </button>
           <button
             onClick={() => setActiveMetric("success_rate")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "success_rate" ? "bg-accent text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "success_rate" ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Success</span>
           </button>
           <button
             onClick={() => setActiveMetric("volume")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "volume" ? "bg-accent text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "volume" ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Volume</span>
           </button>
           <button
             onClick={() => setActiveMetric("latency")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "latency" ? "bg-accent text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeMetric === "latency" ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Clock className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Latency</span>

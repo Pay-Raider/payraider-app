@@ -114,7 +114,7 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
       {/* Back link */}
       <Link
         href="/governance"
-        className="inline-flex items-center gap-2 text-xs font-mono text-muted-foreground hover:text-accent transition-colors uppercase tracking-widest"
+        className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-accent transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Proposals
@@ -123,17 +123,17 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
       {/* Header */}
       <div className="glass-card rounded-2xl p-6 border border-border/50">
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-2xl font-black tracking-tighter uppercase italic text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             {proposal.title}
           </h1>
           <span
-            className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest ${status.className}`}
+            className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${status.className}`}
           >
             {status.label}
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest mb-6">
+        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground/50 mb-6">
           <span>
             By {proposal.createdBy.slice(0, 8)}...{proposal.createdBy.slice(-4)}
           </span>
@@ -154,7 +154,7 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
 
         {proposal.targetContract && (
           <div className="mt-4 pt-4 border-t border-border/30">
-            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-1">
+            <div className="text-xs font-medium text-muted-foreground mb-1">
               Target Contract
             </div>
             <div className="text-xs font-mono text-foreground break-all">
@@ -165,7 +165,7 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
 
         {proposal.newWasmHash && (
           <div className="mt-3">
-            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-1">
+            <div className="text-xs font-medium text-muted-foreground mb-1">
               WASM Hash
             </div>
             <div className="text-xs font-mono text-foreground break-all">
@@ -187,14 +187,14 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
         {/* Vote buttons */}
         {proposal.status === "active" && isAuthenticated && !userVote && (
           <div className="mt-6 pt-4 border-t border-border/30">
-            <div className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-3">
+            <div className="text-xs font-medium text-muted-foreground mb-3">
               Cast Your Vote
             </div>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleVote("for")}
                 disabled={voting}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
               >
                 <CheckCircle className="w-4 h-4" />
                 Vote For
@@ -202,7 +202,7 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
               <button
                 onClick={() => handleVote("against")}
                 disabled={voting}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
               >
                 <XCircle className="w-4 h-4" />
                 Vote Against
@@ -210,7 +210,7 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
               <button
                 onClick={() => handleVote("abstain")}
                 disabled={voting}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-500/10 border border-slate-500/30 text-slate-400 text-xs font-bold uppercase tracking-widest hover:bg-slate-500/20 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-500/10 border border-slate-500/30 text-slate-400 text-xs font-medium hover:bg-slate-500/20 transition-colors disabled:opacity-50"
               >
                 <MinusCircle className="w-4 h-4" />
                 Abstain
@@ -221,7 +221,7 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
 
         {userVote && (
           <div className="mt-6 pt-4 border-t border-border/30">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               You voted{" "}
               <span
                 className={
@@ -241,12 +241,12 @@ export function ProposalDetail({ proposal, onVoted }: ProposalDetailProps) {
 
       {/* Comments */}
       <div className="glass-card rounded-2xl p-6 border border-border/50">
-        <h3 className="text-sm font-mono font-bold uppercase tracking-widest text-foreground mb-4">
+        <h3 className="text-sm font-mono font-bold tracking-tight text-foreground mb-4">
           Discussion
         </h3>
 
         {comments.length === 0 && (
-          <p className="text-xs font-mono text-muted-foreground/50 uppercase tracking-widest">
+          <p className="text-xs text-muted-foreground/50">
             No comments yet
           </p>
         )}

@@ -32,12 +32,12 @@ export default function ContactPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-14">
       <section className="text-center space-y-5 pt-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold tracking-widest uppercase">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold">
           <Mail className="w-3.5 h-3.5" />
           {t("title")}
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
           {t("headingBefore")}
           <span className="text-accent">{t("headingHighlight")}</span>
         </h1>
@@ -49,7 +49,7 @@ export default function ContactPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <aside className="lg:col-span-2 space-y-4">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2">
+          <h2 className="text-sm font-bold tracking-tight text-muted-foreground mb-2">
             {t("otherChannels")}
           </h2>
           {channelsConfig.map((c) => {
@@ -158,7 +158,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={status === "sending"}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-bold text-sm tracking-wide hover:bg-accent/90 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(99,102,241,0.3)]"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent text-accent-foreground font-bold text-sm tracking-wide hover:bg-accent/90 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(209, 143, 85,0.3)]"
               >
                 {status === "sending" ? (
                   <>

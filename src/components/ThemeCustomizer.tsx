@@ -8,9 +8,9 @@ import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 // ─── Accent colour presets ────────────────────────────────────────────────────
 const ACCENT_PRESETS = [
-  { label: "Indigo", value: "#6366f1" },
-  { label: "Violet", value: "#8b5cf6" },
-  { label: "Sky", value: "#0ea5e9" },
+  { label: "Indigo", value: "#d18f55" },
+  { label: "Violet", value: "#b8905c" },
+  { label: "Sky", value: "#c9a677" },
   { label: "Emerald", value: "#10b981" },
   { label: "Rose", value: "#f43f5e" },
   { label: "Amber", value: "#f59e0b" },
@@ -43,7 +43,7 @@ function ThemeCard({ preference: _preference, label, icon: Icon, active, onClick
       aria-label={`Set theme to ${label}`}
       className={`relative flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer w-full text-left ${
         active
-          ? "border-accent bg-accent/10 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
+          ? "border-accent bg-accent/10 shadow-[0_0_20px_rgba(209, 143, 85,0.2)]"
           : "border-border hover:border-accent/40 bg-card"
       }`}
     >
@@ -83,7 +83,7 @@ export function ThemeCustomizer() {
   const { prefs, setPrefs } = useUserPreferences();
 
   // Accent colour stored in user prefs; apply to CSS variable on change
-  const accentColor: string = (prefs as unknown as Record<string, unknown>).accentColor as string ?? "#6366f1";
+  const accentColor: string = (prefs as unknown as Record<string, unknown>).accentColor as string ?? "#d18f55";
   const fontSize: FontSizeValue = ((prefs as unknown as Record<string, unknown>).fontSize as FontSizeValue) ?? "md";
 
   const applyAccent = (color: string) => {
@@ -110,19 +110,19 @@ export function ThemeCustomizer() {
       preference: "light",
       label: "Light",
       icon: Sun,
-      preview: { bg: "#f8fafc", card: "#e2e8f0", text: "#0f172a" },
+      preview: { bg: "#faf6f1", card: "#e4d5c4", text: "#211710" },
     },
     {
       preference: "dark",
       label: "Dark",
       icon: Moon,
-      preview: { bg: "#020617", card: "#1e293b", text: "#f8fafc" },
+      preview: { bg: "#17100b", card: "#2b1f17", text: "#faf6f1" },
     },
     {
       preference: "system",
       label: "System",
       icon: Monitor,
-      preview: { bg: "linear-gradient(135deg,#020617 50%,#f8fafc 50%)", card: "#6366f1", text: "#94a3b8" },
+      preview: { bg: "linear-gradient(135deg,#17100b 50%,#faf6f1 50%)", card: "#d18f55", text: "#a88f78" },
     },
   ];
 
@@ -132,7 +132,7 @@ export function ThemeCustomizer() {
       <section aria-labelledby="theme-mode-heading">
         <div className="flex items-center gap-2 mb-4">
           <Palette className="w-4 h-4 text-accent" aria-hidden="true" />
-          <h3 id="theme-mode-heading" className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          <h3 id="theme-mode-heading" className="text-sm font-semibold tracking-tight text-muted-foreground">
             Appearance
           </h3>
         </div>
@@ -155,7 +155,7 @@ export function ThemeCustomizer() {
       <section aria-labelledby="accent-colour-heading">
         <div className="flex items-center gap-2 mb-4">
           <span className="w-4 h-4 rounded-full bg-accent" aria-hidden="true" />
-          <h3 id="accent-colour-heading" className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          <h3 id="accent-colour-heading" className="text-sm font-semibold tracking-tight text-muted-foreground">
             Accent Colour
           </h3>
         </div>
@@ -188,7 +188,7 @@ export function ThemeCustomizer() {
       <section aria-labelledby="font-size-heading">
         <div className="flex items-center gap-2 mb-4">
           <Type className="w-4 h-4 text-accent" aria-hidden="true" />
-          <h3 id="font-size-heading" className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          <h3 id="font-size-heading" className="text-sm font-semibold tracking-tight text-muted-foreground">
             Text Size
           </h3>
         </div>

@@ -202,7 +202,7 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
             <tr>
               <th
                 onClick={() => handleSort("name")}
-                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                 aria-label="Sort by anchor name"
                 aria-sort={getSortDirection("name")}
               >
@@ -211,12 +211,12 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
                   {getSortIcon("name")}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300">
                 Status
               </th>
               <th
                 onClick={() => handleSort("reliability_score")}
-                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                 aria-label="Sort by reliability score"
                 aria-sort={getSortDirection("reliability_score")}
               >
@@ -227,7 +227,7 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
               </th>
               <th
                 onClick={() => handleSort("failure_rate")}
-                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                 aria-label="Sort by failure rate"
                 aria-sort={getSortDirection("failure_rate")}
               >
@@ -236,19 +236,19 @@ const AnchorTable: React.FC<AnchorTableProps> = ({ anchors, loading = false }) =
                   {getSortIcon("failure_rate")}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300">
                 Success Rate
               </th>
               <th
                 onClick={() => handleSort("total_transactions")}
-                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   Transactions
                   {getSortIcon("total_transactions")}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-gray-300">
                 7-Day Trend
               </th>
             </tr>

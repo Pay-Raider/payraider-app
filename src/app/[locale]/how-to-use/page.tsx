@@ -70,13 +70,13 @@ export default function HowToUsePage() {
    <div className="max-w-4xl mx-auto space-y-14">
      {/* Hero */}
      <section className="text-center space-y-5 pt-4">
-       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold tracking-widest uppercase">
+       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold">
          <Rocket className="w-3.5 h-3.5" />
          Getting Started
        </div>
 
 
-       <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+       <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground">
          How to Use{" "}
          <span className="text-accent">PayRaider</span>
        </h1>
@@ -138,7 +138,7 @@ export default function HowToUsePage() {
 
      {/* Tips card */}
      <section className="glass-card rounded-2xl p-6 border border-accent/15 bg-accent/5 space-y-3">
-       <p className="text-xs font-mono uppercase tracking-widest text-accent">Pro Tip</p>
+       <p className="text-xs text-accent">Pro Tip</p>
        <p className="text-sm text-muted-foreground leading-relaxed">
          Enable browser notifications to receive real-time alerts when a monitored corridor
          drops below your success-rate threshold or when a major liquidity event is detected.

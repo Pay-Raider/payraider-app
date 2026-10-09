@@ -42,7 +42,7 @@ export function ChartExportButton({
         disabled={isExporting}
         className={`
           flex items-center gap-2 px-3 py-1.5 
-          text-[10px] font-mono uppercase tracking-wider
+          text-xs tracking-wider
           bg-slate-900/50 hover:bg-slate-800/50
           border border-white/10 hover:border-accent/50
           rounded-lg transition-all duration-200
@@ -73,7 +73,7 @@ export function ChartExportButton({
             <button
               onClick={() => handleExport('png')}
               className="w-full flex items-center gap-2 px-4 py-2.5
-                text-[10px] font-mono uppercase tracking-wider
+                text-xs tracking-wider
                 hover:bg-slate-800 transition-colors text-left"
               role="menuitem"
             >
@@ -84,7 +84,7 @@ export function ChartExportButton({
             <button
               onClick={() => handleExport('svg')}
               className="w-full flex items-center gap-2 px-4 py-2.5
-                text-[10px] font-mono uppercase tracking-wider
+                text-xs tracking-wider
                 hover:bg-slate-800 transition-colors text-left
                 border-t border-white/5"
               role="menuitem"

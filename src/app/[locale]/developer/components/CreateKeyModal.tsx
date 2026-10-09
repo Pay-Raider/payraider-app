@@ -96,7 +96,7 @@ export default function CreateKeyModal({
             <button
               type="submit"
               disabled={loading || !name.trim()}
-              className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating..." : "Create Key"}
             </button>

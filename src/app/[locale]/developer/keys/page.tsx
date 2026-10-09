@@ -138,7 +138,7 @@ export default function DeveloperKeysPage() {
               setSigningIn(false);
             }
           }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl hover:opacity-90 font-medium disabled:opacity-60"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-xl hover:opacity-90 font-medium disabled:opacity-60"
         >
           {signingIn ? "Waiting for wallet…" : "Sign in"}
         </button>
@@ -151,10 +151,10 @@ export default function DeveloperKeysPage() {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
           <div>
-            <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+            <div className="text-xs text-accent mb-2">
               Developer // API Keys
             </div>
-            <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+            <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
               <Key className="w-8 h-8 text-accent" />
               API Keys
             </h2>
@@ -177,10 +177,10 @@ export default function DeveloperKeysPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-accent mb-2">
             Developer // API Keys
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
             <Key className="w-8 h-8 text-accent" />
             API Keys
           </h2>
@@ -190,7 +190,7 @@ export default function DeveloperKeysPage() {
         </p>
         <button
           onClick={() => setModal({ type: "create" })}
-          className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl hover:opacity-90 transition-opacity font-medium shrink-0"
+          className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-xl hover:opacity-90 transition-opacity font-medium shrink-0"
         >
           <Plus className="w-4 h-4" />
           Create Key
@@ -235,7 +235,7 @@ export default function DeveloperKeysPage() {
           </p>
           <button
             onClick={() => setModal({ type: "create" })}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-xl hover:opacity-90 transition-opacity font-medium"
           >
             <Plus className="w-4 h-4" />
             Create Your First Key
@@ -247,25 +247,25 @@ export default function DeveloperKeysPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/20">
-                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground">
                     Name
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground">
                     Key
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground">
                     Scopes
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground">
                     Status
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground">
                     Created
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-muted-foreground">
                     Last Used
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-medium text-muted-foreground">
                     Actions
                   </th>
                 </tr>

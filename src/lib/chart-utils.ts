@@ -29,7 +29,7 @@ export function getTooltipContentStyle(options?: {
     backgroundColor: options?.backgroundColor || 'rgba(15, 23, 42, 0.95)',
     borderRadius: options?.borderRadius || '12px',
     border: options?.border || '1px solid rgba(255, 255, 255, 0.1)',
-    color: options?.color || '#f8fafc',
+    color: options?.color || '#faf6f1',
     fontSize: options?.fontSize || '12px',
     fontFamily: options?.fontFamily || 'monospace',
   };
@@ -55,7 +55,7 @@ export function getTooltipContentStyle(options?: {
  */
 export function getTooltipLabelStyle(): Record<string, string> {
   return {
-    color: '#94a3b8',
+    color: '#a88f78',
     marginBottom: '4px',
   };
 }

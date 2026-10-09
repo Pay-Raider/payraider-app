@@ -68,11 +68,11 @@ export function LiquidityChart({ data }: LiquidityChartProps) {
     <div ref={chartRef} className="glass-card rounded-2xl p-6 border border-border/50">
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">Market Velocity // 05.A</div>
-          <h2 className="text-xl font-black tracking-tighter uppercase italic mb-2">
+          <div className="text-xs text-accent mb-2">Market Velocity // 05.A</div>
+          <h2 className="text-xl font-semibold tracking-tight mb-2">
             Liquidity Over Time
           </h2>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-8">
+          <p className="text-xs text-muted-foreground mb-8">
             Global Depth Index across verified corridors
           </p>
         </div>
@@ -109,8 +109,8 @@ export function LiquidityChart({ data }: LiquidityChartProps) {
                 fontFamily: 'monospace',
                 textTransform: 'uppercase'
               }}
-              itemStyle={{ color: '#6366f1', fontWeight: 'bold' }}
-              labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+              itemStyle={{ color: '#d18f55', fontWeight: 'bold' }}
+              labelStyle={{ color: '#a88f78', marginBottom: '4px' }}
               formatter={(value?: TooltipValueType): [string, string] => [
                 formatCurrency(typeof value === 'number' ? value : Number(value ?? 0)),
                 'GLOBAL_DEPTH',
@@ -119,10 +119,10 @@ export function LiquidityChart({ data }: LiquidityChartProps) {
             <Line
               type="monotone"
               dataKey="liquidity_usd"
-              stroke="#6366f1"
+              stroke="#d18f55"
               strokeWidth={3}
               dot={false}
-              activeDot={{ r: 4, fill: '#6366f1', stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: '#d18f55', stroke: '#fff', strokeWidth: 2 }}
               name="Liquidity"
             />
           </LineChart>

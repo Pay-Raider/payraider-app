@@ -100,7 +100,7 @@ export default function TransactionsBuilderPage() {
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20">
               <Hexagon className="w-6 h-6 text-indigo-400" />
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="text-3xl font-semibold tracking-tight text-white">
               Multi-Sig Workflows
             </h1>
           </div>

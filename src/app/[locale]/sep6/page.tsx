@@ -171,10 +171,10 @@ export default function Sep6Page() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-accent mb-2">
             SEP-6 // Programmatic
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
             <span className="flex items-center gap-2">
               <ArrowDownToLine className="w-8 h-8 text-emerald-500/80" />
               <ArrowUpFromLine className="w-8 h-8 text-amber-500/80" />

@@ -185,7 +185,7 @@ export default function CorridorDetailPage() {
                   <div className={`text-3xl font-bold ${healthColor}`}>
                     {corridor.health_score.toFixed(1)}
                   </div>
-                  <p className="text-muted-foreground dark:text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                  <p className="text-muted-foreground dark:text-muted-foreground text-xs font-medium">
                     Health Score
                   </p>
                 </div>

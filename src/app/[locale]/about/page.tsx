@@ -49,13 +49,13 @@ export default function AboutPage() {
    <div className="max-w-5xl mx-auto space-y-16">
      {/* Hero */}
      <section className="text-center space-y-5 pt-4">
-       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold tracking-widest uppercase">
+       <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent text-xs font-semibold">
          <TrendingUp className="w-3.5 h-3.5" />
          About PayRaider
        </div>
 
 
-       <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+       <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground leading-tight">
          Quantifying Trust on the{" "}
          <span className="text-accent">Stellar Network</span>
        </h1>
@@ -74,7 +74,7 @@ export default function AboutPage() {
      <section className="glass-card rounded-2xl p-8 border border-accent/10 relative overflow-hidden">
        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
        <div className="relative space-y-3">
-         <p className="text-xs font-mono uppercase tracking-widest text-accent">Our Mission</p>
+         <p className="text-xs text-accent">Our Mission</p>
          <h2 className="text-2xl font-bold text-foreground">
            Make network intelligence accessible to every builder on Stellar.
          </h2>
@@ -113,7 +113,7 @@ export default function AboutPage() {
 
      <section className="text-center pb-8">
        <p className="text-sm text-muted-foreground/60 font-mono">
-         RPC_ID: STLR_MAIN_01 &nbsp;·&nbsp; Version 1.0.0 &nbsp;·&nbsp; Network: Mainnet
+         Version 1.0.0 &nbsp;·&nbsp; Network: Mainnet
        </p>
      </section>
    </div>

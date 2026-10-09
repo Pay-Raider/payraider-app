@@ -96,7 +96,7 @@ export function CreateProposalModal({
         <div className="flex items-center justify-between mb-6">
           <h3 
             id="modal-title"
-            className="text-sm font-bold uppercase tracking-widest text-foreground"
+            className="text-sm font-bold tracking-tight text-foreground"
           >
             Create Proposal
           </h3>
@@ -123,7 +123,7 @@ export function CreateProposalModal({
           <div>
             <label 
               htmlFor="proposal-title"
-              className="block text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-2"
+              className="block text-xs font-medium text-muted-foreground mb-2"
             >
               Title
             </label>
@@ -142,7 +142,7 @@ export function CreateProposalModal({
           <div>
             <label 
               htmlFor="proposal-description"
-              className="block text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-2"
+              className="block text-xs font-medium text-muted-foreground mb-2"
             >
               Description
             </label>
@@ -163,7 +163,7 @@ export function CreateProposalModal({
           <div>
             <label 
               htmlFor="target-contract"
-              className="block text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-2"
+              className="block text-xs font-medium text-muted-foreground mb-2"
             >
               Target Contract
             </label>
@@ -184,7 +184,7 @@ export function CreateProposalModal({
           <div>
             <label 
               htmlFor="wasm-hash"
-              className="block text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground mb-2"
+              className="block text-xs font-medium text-muted-foreground mb-2"
             >
               New WASM Hash
             </label>
@@ -206,14 +206,14 @@ export function CreateProposalModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 rounded-xl bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest hover:bg-accent/20 transition-colors disabled:opacity-50"
+              className="px-6 py-2 rounded-xl bg-accent/10 border border-accent/30 text-accent text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-50"
             >
               {submitting ? "Submitting..." : "Create Proposal"}
             </button>

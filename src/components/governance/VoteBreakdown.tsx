@@ -22,7 +22,7 @@ export function VoteBreakdown({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Vote Breakdown</span>
         <span>{totalVoters} voter{totalVoters !== 1 ? "s" : ""}</span>
       </div>
@@ -54,7 +54,7 @@ export function VoteBreakdown({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               For
             </span>
           </div>
@@ -68,7 +68,7 @@ export function VoteBreakdown({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-red-500" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               Against
             </span>
           </div>
@@ -82,7 +82,7 @@ export function VoteBreakdown({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-slate-500" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               Abstain
             </span>
           </div>

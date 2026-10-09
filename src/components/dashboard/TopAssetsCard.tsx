@@ -27,7 +27,7 @@ export function TopAssetsCard({ assets }: TopAssetsCardProps) {
   return (
     <div className="col-span-1 lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
       <div className="px-6 py-4 border-b border-slate-800">
-        <h2 className="text-sm font-semibold text-white uppercase tracking-wider">Top-performing Assets</h2>
+        <h2 className="text-sm font-semibold text-white tracking-tight">Top-performing Assets</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">

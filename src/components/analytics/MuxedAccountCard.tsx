@@ -41,7 +41,7 @@ export function MuxedAccountCard() {
   if (error || !data) {
     return (
       <div className="glass-card rounded-2xl p-6">
-        <div className="text-[10px] font-mono text-accent uppercase tracking-widest mb-2">
+        <div className="text-xs text-accent mb-2">
           Muxed Accounts (M-addresses)
         </div>
         <p className="text-sm text-muted-foreground">
@@ -55,7 +55,7 @@ export function MuxedAccountCard() {
 
   return (
     <div className="glass-card rounded-2xl p-6">
-      <div className="text-[10px] font-mono text-accent uppercase tracking-widest mb-3">
+      <div className="text-xs text-accent mb-3">
         Muxed Accounts (M-addresses)
       </div>
       <p className="text-xs text-muted-foreground mb-4">
@@ -68,7 +68,7 @@ export function MuxedAccountCard() {
             <div className="text-lg font-bold tabular-nums">
               {data.total_muxed_payments}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <div className="text-xs text-muted-foreground">
               Muxed payments
             </div>
           </div>
@@ -79,7 +79,7 @@ export function MuxedAccountCard() {
             <div className="text-lg font-bold tabular-nums">
               {data.unique_muxed_addresses}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            <div className="text-xs text-muted-foreground">
               Unique M-addresses
             </div>
           </div>
@@ -87,7 +87,7 @@ export function MuxedAccountCard() {
       </div>
       {hasAny && data.top_muxed_by_activity.length > 0 && (
         <div>
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+          <div className="text-xs text-muted-foreground mb-2">
             Top by activity
           </div>
           <ul className="space-y-2 max-h-48 overflow-y-auto">
@@ -120,7 +120,7 @@ export function MuxedAccountCard() {
       )}
       {hasAny && data.base_accounts_with_muxed.length > 0 && (
         <div className="mt-3 pt-3 border-t border-white/10">
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <div className="text-xs text-muted-foreground mb-1">
             Base accounts with muxed sub-accounts
           </div>
           <p className="text-xs text-muted-foreground">

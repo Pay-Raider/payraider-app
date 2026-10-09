@@ -41,12 +41,8 @@ export function MobileAwareLayout({ children }: MobileAwareLayoutProps) {
           {/* Top navbar — passes hamburger callback on mobile */}
           <Navbar onMobileMenuOpen={openSidebar} />
 
-          {/* Ambient background glows */}
-          <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px] -z-10" aria-hidden="true" />
-          <div className="fixed bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[100px] -z-10" aria-hidden="true" />
-
           {/* Page content — extra bottom padding on mobile for bottom nav */}
-          <div className="p-4 md:p-8 pb-24 md:pb-8">
+          <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-8 md:py-10 pb-24 md:pb-10">
             {children}
           </div>
         </main>

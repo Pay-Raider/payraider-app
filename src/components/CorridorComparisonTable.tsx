@@ -234,7 +234,7 @@ export function CorridorComparisonTable({ corridors, onExport }: CorridorCompari
             <tr>
               <th
                 scope="col"
-                className="px-4 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-slate-900 z-10"
+                className="px-4 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground sticky left-0 bg-gray-50 dark:bg-slate-900 z-10"
               >
                 Corridor
               </th>
@@ -243,7 +243,7 @@ export function CorridorComparisonTable({ corridors, onExport }: CorridorCompari
                   key={metric.key}
                   scope="col"
                   aria-sort={sortBy === metric.key ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
-                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
                   onClick={() => handleSort(metric.key)}
                 >
                   <button

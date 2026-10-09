@@ -28,7 +28,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   return (
     <div className="glass-card rounded-2xl p-6 border border-border/50 group hover:border-accent/30 transition-all duration-300">
       <div className="flex flex-row items-center justify-between pb-4">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-accent transition-colors">
+        <h3 className="text-xs font-bold tracking-tight text-muted-foreground group-hover:text-accent transition-colors">
           {label}
         </h3>
         <Activity className={`h-4 w-4 text-muted-foreground/30 group-hover:text-accent transition-colors ${GlowClass}`} aria-hidden="true" />
@@ -48,7 +48,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           </div>
         )}
 
-        {subLabel && <p className="text-[10px] font-mono text-muted-foreground/50 mt-2 uppercase tracking-tighter">{subLabel}</p>}
+        {subLabel && <p className="text-xs text-muted-foreground/50 mt-2 tracking-tighter">{subLabel}</p>}
       </div>
     </div>
   );

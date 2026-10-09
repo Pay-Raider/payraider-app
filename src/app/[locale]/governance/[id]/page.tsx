@@ -34,7 +34,7 @@ export default function GovernanceProposalPage() {
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest">
+        <div className="text-sm text-accent animate-pulse">
           Loading Proposal... // Fetching Details
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function GovernanceProposalPage() {
   if (error || !proposal) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <div className="px-6 py-4 glass border-red-500/50 text-red-500 font-mono text-sm uppercase tracking-widest">
+        <div className="px-6 py-4 glass border-red-500/50 text-red-500 text-sm">
           Error: {error || "Proposal not found"}
         </div>
       </div>

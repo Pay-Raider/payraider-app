@@ -55,10 +55,10 @@ export default function OfflinePage() {
           </motion.div>
 
           <div>
-            <div className="text-[10px] font-mono text-error uppercase tracking-[0.2em] mb-2">
+            <div className="text-xs text-error mb-2">
               Connection Lost
             </div>
-            <h1 className="text-3xl font-black tracking-tighter uppercase italic">
+            <h1 className="text-3xl font-semibold tracking-tight">
               Offline Mode
             </h1>
             <p className="text-sm text-muted-foreground mt-2">
@@ -75,7 +75,7 @@ export default function OfflinePage() {
 
         {/* What's available */}
         <div className="space-y-3">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Cached Pages
           </p>
           <div className="space-y-2">
@@ -91,7 +91,7 @@ export default function OfflinePage() {
                 <span className="text-sm font-medium group-hover:text-accent transition-colors">
                   {route.label}
                 </span>
-                <span className="ml-auto text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                <span className="ml-auto text-xs text-muted-foreground">
                   Cached
                 </span>
               </a>
@@ -110,7 +110,7 @@ export default function OfflinePage() {
           <button
             onClick={handleRetry}
             disabled={retrying}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-accent text-white font-bold uppercase tracking-tight text-sm hover:bg-accent/90 active:scale-95 transition-all disabled:opacity-60"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-accent text-accent-foreground font-bold uppercase tracking-tight text-sm hover:bg-accent/90 active:scale-95 transition-all disabled:opacity-60"
           >
             <RefreshCw className={`w-4 h-4 ${retrying ? "animate-spin" : ""}`} aria-hidden="true" />
             {retrying ? "Retrying…" : "Retry"}

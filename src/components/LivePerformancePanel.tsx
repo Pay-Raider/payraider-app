@@ -104,7 +104,7 @@ export function LivePerformancePanel() {
               className="p-4 rounded-lg border border-gray-200 dark:border-slate-700"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   {LABELS[m.name]}
                 </span>
                 <span

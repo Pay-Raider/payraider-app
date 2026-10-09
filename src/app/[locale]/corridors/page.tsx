@@ -106,10 +106,10 @@ function CorridorsPageContent() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
-            Network Routing // 02
+          <div className="text-xs text-accent mb-2">
+            Network routing
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-accent" />
             Payment Corridors
           </h2>
@@ -119,17 +119,17 @@ function CorridorsPageContent() {
             variant="outline"
             className="text-[10px] font-mono border-accent/30 text-accent px-3 py-1 bg-accent/5"
           >
-            {filteredCorridors.length} ACTIVE_ROUTES
+            {filteredCorridors.length} active routes
           </Badge>
           <Link
             href="/corridors/forecasting"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs font-medium text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
           >
             Forecast
           </Link>
           <button
             onClick={() => setIsExportOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-xl text-[10px] font-bold uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] hover:shadow-accent/30"
+            className="flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-xl text-xs font-medium text-accent hover:bg-accent hover:text-white transition-all shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] hover:shadow-accent/30"
           >
             <Download className="w-3 h-3" />
             Export Data
@@ -175,7 +175,7 @@ function CorridorsPageContent() {
             onChange={(e) =>
               setTimePeriod(e.target.value as CorridorsTimePeriod)
             }
-            className="flex-1 bg-slate-900/50 border border-border/50 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none cursor-pointer"
+            className="flex-1 bg-slate-900/50 border border-border/50 rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none cursor-pointer"
           >
             <option value="7d">Time: 7 Days</option>
             <option value="30d">Time: 30 Days</option>
@@ -189,7 +189,7 @@ function CorridorsPageContent() {
                 e.target.value as "success_rate" | "health_score" | "liquidity",
               )
             }
-            className="flex-1 bg-slate-900/50 border border-border/50 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none cursor-pointer"
+            className="flex-1 bg-slate-900/50 border border-border/50 rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none cursor-pointer"
           >
             <option value="health_score">Sort: Health</option>
             <option value="success_rate">Sort: Success</option>
@@ -201,9 +201,9 @@ function CorridorsPageContent() {
       <div className="flex items-center gap-1 p-1 bg-slate-950/50 border border-border/20 rounded-xl w-fit">
         <button
           onClick={() => setViewMode("grid")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
             viewMode === "grid"
-              ? "bg-accent text-white glow-accent"
+              ? "bg-accent text-accent-foreground glow-accent"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -211,9 +211,9 @@ function CorridorsPageContent() {
         </button>
         <button
           onClick={() => setViewMode("heatmap")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
             viewMode === "heatmap"
-              ? "bg-accent text-white glow-accent"
+              ? "bg-accent text-accent-foreground glow-accent"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -230,17 +230,17 @@ function CorridorsPageContent() {
       ) : filteredCorridors.length === 0 ? (
         <div className="py-20 flex flex-col items-center justify-center glass-card rounded-3xl border-dashed">
           <AlertCircle className="w-12 h-12 text-muted-foreground/30 mb-4" />
-          <p className="text-sm font-mono text-muted-foreground uppercase tracking-widest">
+          <p className="text-sm text-muted-foreground">
             No matching corridors detected
           </p>
         </div>
       ) : viewMode === "heatmap" ? (
         <div className="glass-card rounded-3xl p-8">
           <div className="mb-8">
-            <h2 className="text-xl font-black tracking-tight uppercase italic mb-2">
+            <h2 className="text-xl font-semibold tracking-tight mb-2">
               Corridor Health Matrix
             </h2>
-            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground">
               System health distribution across network pairs
             </p>
           </div>
@@ -263,7 +263,7 @@ function CorridorsPageContent() {
                       </span>{" "}
                       {corridor.destination_asset}
                     </h2>
-                    <p className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-tighter mt-1 truncate">
+                    <p className="text-xs text-muted-foreground/50 tracking-tighter mt-1 truncate">
                       ID: {corridor.id}
                     </p>
                   </div>
@@ -279,7 +279,7 @@ function CorridorsPageContent() {
 
                 <div className="mb-6 p-4 rounded-xl bg-slate-900/30 border border-white/5">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                    <span className="text-xs text-muted-foreground">
                       Health Score
                     </span>
                     <span
@@ -309,13 +309,13 @@ function CorridorsPageContent() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center text-[10px] font-mono uppercase tracking-tighter">
+                  <div className="flex justify-between items-center text-xs tracking-tighter">
                     <span className="text-muted-foreground">Settlement Time</span>
                     <span className="text-accent font-bold">
                       {corridor.average_latency_ms.toFixed(0)}ms
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] font-mono uppercase tracking-tighter">
+                  <div className="flex justify-between items-center text-xs tracking-tighter">
                     <span className="text-muted-foreground">Liquidity Depth</span>
                     <span className="text-foreground font-bold">
                       {new Intl.NumberFormat("en-US", {
@@ -325,7 +325,7 @@ function CorridorsPageContent() {
                       }).format(corridor.liquidity_depth_usd)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] font-mono uppercase tracking-tighter">
+                  <div className="flex justify-between items-center text-xs tracking-tighter">
                     <span className="text-muted-foreground">24h Vol</span>
                     <span className="text-foreground font-bold">
                       {new Intl.NumberFormat("en-US", {
@@ -354,7 +354,7 @@ function CorridorsPageContent() {
       )}
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 glass-card rounded-2xl p-6 border border-border/30">
-        <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+        <div className="text-xs text-muted-foreground">
           Telemetry Feed: Viewing {startIndex + 1}-
           {Math.min(endIndex, filteredCorridors.length)} of{" "}
           {filteredCorridors.length} Nodes

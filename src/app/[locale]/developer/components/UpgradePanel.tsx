@@ -28,7 +28,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div>
-      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">
+      <div className="text-xs text-muted-foreground mb-1">
         {label}
       </div>
       <div className="flex items-center gap-2">
@@ -174,7 +174,7 @@ export default function UpgradePanel({ authToken, address, walletId = "freighter
           type="button"
           disabled={busy !== null}
           onClick={() => run("invoice", async () => setInvoice(await createInvoice(authToken, selectedKey)))}
-          className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 font-medium text-white disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 font-medium text-accent-foreground disabled:opacity-60"
         >
           {busy === "invoice" && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
           {active ? "Renew" : "Upgrade"} for {plan.price} {plan.asset_code}
@@ -217,7 +217,7 @@ export default function UpgradePanel({ authToken, address, walletId = "freighter
                   await confirm(hash);
                 })
               }
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 font-medium text-white disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 font-medium text-accent-foreground disabled:opacity-60"
             >
               {busy === "pay" && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               Pay with {getWallet(walletId).name}

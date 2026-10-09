@@ -52,24 +52,24 @@ export default function CorridorForecastingPage() {
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
-            <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
-              Predictive Analytics // 08
+            <div className="text-xs text-accent mb-2">
+              Predictive analytics
             </div>
-            <h1 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+            <h1 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
               <Activity className="w-8 h-8 text-accent" aria-hidden="true" />
               Corridor Forecasting
             </h1>
           </div>
           <div className="flex items-center gap-3">
             {lastUpdated && (
-              <div className="px-4 py-2 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+              <div className="px-4 py-2 glass rounded-lg text-xs text-muted-foreground">
                 Last Sync: {lastUpdated.toLocaleTimeString()}
               </div>
             )}
             <button
               onClick={loadCorridors}
               disabled={loading}
-              className="px-4 py-2 bg-accent text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-accent text-accent-foreground rounded-lg text-xs font-medium hover:scale-105 transition-transform flex items-center gap-2 disabled:opacity-50"
               aria-label="Refresh forecasts"
             >
               <RefreshCw
@@ -92,7 +92,7 @@ export default function CorridorForecastingPage() {
             <button
               onClick={loadCorridors}
               disabled={loading}
-              className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors shrink-0"
+              className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-md text-xs font-semibold transition-colors shrink-0"
             >
               Retry Live Sync
             </button>

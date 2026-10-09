@@ -283,7 +283,7 @@ export function WidgetCustomizer({ definitions, isOpen, onClose }: WidgetCustomi
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-4 h-4 text-accent" />
-            <h2 className="text-sm font-mono font-bold uppercase tracking-widest">
+            <h2 className="text-sm font-mono font-bold tracking-tight">
               Customise Widgets
             </h2>
           </div>
@@ -356,7 +356,7 @@ export function WidgetCustomizer({ definitions, isOpen, onClose }: WidgetCustomi
         </ul>
 
         <div className="flex justify-end">
-          <Button size="sm" onClick={onClose} className="text-[10px] font-mono uppercase">
+          <Button size="sm" onClick={onClose} className="text-xs">
             Done
           </Button>
         </div>
@@ -377,7 +377,7 @@ export function CustomiseButton({ onClick, activeCount, totalCount }: CustomiseB
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-border/40 rounded-xl text-[10px] font-mono uppercase tracking-widest hover:border-accent/50 transition-colors"
+      className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-border/40 rounded-xl text-xs hover:border-accent/50 transition-colors"
       aria-label="Customise dashboard widgets"
     >
       <LayoutGrid className="w-3 h-3" />

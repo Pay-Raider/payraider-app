@@ -122,20 +122,20 @@ export default function AnalyticsPage() {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
           <div>
-            <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
-              Deep Analytics // 03
+            <div className="text-xs text-accent mb-2">
+              Analytics
             </div>
-            <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+            <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
               Network Intelligence
             </h2>
           </div>
           <div className="flex items-center gap-3">
-            <div className="px-4 py-2 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            <div className="px-4 py-2 glass rounded-lg text-xs text-muted-foreground">
               Last Sync: {lastUpdated?.toLocaleTimeString()}
             </div>
             <button
               onClick={handleRefresh}
-              className="px-4 py-2 bg-accent text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2"
+              className="px-4 py-2 bg-accent text-accent-foreground rounded-lg text-xs font-medium hover:scale-105 transition-transform flex items-center gap-2"
             >
               <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
               Re-Scan
@@ -148,7 +148,7 @@ export default function AnalyticsPage() {
           <div className="glass border-red-500/50 p-4 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500" />
-              <p className="text-[10px] font-mono text-red-500 uppercase tracking-widest">
+              <p className="text-xs text-red-500">
                 Emergency Shutdown Avoided // Running on Local Cache (Mock Data)
               </p>
             </div>

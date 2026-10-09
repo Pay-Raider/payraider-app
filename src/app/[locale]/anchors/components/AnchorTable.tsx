@@ -25,13 +25,13 @@ const AnchorList = ({
       <table className="w-full">
         <thead className="bg-gray-50 dark:bg-slate-700">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               Anchor
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               Health Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               <button
                 type="button"
                 className="w-full text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none flex items-center gap-1"
@@ -54,7 +54,7 @@ const AnchorList = ({
                 />
               </button>
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               <button
                 type="button"
                 className="w-full text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none flex items-center gap-1"
@@ -77,10 +77,10 @@ const AnchorList = ({
                 />
               </button>
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               Asset Coverage
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               <button
                 type="button"
                 className="w-full text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none flex items-center gap-1"
@@ -103,10 +103,10 @@ const AnchorList = ({
                 />
               </button>
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               30-Day Trend
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
               Actions
             </th>
           </tr>

@@ -16,11 +16,11 @@ import {
 const CATEGORY_COLORS: Record<string, string> = {
   path_not_found: "#f97316",
   insufficient_balance: "#ef4444",
-  no_trustline: "#a855f7",
+  no_trustline: "#a47b47",
   transaction_failed: "#ec4899",
   offer_crossing: "#eab308",
-  timed_out: "#6366f1",
-  other: "#64748b",
+  timed_out: "#d18f55",
+  other: "#86705c",
 };
 
 function BreakdownBar({ item }: { item: FailureCategoryBreakdown }) {
@@ -28,7 +28,7 @@ function BreakdownBar({ item }: { item: FailureCategoryBreakdown }) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs font-mono">
-        <span className="uppercase tracking-widest text-muted-foreground">{item.label}</span>
+        <span className="text-muted-foreground">{item.label}</span>
         <span className="font-bold" style={{ color }}>
           {item.count.toLocaleString()} · {item.percentage.toFixed(1)}%
         </span>
@@ -60,7 +60,7 @@ function CorridorFailureRow({
     <div className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
       <div>
         <div className="text-xs font-mono font-bold">{corridor_key}</div>
-        <div className="text-[10px] text-muted-foreground uppercase tracking-widest">
+        <div className="text-xs text-muted-foreground">
           {top_category.replace(/_/g, " ")}
         </div>
       </div>
@@ -111,23 +111,23 @@ export default function FailedPaymentsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
           <div>
-            <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+            <div className="text-xs text-accent mb-2">
               Failure Intelligence // #2107
             </div>
-            <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+            <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
               <TrendingDown className="w-8 h-8 text-red-500" />
               Failed Payment Analysis
             </h2>
           </div>
           <div className="flex items-center gap-3">
             {lastUpdated && (
-              <div className="px-4 py-2 glass rounded-lg text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+              <div className="px-4 py-2 glass rounded-lg text-xs text-muted-foreground">
                 Last Sync: {lastUpdated.toLocaleTimeString()}
               </div>
             )}
             <button
               onClick={load}
-              className="px-4 py-2 bg-accent text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2"
+              className="px-4 py-2 bg-accent text-accent-foreground rounded-lg text-xs font-medium hover:scale-105 transition-transform flex items-center gap-2"
               aria-label="Refresh failed payments data"
             >
               <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
@@ -161,7 +161,7 @@ export default function FailedPaymentsPage() {
           <div className="glass-card rounded-2xl p-6 space-y-5">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-orange-500" />
-              <h3 className="text-xs font-mono font-bold uppercase tracking-widest">
+              <h3 className="text-xs font-mono font-bold tracking-tight">
                 Root Cause Breakdown
               </h3>
             </div>
@@ -177,7 +177,7 @@ export default function FailedPaymentsPage() {
             <div className="glass-card rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <AlertCircle className="w-4 h-4 text-red-500" />
-                <h3 className="text-xs font-mono font-bold uppercase tracking-widest">
+                <h3 className="text-xs font-mono font-bold tracking-tight">
                   Top Failing Corridors
                 </h3>
               </div>
@@ -196,7 +196,7 @@ export default function FailedPaymentsPage() {
             <div className="glass-card rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Lightbulb className="w-4 h-4 text-yellow-400" />
-                <h3 className="text-xs font-mono font-bold uppercase tracking-widest">
+                <h3 className="text-xs font-mono font-bold tracking-tight">
                   Actionable Insights
                 </h3>
               </div>

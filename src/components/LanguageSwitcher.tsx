@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
           disabled={isPending}
           className={`min-w-[2rem] px-2 py-1 text-xs font-bold uppercase rounded transition-colors ${
             locale === loc
-              ? "bg-accent text-white"
+              ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
           } ${isPending ? "opacity-70 cursor-not-allowed" : ""}`}
           aria-label={`Switch to ${LOCALE_LABELS[loc]}`}

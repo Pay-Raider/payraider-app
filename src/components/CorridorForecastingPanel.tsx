@@ -67,15 +67,15 @@ export function CorridorForecastingPanel({
       {/* Section header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-accent mb-2">
             Corridor Intelligence // ML Forecasting
           </div>
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+            <h2 className="text-3xl font-semibold tracking-tight flex items-center gap-3">
               <Activity className="w-7 h-7 text-accent" aria-hidden="true" />
               Health Forecasting
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
               Preview / Demo Data
             </span>
           </div>
@@ -97,7 +97,7 @@ export function CorridorForecastingPanel({
       <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400 text-sm">
         <AlertTriangle className="w-5 h-5 shrink-0" aria-hidden="true" />
         <div>
-          <span className="font-semibold uppercase tracking-wider text-xs block mb-0.5">
+          <span className="font-semibold text-xs block mb-0.5">
             Preview / Simulated Data Notice
           </span>
           <span>
@@ -125,7 +125,7 @@ export function CorridorForecastingPanel({
       {/* Degradation alerts summary */}
       {alertCount > 0 && (
         <div className="glass-card rounded-2xl p-4 border border-red-500/20 space-y-3">
-          <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-red-400">
+          <div className="flex items-center gap-2 text-xs text-red-400">
             <TrendingDown className="w-3.5 h-3.5" aria-hidden="true" />
             Degradation Alerts
           </div>

@@ -28,11 +28,11 @@ export function TopCorridors({ corridors }: TopCorridorsProps) {
 
   return (
     <div className="glass-card rounded-2xl p-6 border border-border/50">
-      <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">Network Performance // 03.D</div>
-      <h2 className="text-xl font-black tracking-tighter uppercase italic mb-2">
+      <div className="text-xs text-accent mb-2">Network Performance // 03.D</div>
+      <h2 className="text-xl font-semibold tracking-tight mb-2">
         Top Corridors
       </h2>
-      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-6">
+      <p className="text-xs text-muted-foreground mb-6">
         Highest performing payment channels
       </p>
 
@@ -50,7 +50,7 @@ export function TopCorridors({ corridors }: TopCorridorsProps) {
                 <p className="font-bold tracking-tight text-foreground text-sm uppercase">
                   {getCorridorLabel(corridor)}
                 </p>
-                <div className="flex gap-4 mt-1 text-[9px] font-mono text-muted-foreground uppercase tracking-wider">
+                <div className="flex gap-4 mt-1 text-xs text-muted-foreground">
                   <span>Vol: <span className="text-foreground/70">{formatCurrency(corridor.volume_usd)}</span></span>
                   <span>Txns: <span className="text-foreground/70">{corridor.total_transactions}</span></span>
                   {corridor.avg_settlement_latency_ms && (
@@ -62,10 +62,10 @@ export function TopCorridors({ corridors }: TopCorridorsProps) {
 
             <div className="flex items-center gap-6">
               <div className="text-right">
-                <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest mb-1">
+                <p className="text-xs text-muted-foreground mb-1">
                   Depth
                 </p>
-                <p className="text-xs font-black font-mono text-foreground uppercase tracking-tighter">
+                <p className="text-xs font-medium text-foreground tracking-tighter">
                   {formatCurrency(corridor.liquidity_depth_usd)}
                 </p>
               </div>
@@ -88,25 +88,25 @@ export function TopCorridors({ corridors }: TopCorridorsProps) {
       {/* Stats Summary Table-like Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-border/20">
         <div className="space-y-1">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.2em]">Total_Vol</p>
+          <p className="text-xs text-muted-foreground">Total_Vol</p>
           <p className="text-sm font-black font-mono tracking-tighter text-foreground italic">
             {formatCurrency(sortedCorridors.reduce((sum, c) => sum + c.volume_usd, 0))}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.2em]">Avg_P_Success</p>
+          <p className="text-xs text-muted-foreground">Avg_P_Success</p>
           <p className="text-sm font-black font-mono tracking-tighter text-accent italic">
             {(sortedCorridors.reduce((sum, c) => sum + c.success_rate, 0) / sortedCorridors.length).toFixed(1)}%
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.2em]">Total_Tx_Count</p>
+          <p className="text-xs text-muted-foreground">Total_Tx_Count</p>
           <p className="text-sm font-black font-mono tracking-tighter text-foreground italic">
             {sortedCorridors.reduce((sum, c) => sum + c.total_transactions, 0).toLocaleString()}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.2em]">Total_Depth</p>
+          <p className="text-xs text-muted-foreground">Total_Depth</p>
           <p className="text-sm font-black font-mono tracking-tighter text-foreground italic">
             {formatCurrency(sortedCorridors.reduce((sum, c) => sum + c.liquidity_depth_usd, 0))}
           </p>

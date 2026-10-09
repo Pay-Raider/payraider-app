@@ -109,22 +109,20 @@ function NavLink({
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       aria-label={label}
-      className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 group ${isActive
-          ? "bg-accent/10 text-accent border border-accent/20"
-          : "text-muted-foreground hover:bg-white/5 hover:text-foreground border border-transparent"
+      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group ${isActive
+          ? "bg-accent-soft text-foreground"
+          : "text-muted-foreground hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground"
         }`}
     >
       <Icon
         aria-hidden="true"
-        className={`w-5 h-5 shrink-0 ${isActive ? "text-accent" : "group-hover:text-foreground"}`}
+        className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-accent" : "group-hover:text-foreground"}`}
       />
       {!collapsed && (
-        <span className="font-bold text-sm uppercase tracking-widest">
-          {label}
-        </span>
+        <span className="text-sm font-medium">{label}</span>
       )}
-      {isActive && !collapsed && (
-        <div className="ml-auto w-1 h-4 rounded-full bg-accent shadow-[0_0_8px_rgba(99,102,241,0.6)]" aria-hidden="true" />
+      {isActive && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-accent" aria-hidden="true" />
       )}
     </Link>
   );
@@ -151,16 +149,13 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo Section */}
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center glow-accent shrink-0" aria-hidden="true">
-          <TrendingUp className="w-5 h-5 text-white" aria-hidden="true" />
+      <div className="px-5 h-16 flex items-center gap-3 border-b border-border">
+        <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center shrink-0" aria-hidden="true">
+          <TrendingUp className="w-[18px] h-[18px] text-accent-foreground" aria-hidden="true" />
         </div>
         {!collapsed && (
-          <span className="text-xl font-bold tracking-tighter text-foreground whitespace-nowrap overflow-hidden">
-            PAY
-            <span className="text-accent underline decoration-accent/30">
-              RAIDER
-            </span>
+          <span className="font-display text-xl font-semibold tracking-tight text-foreground whitespace-nowrap overflow-hidden">
+            Pay<span className="text-accent">Raider</span>
           </span>
         )}
         {/* Mobile close button */}
@@ -176,8 +171,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
       </div>
 
       {/* Navigation Section */}
-      <nav aria-label="Primary navigation" className="flex-1 px-4 py-8 overflow-y-auto">
-        <ul role="list" className="space-y-3 m-0 p-0 list-none">
+      <nav aria-label="Primary navigation" className="flex-1 px-3 py-5 overflow-y-auto">
+        <ul role="list" className="space-y-0.5 m-0 p-0 list-none">
           {pinnedItems.map((item) => (
             <li key={item.path}>
               <NavLink
@@ -191,7 +186,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
           ))}
         </ul>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-5 space-y-4">
           {navGroups.map((group) => {
             const hasActiveItem = group.items.some((item) => pathname === item.path);
             const expanded = hasActiveItem || !collapsedGroups.includes(group.key);
@@ -204,7 +199,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
                     onClick={() => toggleGroup(group.key)}
                     aria-expanded={expanded}
                     aria-controls={panelId}
-                    className="w-full flex items-center justify-between px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-1 text-xs font-semibold text-muted-foreground/80 hover:text-foreground transition-colors"
                   >
                     <span>{tGroups(group.key)}</span>
                     <ChevronDown
@@ -214,7 +209,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
                   </button>
                 )}
                 {(collapsed || expanded) && (
-                  <ul id={panelId} role="list" className="space-y-3 m-0 p-0 list-none mt-1">
+                  <ul id={panelId} role="list" className="space-y-0.5 m-0 p-0 list-none mt-1">
                     {group.items.map((item) => (
                       <li key={item.path}>
                         <NavLink
@@ -242,16 +237,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
       {/* Footer / Settings Section */}
       <div className="p-4 border-t border-border space-y-2">
         {!collapsed && (
-          <div className="px-4 py-2 mb-2" role="status" aria-live="polite">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-green-500 grow-success" aria-hidden="true" />
-              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-tighter">
-                {t("systemNominal")}
-              </span>
-            </div>
-            <div className="text-[10px] font-mono text-muted-foreground tabular-nums uppercase tracking-tighter">
-              RPC_ID: STLR_MAIN_01
-            </div>
+          <div className="px-3 py-2 mb-1 flex items-center gap-2" role="status" aria-live="polite">
+            <span className="navbar-live-dot" aria-hidden="true" />
+            <span className="text-xs text-muted-foreground">{t("systemNominal")}</span>
           </div>
         )}
 
@@ -266,31 +254,27 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
           aria-expanded={!collapsed}
-          className="hidden md:flex w-full items-center gap-4 px-4 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all duration-300"
+          className="hidden md:flex w-full items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground transition-all duration-300"
         >
           {collapsed ? (
-            <ChevronRight className="w-5 h-5 shrink-0" aria-hidden="true" />
+            <ChevronRight className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
           ) : (
-            <ChevronLeft className="w-5 h-5 shrink-0" aria-hidden="true" />
+            <ChevronLeft className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
           )}
           {!collapsed && (
-            <span className="text-xs font-bold uppercase tracking-widest">
-              {t("collapse")}
-            </span>
+            <span className="text-sm font-medium">{t("collapse")}</span>
           )}
         </button>
 
         <Link
           href="/settings"
           aria-label="Navigate to Settings"
-          className="flex items-center gap-4 px-4 py-3 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all duration-300"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground transition-all duration-300"
           onClick={onClose}
         >
-          <Settings className="w-5 h-5 shrink-0" aria-hidden="true" />
+          <Settings className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
           {!collapsed && (
-            <span className="text-xs font-bold uppercase tracking-widest">
-              {t("settings")}
-            </span>
+            <span className="text-sm font-medium">{t("settings")}</span>
           )}
         </Link>
       </div>
@@ -302,7 +286,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
       {/* Desktop sidebar — always visible on md+ */}
       <aside
         aria-label="Sidebar navigation"
-        className={`hidden md:block fixed top-0 left-0 h-screen overflow-y-auto glass border-r border-border transition-all duration-500 z-50 ${collapsed ? "w-20" : "w-64"
+        className={`hidden md:block fixed top-0 left-0 h-screen overflow-y-auto bg-surface border-r border-border transition-all duration-300 z-50 ${collapsed ? "w-20" : "w-64"
           }`}
       >
         {sidebarContent}
@@ -320,7 +304,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
           {/* Drawer */}
           <aside
             aria-label="Sidebar navigation"
-            className="md:hidden fixed top-0 left-0 h-screen w-72 overflow-y-auto glass border-r border-border z-50 animate-in slide-in-from-left duration-300"
+            className="md:hidden fixed top-0 left-0 h-screen w-72 overflow-y-auto bg-surface border-r border-border z-50 animate-in slide-in-from-left duration-300"
           >
             {sidebarContent}
           </aside>

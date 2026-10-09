@@ -42,11 +42,11 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
     <div ref={chartRef} className="glass-card rounded-2xl p-6 border border-border/50">
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">Network Timing // 03.C</div>
-          <h2 className="text-xl font-black tracking-tighter uppercase italic mb-2">
+          <div className="text-xs text-accent mb-2">Network Timing // 03.C</div>
+          <h2 className="text-xl font-semibold tracking-tight mb-2">
             Settlement Latency
           </h2>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-6">
+          <p className="text-xs text-muted-foreground mb-6">
             Median and percentile settlement times
           </p>
         </div>
@@ -56,7 +56,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             Median
           </p>
           <p className="text-xl font-black font-mono tracking-tighter text-foreground">
@@ -64,7 +64,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
           </p>
         </div>
         <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             P95
           </p>
           <p className="text-xl font-black font-mono tracking-tighter text-amber-400">
@@ -72,7 +72,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
           </p>
         </div>
         <div className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             P99
           </p>
           <p className="text-xl font-black font-mono tracking-tighter text-red-400">
@@ -109,7 +109,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
                 fontSize: '10px',
                 fontFamily: 'monospace',
               })}
-              labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+              labelStyle={{ color: '#a88f78', marginBottom: '4px' }}
             />
             <Legend
               verticalAlign="top"
@@ -119,7 +119,7 @@ export function SettlementLatencyChart({ data }: SettlementLatencyChartProps) {
             <Line
               type="monotone"
               dataKey="median"
-              stroke="#6366f1"
+              stroke="#d18f55"
               strokeWidth={2}
               dot={false}
               name="Median"

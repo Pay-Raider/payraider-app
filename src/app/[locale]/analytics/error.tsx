@@ -26,10 +26,10 @@ export default function AnalyticsError({ error, reset }: ErrorProps) {
           <AlertTriangle className="w-14 h-14 text-red-500" />
         </div>
         <div>
-          <div className="text-[10px] font-mono text-red-500 uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-red-500 mb-2">
             Deep Analytics // Error
           </div>
-          <h2 className="text-2xl font-black tracking-tighter uppercase italic mb-2">
+          <h2 className="text-2xl font-semibold tracking-tight mb-2">
             Analytics Unavailable
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
@@ -43,7 +43,7 @@ export default function AnalyticsError({ error, reset }: ErrorProps) {
         </div>
         <button
           onClick={reset}
-          className="flex items-center justify-center gap-2 mx-auto px-6 py-3 bg-accent/10 border border-accent/30 rounded-xl text-[10px] font-bold uppercase tracking-widest text-accent hover:bg-accent hover:text-white transition-all"
+          className="flex items-center justify-center gap-2 mx-auto px-6 py-3 bg-accent/10 border border-accent/30 rounded-xl text-xs font-medium text-accent hover:bg-accent hover:text-white transition-all"
         >
           <RefreshCw className="w-3 h-3" />
           Retry

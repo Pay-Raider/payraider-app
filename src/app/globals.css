@@ -1,17 +1,26 @@
 @import "tailwindcss";
 
+/* `dark:` utilities follow the theme class the app sets on <html>, not the
+   OS setting, so the theme toggle and the styling always agree. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══ PayRaider design system: espresso & caramel ═══════════════════════════
+   Brown neutrals, a caramel accent, cream text. Tailwind's cool palettes
+   (slate, gray, indigo, blue, violet, ...) are remapped to the same warm
+   ramps below, so every existing utility class picks up the theme. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
-  /* WCAG AA Compliant Colors */
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
@@ -22,150 +31,187 @@
   --color-warning: var(--warning);
   --color-error: var(--error);
 
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), ui-serif, Georgia, serif;
+  --font-mono: var(--font-code), ui-monospace, SFMono-Regular, monospace;
 }
 
-/* ─── Dark Theme (Default) ─────────────────────────────────────────────── */
+@theme {
+  /* Warm neutral ramp (replaces slate / gray / zinc / neutral / stone) */
+  --color-slate-50: #faf6f1;  --color-slate-100: #f2e9df; --color-slate-200: #e4d5c4;
+  --color-slate-300: #cdb8a2; --color-slate-400: #a88f78; --color-slate-500: #86705c;
+  --color-slate-600: #6a5646; --color-slate-700: #4f3f33; --color-slate-800: #362a21;
+  --color-slate-900: #241a13; --color-slate-950: #170f0a;
+  --color-gray-50: #faf6f1;   --color-gray-100: #f2e9df;  --color-gray-200: #e4d5c4;
+  --color-gray-300: #cdb8a2;  --color-gray-400: #a88f78;  --color-gray-500: #86705c;
+  --color-gray-600: #6a5646;  --color-gray-700: #4f3f33;  --color-gray-800: #362a21;
+  --color-gray-900: #241a13;  --color-gray-950: #170f0a;
+  --color-zinc-50: #faf6f1;   --color-zinc-100: #f2e9df;  --color-zinc-200: #e4d5c4;
+  --color-zinc-300: #cdb8a2;  --color-zinc-400: #a88f78;  --color-zinc-500: #86705c;
+  --color-zinc-600: #6a5646;  --color-zinc-700: #4f3f33;  --color-zinc-800: #362a21;
+  --color-zinc-900: #241a13;  --color-zinc-950: #170f0a;
+  --color-neutral-50: #faf6f1;  --color-neutral-100: #f2e9df; --color-neutral-200: #e4d5c4;
+  --color-neutral-300: #cdb8a2; --color-neutral-400: #a88f78; --color-neutral-500: #86705c;
+  --color-neutral-600: #6a5646; --color-neutral-700: #4f3f33; --color-neutral-800: #362a21;
+  --color-neutral-900: #241a13; --color-neutral-950: #170f0a;
+
+  /* Caramel / copper ramp (replaces indigo / blue / violet / purple / sky / cyan) */
+  --color-indigo-50: #fbf3ea;  --color-indigo-100: #f5e2cc; --color-indigo-200: #ebc49c;
+  --color-indigo-300: #dfa36d; --color-indigo-400: #d18f55; --color-indigo-500: #c27a42;
+  --color-indigo-600: #a8622f; --color-indigo-700: #8a4b22; --color-indigo-800: #6c3a1c;
+  --color-indigo-900: #522c17; --color-indigo-950: #2e180c;
+  --color-blue-50: #fbf3ea;    --color-blue-100: #f5e2cc;   --color-blue-200: #ebc49c;
+  --color-blue-300: #dfa36d;   --color-blue-400: #d18f55;   --color-blue-500: #c27a42;
+  --color-blue-600: #a8622f;   --color-blue-700: #8a4b22;   --color-blue-800: #6c3a1c;
+  --color-blue-900: #522c17;   --color-blue-950: #2e180c;
+  --color-violet-50: #fbf3ea;  --color-violet-100: #f5e2cc; --color-violet-200: #ebc49c;
+  --color-violet-300: #dfa36d; --color-violet-400: #d18f55; --color-violet-500: #c27a42;
+  --color-violet-600: #a8622f; --color-violet-700: #8a4b22; --color-violet-800: #6c3a1c;
+  --color-violet-900: #522c17; --color-violet-950: #2e180c;
+  --color-purple-50: #fbf3ea;  --color-purple-100: #f5e2cc; --color-purple-200: #ebc49c;
+  --color-purple-300: #dfa36d; --color-purple-400: #d18f55; --color-purple-500: #c27a42;
+  --color-purple-600: #a8622f; --color-purple-700: #8a4b22; --color-purple-800: #6c3a1c;
+  --color-purple-900: #522c17; --color-purple-950: #2e180c;
+  /* Secondary tone: toasted almond, for charts and badges that need a second hue */
+  --color-sky-50: #f7f1e8;  --color-sky-100: #ede0cc; --color-sky-200: #dcc39f;
+  --color-sky-300: #c9a677; --color-sky-400: #b8905c; --color-sky-500: #a47b47;
+  --color-sky-600: #87633a; --color-sky-700: #6b4e2f; --color-sky-800: #503b25;
+  --color-sky-900: #3a2b1b; --color-sky-950: #22180f;
+  --color-cyan-50: #f7f1e8;  --color-cyan-100: #ede0cc; --color-cyan-200: #dcc39f;
+  --color-cyan-300: #c9a677; --color-cyan-400: #b8905c; --color-cyan-500: #a47b47;
+  --color-cyan-600: #87633a; --color-cyan-700: #6b4e2f; --color-cyan-800: #503b25;
+  --color-cyan-900: #3a2b1b; --color-cyan-950: #22180f;
+}
+
+/* ─── Espresso (dark, default) ─────────────────────────────────────────── */
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #17100b;
+  --foreground: #f4ebdf;
+  --surface: #1d140e;
+  --card: #211710;
+  --card-foreground: #f4ebdf;
 
-  --card: rgba(15, 23, 42, 0.6);
-  --card-foreground: #f8fafc;
+  --accent: #d18f55;            /* caramel: 6.97:1 on background */
+  --accent-foreground: #1e140d; /* 6.69:1 on accent */
+  --accent-soft: rgba(209, 143, 85, 0.12);
 
-  --accent: #6366f1;
-  --accent-foreground: #ffffff;
+  --border: #3a2a1f;
+  --muted: #2b1f17;
+  --muted-foreground: #c9b8a6;  /* 9.76:1 */
 
-  --border: rgba(51, 65, 85, 0.5);
+  --text-primary: #f4ebdf;
+  --text-secondary: #e6d8c7;
+  --text-muted: #c9b8a6;
+  --text-disabled: #9c8774;     /* 5.50:1 */
 
-  --muted: #1e293b;
-  --muted-foreground: #cbd5e1; /* Slate-300: 9.2:1 on dark bg - WCAG AA ✅ */
+  --link-primary: #e3ad78;
+  --link-hover: #efc79c;
 
-  /* WCAG AA Compliant Text Colors - Dark Mode */
-  --text-primary: #f8fafc; /* Slate-50: 17.4:1 ✅ */
-  --text-secondary: #e2e8f0; /* Slate-200: 13.6:1 ✅ */
-  --text-muted: #cbd5e1; /* Slate-300: 9.2:1 ✅ */
-  --text-disabled: #94a3b8; /* Slate-400: 5.3:1 ✅ */
+  --success: #7fc98f;
+  --warning: #e8b44f;
+  --error: #f08a7b;
 
-  /* WCAG AA Compliant Link Colors - Dark Mode */
-  --link-primary: #60a5fa; /* Blue-400: 5.1:1 ✅ */
-  --link-hover: #93c5fd; /* Blue-300: 7.8:1 ✅ */
+  --glass-bg: rgba(33, 23, 16, 0.82);
+  --glass-border: rgba(244, 235, 223, 0.08);
+  --glass-card-from: #231912;
+  --glass-card-to: #1f150f;
+  --glass-card-border: rgba(244, 235, 223, 0.07);
+  --glass-card-shadow: rgba(0, 0, 0, 0.35);
+  --glow-accent-shadow: rgba(209, 143, 85, 0.25);
+  --glow-success-shadow: rgba(127, 201, 143, 0.2);
 
-  /* WCAG AA Compliant Status Colors - Dark Mode */
-  --success: #34d399; /* Emerald-400: 5.2:1 ✅ */
-  --warning: #fbbf24; /* Amber-400: 10.1:1 ✅ */
-  --error: #f87171; /* Red-400: 5.1:1 ✅ */
+  --navbar-scrolled-bg: rgba(23, 16, 11, 0.88);
+  --navbar-scrolled-border: rgba(209, 143, 85, 0.14);
+  --navbar-scrolled-shadow: rgba(0, 0, 0, 0.35);
+  --navbar-link-hover-bg: rgba(244, 235, 223, 0.05);
+  --navbar-link-hover-border: rgba(209, 143, 85, 0.2);
+  --navbar-link-active-bg: rgba(209, 143, 85, 0.12);
+  --navbar-link-active-border: rgba(209, 143, 85, 0.3);
+  --navbar-hamburger-border: rgba(244, 235, 223, 0.08);
+  --navbar-hamburger-bg: rgba(244, 235, 223, 0.03);
+  --navbar-hamburger-hover-bg: rgba(209, 143, 85, 0.12);
+  --navbar-mobile-panel-bg: rgba(23, 16, 11, 0.97);
+  --navbar-mobile-panel-border: rgba(209, 143, 85, 0.12);
+  --navbar-mobile-link-hover-bg: rgba(244, 235, 223, 0.04);
+  --navbar-mobile-link-hover-border: rgba(209, 143, 85, 0.15);
+  --navbar-mobile-link-active-bg: rgba(209, 143, 85, 0.12);
+  --navbar-mobile-link-active-border: rgba(209, 143, 85, 0.3);
+  --navbar-mobile-icon-bg: rgba(209, 143, 85, 0.14);
 
-  /* Theme-aware alpha channels for glassmorphism & overlays */
-  --glass-bg: rgba(15, 23, 42, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-card-from: rgba(30, 41, 59, 0.7);
-  --glass-card-to: rgba(15, 23, 42, 0.8);
-  --glass-card-border: rgba(255, 255, 255, 0.05);
-  --glass-card-shadow: rgba(0, 0, 0, 0.8);
-  --glow-accent-shadow: rgba(99, 102, 241, 0.2);
-  --glow-success-shadow: rgba(34, 197, 94, 0.2);
+  --contact-input-border: #3a2a1f;
+  --contact-input-bg: #1d140e;
+  --contact-input-focus-border: rgba(209, 143, 85, 0.6);
+  --contact-input-focus-shadow: rgba(209, 143, 85, 0.15);
+  --contact-option-bg: #211710;
 
-  /* Navbar */
-  --navbar-scrolled-bg: rgba(2, 6, 23, 0.75);
-  --navbar-scrolled-border: rgba(99, 102, 241, 0.15);
-  --navbar-scrolled-shadow: rgba(0, 0, 0, 0.4);
-  --navbar-link-hover-bg: rgba(255, 255, 255, 0.05);
-  --navbar-link-hover-border: rgba(99, 102, 241, 0.2);
-  --navbar-link-active-bg: rgba(99, 102, 241, 0.1);
-  --navbar-link-active-border: rgba(99, 102, 241, 0.25);
-  --navbar-hamburger-border: rgba(255, 255, 255, 0.08);
-  --navbar-hamburger-bg: rgba(255, 255, 255, 0.03);
-  --navbar-hamburger-hover-bg: rgba(99, 102, 241, 0.12);
-  --navbar-mobile-panel-bg: rgba(2, 6, 23, 0.92);
-  --navbar-mobile-panel-border: rgba(99, 102, 241, 0.1);
-  --navbar-mobile-link-hover-bg: rgba(255, 255, 255, 0.04);
-  --navbar-mobile-link-hover-border: rgba(99, 102, 241, 0.15);
-  --navbar-mobile-link-active-bg: rgba(99, 102, 241, 0.1);
-  --navbar-mobile-link-active-border: rgba(99, 102, 241, 0.25);
-  --navbar-mobile-icon-bg: rgba(99, 102, 241, 0.12);
-
-  /* Contact form */
-  --contact-input-border: rgba(51, 65, 85, 0.5);
-  --contact-input-bg: rgba(15, 23, 42, 0.5);
-  --contact-input-focus-border: rgba(99, 102, 241, 0.5);
-  --contact-input-focus-shadow: rgba(99, 102, 241, 0.1);
-  --contact-option-bg: #0f172a;
-
-  /* Sidebar hover */
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.05);
+  --sidebar-hover-bg: rgba(244, 235, 223, 0.05);
+  color-scheme: dark;
 }
 
-/* ─── Light Theme ──────────────────────────────────────────────────────── */
+/* ─── Latte (light) ────────────────────────────────────────────────────── */
 html.light,
 [data-theme="light"] {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #faf5ee;
+  --foreground: #2a1c13;
+  --surface: #f4ece1;
+  --card: #ffffff;
+  --card-foreground: #2a1c13;
 
-  --card: rgba(255, 255, 255, 0.85);
-  --card-foreground: #0f172a;
+  --accent: #8f4e22;            /* 5.90:1 on background */
+  --accent-foreground: #ffffff; /* 6.40:1 on accent */
+  --accent-soft: rgba(143, 78, 34, 0.09);
 
-  --accent: #4f46e5;
-  --accent-foreground: #ffffff;
+  --border: #e6d9ca;
+  --muted: #f1e7db;
+  --muted-foreground: #5f4a3a;  /* 7.66:1 */
 
-  --border: rgba(148, 163, 184, 0.35);
+  --text-primary: #2a1c13;
+  --text-secondary: #3d2b1f;
+  --text-muted: #5f4a3a;
+  --text-disabled: #7a6352;
 
-  --muted: #e2e8f0;
-  --muted-foreground: #334155; /* Slate-700: 10.8:1 on light bg - WCAG AA ✅ */
+  --link-primary: #8f4e22;
+  --link-hover: #6c3a1c;
 
-  /* WCAG AA Compliant Text Colors - Light Mode */
-  --text-primary: #0f172a; /* Slate-900: 16.1:1 ✅ */
-  --text-secondary: #1e293b; /* Slate-800: 13.1:1 ✅ */
-  --text-muted: #334155; /* Slate-700: 10.8:1 ✅ */
-  --text-disabled: #475569; /* Slate-600: 7.5:1 ✅ */
+  --success: #2f7a43;
+  --warning: #9a5b0c;
+  --error: #b3392a;
 
-  /* WCAG AA Compliant Link Colors - Light Mode */
-  --link-primary: #2563eb; /* Blue-600: 5.9:1 ✅ */
-  --link-hover: #1d4ed8; /* Blue-700: 8.2:1 ✅ */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(42, 28, 19, 0.08);
+  --glass-card-from: #ffffff;
+  --glass-card-to: #fdf9f4;
+  --glass-card-border: rgba(42, 28, 19, 0.08);
+  --glass-card-shadow: rgba(74, 46, 26, 0.08);
+  --glow-accent-shadow: rgba(143, 78, 34, 0.18);
+  --glow-success-shadow: rgba(47, 122, 67, 0.15);
 
-  /* WCAG AA Compliant Status Colors - Light Mode */
-  --success: #047857; /* Emerald-700: 5.1:1 ✅ */
-  --warning: #b45309; /* Amber-700: 4.7:1 ✅ */
-  --error: #dc2626; /* Red-600: 5.9:1 ✅ */
+  --navbar-scrolled-bg: rgba(250, 245, 238, 0.9);
+  --navbar-scrolled-border: rgba(143, 78, 34, 0.12);
+  --navbar-scrolled-shadow: rgba(74, 46, 26, 0.06);
+  --navbar-link-hover-bg: rgba(42, 28, 19, 0.04);
+  --navbar-link-hover-border: rgba(143, 78, 34, 0.18);
+  --navbar-link-active-bg: rgba(143, 78, 34, 0.08);
+  --navbar-link-active-border: rgba(143, 78, 34, 0.22);
+  --navbar-hamburger-border: rgba(42, 28, 19, 0.08);
+  --navbar-hamburger-bg: rgba(42, 28, 19, 0.02);
+  --navbar-hamburger-hover-bg: rgba(143, 78, 34, 0.1);
+  --navbar-mobile-panel-bg: rgba(250, 245, 238, 0.98);
+  --navbar-mobile-panel-border: rgba(143, 78, 34, 0.1);
+  --navbar-mobile-link-hover-bg: rgba(42, 28, 19, 0.03);
+  --navbar-mobile-link-hover-border: rgba(143, 78, 34, 0.12);
+  --navbar-mobile-link-active-bg: rgba(143, 78, 34, 0.08);
+  --navbar-mobile-link-active-border: rgba(143, 78, 34, 0.22);
+  --navbar-mobile-icon-bg: rgba(143, 78, 34, 0.1);
 
-  /* Glassmorphism – light variant */
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-border: rgba(148, 163, 184, 0.25);
-  --glass-card-from: rgba(255, 255, 255, 0.8);
-  --glass-card-to: rgba(241, 245, 249, 0.9);
-  --glass-card-border: rgba(148, 163, 184, 0.15);
-  --glass-card-shadow: rgba(0, 0, 0, 0.08);
-  --glow-accent-shadow: rgba(79, 70, 229, 0.15);
-  --glow-success-shadow: rgba(22, 163, 74, 0.15);
-
-  /* Navbar – light */
-  --navbar-scrolled-bg: rgba(248, 250, 252, 0.82);
-  --navbar-scrolled-border: rgba(79, 70, 229, 0.12);
-  --navbar-scrolled-shadow: rgba(0, 0, 0, 0.06);
-  --navbar-link-hover-bg: rgba(0, 0, 0, 0.04);
-  --navbar-link-hover-border: rgba(79, 70, 229, 0.18);
-  --navbar-link-active-bg: rgba(79, 70, 229, 0.08);
-  --navbar-link-active-border: rgba(79, 70, 229, 0.22);
-  --navbar-hamburger-border: rgba(0, 0, 0, 0.08);
-  --navbar-hamburger-bg: rgba(0, 0, 0, 0.02);
-  --navbar-hamburger-hover-bg: rgba(79, 70, 229, 0.1);
-  --navbar-mobile-panel-bg: rgba(248, 250, 252, 0.96);
-  --navbar-mobile-panel-border: rgba(79, 70, 229, 0.1);
-  --navbar-mobile-link-hover-bg: rgba(0, 0, 0, 0.03);
-  --navbar-mobile-link-hover-border: rgba(79, 70, 229, 0.12);
-  --navbar-mobile-link-active-bg: rgba(79, 70, 229, 0.08);
-  --navbar-mobile-link-active-border: rgba(79, 70, 229, 0.22);
-  --navbar-mobile-icon-bg: rgba(79, 70, 229, 0.1);
-
-  /* Contact form – light */
-  --contact-input-border: rgba(148, 163, 184, 0.4);
-  --contact-input-bg: rgba(255, 255, 255, 0.7);
-  --contact-input-focus-border: rgba(79, 70, 229, 0.5);
-  --contact-input-focus-shadow: rgba(79, 70, 229, 0.08);
+  --contact-input-border: #e6d9ca;
+  --contact-input-bg: #ffffff;
+  --contact-input-focus-border: rgba(143, 78, 34, 0.5);
+  --contact-input-focus-shadow: rgba(143, 78, 34, 0.1);
   --contact-option-bg: #ffffff;
 
-  /* Sidebar hover – light */
-  --sidebar-hover-bg: rgba(0, 0, 0, 0.04);
+  --sidebar-hover-bg: rgba(42, 28, 19, 0.04);
+  color-scheme: light;
 }
 
 /* ─── Smooth theme transitions ─────────────────────────────────────────── */
@@ -185,38 +231,62 @@ html.theme-transition *::after {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Glassmorphism Utilities ──────────────────────────────────────────── */
+/* Headings use the serif display face; numbers line up in tables. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tabular-nums,
+td,
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Surfaces ─────────────────────────────────────────────────────────── */
+/* "glass" was frosted translucency; in this theme it is a solid warm
+   surface with a hairline border, which reads better on brown. */
 .glass {
   background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
 }
 
 .glass-card {
-  background: linear-gradient(
-    135deg,
-    var(--glass-card-from) 0%,
-    var(--glass-card-to) 100%
-  );
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+  background: linear-gradient(180deg, var(--glass-card-from) 0%, var(--glass-card-to) 100%);
   border: 1px solid var(--glass-card-border);
-  box-shadow: 0 8px 32px 0 var(--glass-card-shadow);
+  box-shadow:
+    0 1px 0 0 rgba(244, 235, 223, 0.03) inset,
+    0 12px 32px -12px var(--glass-card-shadow);
 }
 
-/* ─── Data Glow Effects ────────────────────────────────────────────────── */
+/* ─── Accent glow ──────────────────────────────────────────────────────── */
 .glow-accent {
-  box-shadow: 0 0 20px var(--glow-accent-shadow);
+  box-shadow: 0 8px 24px -8px var(--glow-accent-shadow);
 }
 
 .glow-success {
-  box-shadow: 0 0 20px var(--glow-success-shadow);
+  box-shadow: 0 8px 24px -8px var(--glow-success-shadow);
 }
 
 /* ─── Animations ───────────────────────────────────────────────────────── */
@@ -267,8 +337,8 @@ body {
 
 /* ─── Navbar ───────────────────────────────────────────────────────────── */
 .navbar-default {
-  background: transparent;
-  border-bottom: 1px solid transparent;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
 }
 
 .navbar-scrolled {
@@ -289,8 +359,8 @@ body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(127, 201, 143, 0.18);
   animation: pulse-live 2s ease-in-out infinite;
 }
 
@@ -308,10 +378,8 @@ body {
 }
 
 .navbar-live-text {
-  font-size: 10px;
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted-foreground);
 }
 
@@ -328,10 +396,8 @@ body {
   gap: 6px;
   padding: 6px 14px;
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--muted-foreground);
   border: 1px solid transparent;
   transition:
@@ -354,7 +420,6 @@ body {
   color: var(--accent);
   background: var(--navbar-link-active-bg);
   border-color: var(--navbar-link-active-border);
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
 }
 
 .navbar-link-indicator {
@@ -363,14 +428,13 @@ body {
   height: 5px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 6px rgba(99, 102, 241, 0.8);
   margin-left: 2px;
 }
 
 /* Brand tag (right side) */
 .navbar-brand-tag {
   font-size: 11px;
-  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-family: var(--font-code), ui-monospace, monospace;
   letter-spacing: 0.08em;
   color: var(--muted-foreground);
   text-transform: uppercase;
@@ -569,7 +633,7 @@ body {
     background: #ffffff !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid #d1d5db !important;
+    border: 1px solid #cdb8a2 !important;
     box-shadow: none !important;
   }
 
@@ -581,7 +645,7 @@ body {
   }
 
   a {
-    color: #1d4ed8 !important;
+    color: #8a4b22 !important;
     text-decoration: underline;
   }
 

@@ -53,7 +53,7 @@
     }
   },
   "navbar": {
-    "liveNetwork": "实时网络",
+    "liveNetwork": "Stellar 实时",
     "aboutUs": "关于我们",
     "howToUse": "使用指南",
     "contactUs": "联系我们",
@@ -92,7 +92,7 @@
       "networkStatus": "网络状态",
       "apiKeys": "API 密钥",
       "governance": "治理",
-      "copyright": "© 2026 PAYRAIDER // v1.4.0-STABLE"
+      "copyright": "© 2026 PayRaider"
     },
     "steps": {
       "label": "工作原理",
@@ -112,6 +112,24 @@
         "title": "付款或改道",
         "body": "在健康的通道上付款，或改用通往同一币种的更健康的替代通道。"
       }
+    },
+    "example": {
+      "label": "示例响应",
+      "payment": "USDC → NGN · $2,500",
+      "decision": "谨慎",
+      "summary": "该金额的流动性处于临界。请谨慎付款或使用替代通道。",
+      "checks": {
+        "successRate": "成功率",
+        "successRateValue": "212 笔支付中 97.0% 成功",
+        "liquidity": "流动性",
+        "liquidityValue": "占观测深度的 15%",
+        "sampleSize": "样本量",
+        "sampleSizeValue": "212 笔近期支付",
+        "health": "健康评分",
+        "healthValue": "83 / 100"
+      },
+      "alternative": "更健康的通道",
+      "alternativeValue": "XLM → NGN · 成功率 99.1%"
     }
   },
   "contact": {

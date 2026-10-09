@@ -40,7 +40,7 @@ export function BookmarkButton({
       title={active ? "Remove bookmark (this device only)" : "Add bookmark (this device only)"}
       className={`
         inline-flex items-center gap-1.5 px-2 py-1 rounded-lg
-        text-[10px] font-mono uppercase tracking-wider
+        text-xs tracking-wider
         transition-all duration-200
         ${active
           ? "text-accent bg-accent/10 border border-accent/30 hover:bg-accent/20"

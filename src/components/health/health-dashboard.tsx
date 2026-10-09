@@ -83,7 +83,7 @@ const HealthDashboard = () => {
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <div className="text-sm font-mono text-accent animate-pulse uppercase tracking-widest italic">
+        <div className="text-sm text-accent animate-pulse italic">
           Scanning Network Pulse... // 909-Y
         </div>
       </div>
@@ -105,19 +105,19 @@ const HealthDashboard = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
         <div>
-          <div className="text-[10px] font-mono text-accent uppercase tracking-[0.2em] mb-2">
+          <div className="text-xs text-accent mb-2">
             Systems Status // 04
           </div>
-          <h2 className="text-4xl font-black tracking-tighter uppercase italic flex items-center gap-3">
+          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
             <ShieldCheck className="w-8 h-8 text-accent" />
             Network Health
           </h2>
         </div>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className={`px-4 py-2 border rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+          className={`px-4 py-2 border rounded-lg text-xs font-medium transition-all ${
             showSettings
-              ? "bg-accent text-white border-accent glow-accent"
+              ? "bg-accent text-accent-foreground border-accent glow-accent"
               : "glass text-muted-foreground hover:border-accent/50"
           }`}
         >
@@ -156,13 +156,13 @@ const HealthDashboard = () => {
         <div className="glass-card rounded-2xl p-6 animate-in zoom-in-95 duration-300">
           <div className="flex items-center gap-2 mb-6 text-accent">
             <Settings className="w-4 h-4" />
-            <h3 className="text-xs font-mono uppercase tracking-[0.2em]">
+            <h3 className="text-xs font-mono tracking-tight">
               Alert Thresholds
             </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-mono text-muted-foreground uppercase">
+              <label className="text-xs text-muted-foreground">
                 Health Score (%)
               </label>
               <input
@@ -178,7 +178,7 @@ const HealthDashboard = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-mono text-muted-foreground uppercase">
+              <label className="text-xs text-muted-foreground">
                 Uptime (%)
               </label>
               <input
@@ -206,7 +206,7 @@ const HealthDashboard = () => {
                   }
                   className="w-4 h-4 rounded border-border/50 bg-slate-950/50 text-accent focus:ring-accent/50"
                 />
-                <span className="text-[10px] font-mono text-muted-foreground uppercase group-hover:text-accent transition-colors">
+                <span className="text-xs text-muted-foreground group-hover:text-accent transition-colors">
                   Broadcast Alerts
                 </span>
               </label>
@@ -235,14 +235,14 @@ const HealthDashboard = () => {
                   <h2 className="text-xl font-bold tracking-tight text-foreground">
                     {anchor.name}
                   </h2>
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {anchor.stellar_account.slice(0, 12)}...
                     {anchor.stellar_account.slice(-12)}
                   </p>
                 </div>
                 <Badge
                   variant="outline"
-                  className={`font-mono text-[10px] uppercase border-none px-3 py-1 ${
+                  className={`text-xs border-none px-3 py-1 ${
                     score >= 95
                       ? "bg-green-500/10 text-green-400"
                       : score >= 85
@@ -260,7 +260,7 @@ const HealthDashboard = () => {
 
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="p-4 rounded-xl bg-slate-900/30 border border-white/5">
-                  <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+                  <div className="text-xs text-muted-foreground mb-2">
                     Stability Index
                   </div>
                   <div className="flex items-center gap-3">
@@ -279,13 +279,13 @@ const HealthDashboard = () => {
                   </div>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-900/30 border border-white/5">
-                  <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+                  <div className="text-xs text-muted-foreground mb-2">
                     Tx Uptime
                   </div>
                   <div className="text-3xl font-black font-mono tracking-tighter">
                     {uptime.toFixed(1)}%
                   </div>
-                  <div className="text-[9px] font-mono text-muted-foreground/50 mt-1 uppercase">
+                  <div className="text-xs text-muted-foreground/50 mt-1">
                     {anchor.successful_transactions.toLocaleString()} /{" "}
                     {anchor.total_transactions.toLocaleString()} TX_PASS
                   </div>
@@ -296,7 +296,7 @@ const HealthDashboard = () => {
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-4">
                   <Activity className="w-3 h-3 text-accent" />
-                  <h3 className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                  <h3 className="text-[10px] font-mono text-muted-foreground tracking-tight">
                     30-Day Reliability Telemetry
                   </h3>
                 </div>
@@ -313,29 +313,29 @@ const HealthDashboard = () => {
                         >
                           <stop
                             offset="5%"
-                            stopColor="#6366f1"
+                            stopColor="#d18f55"
                             stopOpacity={0.3}
                           />
                           <stop
                             offset="95%"
-                            stopColor="#6366f1"
+                            stopColor="#d18f55"
                             stopOpacity={0}
                           />
                         </linearGradient>
                       </defs>
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#0f172a",
+                          backgroundColor: "#211710",
                           border: "1px solid rgba(255,255,255,0.1)",
                           fontSize: "10px",
                           fontFamily: "monospace",
                         }}
-                        itemStyle={{ color: "#6366f1" }}
+                        itemStyle={{ color: "#d18f55" }}
                       />
                       <Area
                         type="monotone"
                         dataKey="score"
-                        stroke="#6366f1"
+                        stroke="#d18f55"
                         fillOpacity={1}
                         fill="url(#colorScore)"
                         strokeWidth={2}
@@ -349,7 +349,7 @@ const HealthDashboard = () => {
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <AlertTriangle className="w-3 h-3 text-red-500" />
-                  <h3 className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                  <h3 className="text-[10px] font-mono text-muted-foreground tracking-tight">
                     Incident Log
                   </h3>
                 </div>
@@ -384,7 +384,7 @@ const HealthDashboard = () => {
                   ) : (
                     <div className="p-4 glass rounded-xl border-dashed flex items-center justify-center">
                       <ShieldCheck className="w-4 h-4 text-green-500/50 mr-2" />
-                      <span className="text-[10px] font-mono text-green-500/50 uppercase">
+                      <span className="text-xs text-green-500/50">
                         No anomalies detected
                       </span>
                     </div>
