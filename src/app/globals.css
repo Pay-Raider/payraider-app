@@ -301,63 +301,95 @@ td,
   border-bottom: 1px solid var(--border);
 }
 
-.app-nav-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--muted-foreground);
-  white-space: nowrap;
-  transition: color 0.15s, background 0.15s;
+/* ─── Motion ───────────────────────────────────────────────────────────── */
+/* Cards rise slightly and warm their border on hover. */
+.lift {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
-.app-nav-link:hover {
-  color: var(--foreground);
-  background: var(--sidebar-hover-bg);
+.lift:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 18px 36px -20px rgba(0, 0, 0, 0.55);
 }
 
-.app-nav-link--active {
-  color: var(--accent-foreground);
-  background: var(--accent);
+/* Slow drift for the hero's example card. */
+@keyframes float-slow {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
 }
 
-.app-nav-link--active:hover {
-  color: var(--accent-foreground);
-  background: var(--accent);
+.float-slow {
+  animation: float-slow 7s ease-in-out 1.2s infinite;
 }
 
-.app-nav-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  min-width: 230px;
-  padding: 6px;
-  border-radius: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5);
-  z-index: 50;
+/* The logo's arrow leg nudges forward on hover. */
+.logo-link svg path {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.app-nav-menu-item {
-  display: block;
-  padding: 9px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  color: var(--muted-foreground);
+.logo-link:hover svg path {
+  transform: translate(1.5px, 1.5px);
 }
 
-.app-nav-menu-item:hover {
-  color: var(--foreground);
-  background: var(--sidebar-hover-bg);
+.logo-link svg rect {
+  transition: filter 0.3s ease;
 }
 
-.app-nav-menu-item--active {
-  color: var(--foreground);
-  background: var(--accent-soft);
+.logo-link:hover svg rect {
+  filter: brightness(1.08) saturate(1.1);
+}
+
+/* Mobile drawer slides in from the left. */
+@keyframes drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.sidebar-drawer-in {
+  animation: drawer-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Top bar settles in on first paint. */
+@keyframes header-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app-header {
+  animation: header-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Primary buttons get a soft sheen when hovered. */
+.bg-accent {
+  background-image: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.18) 50%, transparent 65%);
+  background-size: 250% 100%;
+  background-position: 130% 0;
+  background-repeat: no-repeat;
+  transition: background-position 0.7s ease, filter 0.2s ease;
+}
+
+a.bg-accent:hover,
+button.bg-accent:hover {
+  background-position: -30% 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift,
+  .lift:hover,
+  .float-slow,
+  .sidebar-drawer-in,
+  .app-header,
+  .logo-link svg path,
+  .bg-accent {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    translate: none !important;
+  }
 }
 
 /* ─── Accent glow ──────────────────────────────────────────────────────── */

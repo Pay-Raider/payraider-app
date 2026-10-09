@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { Sidebar } from "@/components/layout/sidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { usePathname } from "@/i18n/navigation";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { PageTransition } from "@/components/motion/PageTransition";
 
 interface MobileAwareLayoutProps {
   children: React.ReactNode;
@@ -18,6 +21,7 @@ interface MobileAwareLayoutProps {
 export function MobileAwareLayout({ children }: MobileAwareLayoutProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const collapsed = useUserPreferences().prefs.sidebarCollapsed;
 
   // Close sidebar whenever the route changes (mobile navigation)
   useEffect(() => {
@@ -28,22 +32,27 @@ export function MobileAwareLayout({ children }: MobileAwareLayoutProps) {
   const closeSidebar = useCallback(() => setMobileSidebarOpen(false), []);
 
   return (
-    <>
-      {/* Navigation drawer for small screens; desktop uses the top bar. */}
+    // Animations respect the OS "reduce motion" setting.
+    <MotionConfig reducedMotion="user">
       <Sidebar open={mobileSidebarOpen} onClose={closeSidebar} />
 
-      <div className="flex min-h-screen flex-col">
+      {/* Offset by the sidebar's width on desktop (rail when collapsed). */}
+      <div
+        className={`flex min-h-screen flex-col transition-[margin] duration-300 ${
+          collapsed ? "md:ml-20" : "md:ml-64"
+        }`}
+      >
         <AppHeader onMobileMenuOpen={openSidebar} />
         <main id="main-content" className="relative min-w-0 flex-1" tabIndex={-1}>
           {/* Extra bottom padding on mobile for the bottom nav */}
           <div className="mx-auto w-full max-w-7xl px-4 py-8 pb-24 md:px-8 md:py-12 md:pb-12">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </div>
         </main>
       </div>
 
       {/* Bottom navigation bar — mobile only */}
       <BottomNav />
-    </>
+    </MotionConfig>
   );
 }

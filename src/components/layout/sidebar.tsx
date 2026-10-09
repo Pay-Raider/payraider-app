@@ -10,6 +10,8 @@ import {
   Settings,
   Activity,
   Bell,
+  ChevronLeft,
+  ChevronRight,
   ChevronDown,
   LayoutDashboard,
   Waves,
@@ -28,6 +30,7 @@ import {
   ShieldCheck,
   Anchor,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { Logo } from "@/components/brand/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -99,12 +102,15 @@ function NavLink({
   collapsed,
   label,
   onClick,
+  layoutGroup,
 }: {
   item: NavItem;
   isActive: boolean;
   collapsed: boolean;
   label: string;
   onClick?: () => void;
+  /** Separates the desktop rail and the drawer so their highlights don't share a layout. */
+  layoutGroup: string;
 }) {
   const Icon = item.icon;
   return (
@@ -114,10 +120,18 @@ function NavLink({
       aria-current={isActive ? "page" : undefined}
       aria-label={label}
       className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group ${isActive
-          ? "bg-accent-soft text-foreground"
+          ? "text-foreground"
           : "text-muted-foreground hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground"
         }`}
     >
+      {isActive && (
+        <motion.span
+          layoutId={`sidebar-active-${layoutGroup}`}
+          className="absolute inset-0 -z-10 rounded-lg bg-accent-soft"
+          transition={{ type: "spring", stiffness: 420, damping: 34 }}
+          aria-hidden="true"
+        />
+      )}
       <Icon
         aria-hidden="true"
         className={`w-[18px] h-[18px] shrink-0 ${isActive ? "text-accent" : "group-hover:text-foreground"}`}
@@ -126,7 +140,12 @@ function NavLink({
         <span className="text-sm font-medium">{label}</span>
       )}
       {isActive && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-accent" aria-hidden="true" />
+        <motion.span
+          layoutId={`sidebar-bar-${layoutGroup}`}
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-accent"
+          transition={{ type: "spring", stiffness: 420, damping: 34 }}
+          aria-hidden="true"
+        />
       )}
     </Link>
   );
@@ -137,8 +156,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
   const t = useTranslations("layout.sidebar");
   const tGroups = useTranslations("layout.sidebar.groups");
   const { prefs, setPrefs } = useUserPreferences();
-  // The sidebar is now only the mobile drawer, which always shows labels.
-  const collapsed = false;
+  const collapsed = prefs.sidebarCollapsed;
+  const setCollapsed = (val: boolean) => setPrefs({ sidebarCollapsed: val });
 
   // Preferences saved before grouped navigation existed have no such field.
   const collapsedGroups = prefs.sidebarCollapsedGroups ?? [];
@@ -150,17 +169,19 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
     });
   };
 
-  const sidebarContent = (
+  const renderContent = (layoutGroup: "rail" | "drawer", collapsed: boolean) => (
     <div className="flex flex-col h-full">
       {/* Logo Section */}
       <div className="px-5 h-16 flex items-center gap-3 border-b border-border">
-        <Logo size={30} />
+        <Link href="/" aria-label="PayRaider home" className="logo-link" onClick={onClose}>
+          <Logo size={32} markOnly={collapsed} />
+        </Link>
         {/* Mobile close button */}
         {onClose && (
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+            className="md:hidden ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
           >
             <X className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -178,6 +199,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
                 collapsed={collapsed}
                 label={t(item.key)}
                 onClick={onClose}
+                layoutGroup={layoutGroup}
               />
             </li>
           ))}
@@ -215,6 +237,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
                           collapsed={collapsed}
                           label={t(item.key)}
                           onClick={onClose}
+                          layoutGroup={layoutGroup}
                         />
                       </li>
                     ))}
@@ -246,6 +269,23 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
           </div>
         )}
 
+        {/* Only show collapse toggle on desktop */}
+        {layoutGroup === "rail" && <button
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
+          aria-expanded={!collapsed}
+          className="hidden md:flex w-full items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground transition-all duration-300"
+        >
+          {collapsed ? (
+            <ChevronRight className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
+          ) : (
+            <ChevronLeft className="w-[18px] h-[18px] shrink-0" aria-hidden="true" />
+          )}
+          {!collapsed && (
+            <span className="text-sm font-medium">{t("collapse")}</span>
+          )}
+        </button>}
+
         <Link
           href="/settings"
           aria-label="Navigate to Settings"
@@ -263,21 +303,30 @@ export function Sidebar({ open = false, onClose }: SidebarProps = {}) {
 
   return (
     <>
+      {/* Desktop sidebar — always visible on md+ */}
+      <aside
+        aria-label="Sidebar navigation"
+        className={`hidden md:block fixed top-0 left-0 h-screen overflow-y-auto bg-surface border-r border-border transition-all duration-300 z-50 ${collapsed ? "w-20" : "w-64"
+          }`}
+      >
+        {renderContent("rail", collapsed)}
+      </aside>
+
       {/* Mobile sidebar — drawer overlay */}
       {open && (
         <>
           {/* Backdrop */}
           <div
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
             onClick={onClose}
             aria-hidden="true"
           />
           {/* Drawer */}
           <aside
             aria-label="Sidebar navigation"
-            className="lg:hidden fixed top-0 left-0 h-screen w-72 overflow-y-auto bg-surface border-r border-border z-[70] animate-in slide-in-from-left duration-300"
+            className="md:hidden fixed top-0 left-0 h-screen w-72 overflow-y-auto bg-surface border-r border-border z-[70] sidebar-drawer-in"
           >
-            {sidebarContent}
+            {renderContent("drawer", false)}
           </aside>
         </>
       )}

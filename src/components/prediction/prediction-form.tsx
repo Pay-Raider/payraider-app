@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { logger } from "@/lib/logger";
+import { staggerContainer, staggerItem } from "@/components/motion/Reveal";
 import {
   checkPayment,
   wilsonInterval,
@@ -74,12 +76,12 @@ const fieldClass =
 
 function DecisionLegend() {
   return (
-    <ul className="grid gap-3 sm:grid-cols-2">
+    <motion.ul variants={staggerContainer} initial="hidden" animate="show" className="grid gap-3 sm:grid-cols-2">
       {(Object.keys(DECISIONS) as PreflightDecision[]).map((key) => {
         const d = DECISIONS[key];
         const Icon = d.icon;
         return (
-          <li key={key} className="flex gap-3 rounded-xl border border-border bg-surface p-4">
+          <motion.li key={key} variants={staggerItem} className="lift flex gap-3 rounded-xl border border-border bg-surface p-4">
             <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${d.tone}`}>
               <Icon className="h-4 w-4" aria-hidden="true" />
             </span>
@@ -87,10 +89,10 @@ function DecisionLegend() {
               <p className="font-semibold text-foreground">{d.label}</p>
               <p className="text-sm text-muted-foreground">{d.hint}</p>
             </div>
-          </li>
+          </motion.li>
         );
       })}
-    </ul>
+    </motion.ul>
   );
 }
 
@@ -114,17 +116,35 @@ function Result({ result, requestPath }: { result: PreflightResult; requestPath:
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="space-y-6" data-testid="preflight-result">
-      <div className={`rounded-2xl border ${d.ring} ${d.tone} p-6`}>
+    <motion.div
+      className="space-y-6"
+      data-testid="preflight-result"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, scale: 0.96, y: 12 },
+          show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 22 } },
+        }}
+        className={`rounded-2xl border ${d.ring} ${d.tone} p-6`}
+      >
         <div className="flex items-center gap-3">
-          <Icon className="h-7 w-7" aria-hidden="true" />
+          <motion.span
+            initial={{ rotate: -30, scale: 0.5 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.15 }}
+          >
+            <Icon className="h-7 w-7" aria-hidden="true" />
+          </motion.span>
           <p className="font-display text-3xl font-semibold">{d.label}</p>
         </div>
         <p className="mt-3 leading-relaxed text-foreground">{result.summary}</p>
-      </div>
+      </motion.div>
 
       {corridor && (
-        <div className="grid gap-3 sm:grid-cols-3">
+        <motion.div variants={staggerItem} className="grid gap-3 sm:grid-cols-3">
           <Stat
             label="Success rate"
             value={`${corridor.success_rate.toFixed(1)}%`}
@@ -132,11 +152,11 @@ function Result({ result, requestPath }: { result: PreflightResult; requestPath:
           />
           <Stat label="Payments observed" value={corridor.total_attempts.toLocaleString()} />
           <Stat label="Health score" value={`${corridor.health_score.toFixed(0)}`} sub="out of 100" />
-        </div>
+        </motion.div>
       )}
 
       {result.checks.length > 0 && (
-        <section>
+        <motion.section variants={staggerItem}>
           <h3 className="text-lg font-semibold text-foreground">Checks</h3>
           <ul className="mt-3 divide-y divide-border rounded-2xl border border-border bg-surface">
             {result.checks.map((check) => {
@@ -158,17 +178,17 @@ function Result({ result, requestPath }: { result: PreflightResult; requestPath:
               );
             })}
           </ul>
-        </section>
+        </motion.section>
       )}
 
       {result.alternatives.length > 0 && (
-        <section>
+        <motion.section variants={staggerItem}>
           <h3 className="text-lg font-semibold text-foreground">Healthier routes</h3>
           <ul className="mt-3 space-y-2">
             {result.alternatives.map((alt) => (
               <li
                 key={alt.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3"
+                className="lift flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3"
               >
                 <span className="font-mono text-sm text-foreground">
                   {alt.source_asset} → {alt.destination_asset}
@@ -180,10 +200,10 @@ function Result({ result, requestPath }: { result: PreflightResult; requestPath:
               </li>
             ))}
           </ul>
-        </section>
+        </motion.section>
       )}
 
-      <div className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
+      <motion.div variants={staggerItem} className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3">
         <code className="truncate font-mono text-xs text-muted-foreground">GET {requestPath}</code>
         <button
           type="button"
@@ -195,11 +215,11 @@ function Result({ result, requestPath }: { result: PreflightResult; requestPath:
           <Copy className="h-3.5 w-3.5" aria-hidden="true" />
           {copied ? "Copied" : "Copy"}
         </button>
-      </div>
-      <p className="text-xs text-muted-foreground">
+      </motion.div>
+      <motion.p variants={staggerItem} className="text-xs text-muted-foreground">
         Checked {new Date(result.evaluated_at).toLocaleString()} from recent payments on the Stellar ledger.
-      </p>
-    </div>
+      </motion.p>
+    </motion.div>
   );
 }
 
