@@ -80,7 +80,7 @@ export default function CorridorDetailPage() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div>
           <div className="mb-6">
             <Skeleton className="h-8 w-48 mb-4" />
             <SkeletonText lines={2} className="max-w-2xl" />
@@ -109,7 +109,7 @@ export default function CorridorDetailPage() {
   if (!data) {
     return (
       <MainLayout>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div>
           <BackButton fallbackHref="/corridors" label="Back to Corridors" className="flex items-center gap-2 text-blue-600 dark:text-link-primary hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium mb-6 group" />
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-lg p-6 text-red-800 dark:text-red-300">
             <AlertCircle className="w-6 h-6 inline mr-2" />
@@ -139,7 +139,7 @@ export default function CorridorDetailPage() {
 
   return (
     <MainLayout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div>
         <nav className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground mb-6 overflow-x-auto whitespace-nowrap pb-2">
           <Link
             href="/dashboard"

@@ -1,14 +1,12 @@
 "use client";
-import {
-  Search,
-  Home as AnchorIcon,
-} from "lucide-react";
+import { Search } from "lucide-react";
 import { MainLayout } from "@/components/layout";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
 import { ExportDialog } from "@/components/ExportDialog";
 import {
   formatNumber,
   Error,
+  healthLabel,
   SearchAndControls
 } from "./helpers";
 import { SkeletonTable } from "@/components/ui/Skeleton";
@@ -40,36 +38,59 @@ const AnchorsPageContent = () => {
 
   return (
     <MainLayout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div>
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-            <AnchorIcon className="w-8 h-8 text-blue-500" />
-            Anchor Analytics
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Monitor anchor reliability, asset coverage, and transaction success
-            rates
+        <header className="mb-8 max-w-2xl">
+          <p className="text-sm font-medium text-accent">Network data</p>
+          <h1 className="mt-2 text-4xl font-semibold text-foreground md:text-5xl">Anchors</h1>
+          <p className="mt-3 text-lg text-muted-foreground">
+            Reliability, asset coverage and transaction success for the anchors that move money on Stellar.
           </p>
-        </div>
+        </header>
 
         {/* Error Message */}
         {error && (
           <Error error={error} />
         )}
 
+        {/* Summary Stats */}
+        {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
+          <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {[
+              { label: "Anchors", value: String(sortedAndFilteredAnchors.length), tone: "text-foreground" },
+              {
+                label: "Average reliability",
+                value: `${(
+                  sortedAndFilteredAnchors.reduce((sum, a) => sum + a.reliability_score, 0) /
+                  sortedAndFilteredAnchors.length
+                ).toFixed(1)}%`,
+                tone: "text-foreground",
+              },
+              {
+                label: "Transactions",
+                value: formatNumber(sortedAndFilteredAnchors.reduce((sum, a) => sum + a.total_transactions, 0)),
+                tone: "text-foreground",
+              },
+              {
+                label: "Healthy",
+                value: `${sortedAndFilteredAnchors.filter((a) => healthLabel(a.status) === "Healthy").length} of ${sortedAndFilteredAnchors.length}`,
+                tone: "text-success",
+              },
+            ].map((stat) => (
+              <div key={stat.label} className="lift rounded-2xl border border-border bg-card p-5">
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className={`mt-1 font-display text-3xl font-semibold tabular-nums ${stat.tone}`}>{stat.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <SearchAndControls
           searchTerm={searchTerm} setSearchTerm={setSearchTerm} sortBy={sortBy} setSortBy={setSortBy} setSortOrder={setSortOrder} sortOrder={sortOrder} setIsExportOpen={setIsExportOpen}
         />
 
-        {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 mb-4">
-            💡 Click on any row to view anchor details • Click column headers to
-            sort
-          </p>
-        )}
         <div className="space-y-4">
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
             {loading ? (
               <SkeletonTable rows={8} />
             ) : (
@@ -96,71 +117,14 @@ const AnchorsPageContent = () => {
           )}
         </div>
 
-        {/* Summary Stats */}
-        {!loading && !error && sortedAndFilteredAnchors.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground mb-1">
-                Total Anchors
-              </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {sortedAndFilteredAnchors.length}
-              </div>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground mb-1">
-                Avg Reliability
-              </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {sortedAndFilteredAnchors.length > 0
-                  ? (
-                    sortedAndFilteredAnchors.reduce(
-                      (sum, a) => sum + a.reliability_score,
-                      0,
-                    ) / sortedAndFilteredAnchors.length
-                  ).toFixed(1)
-                  : "0.0"}
-                %
-              </div>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground mb-1">
-                Total Transactions
-              </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {formatNumber(
-                  sortedAndFilteredAnchors.reduce(
-                    (sum, a) => sum + a.total_transactions,
-                    0,
-                  ),
-                )}
-              </div>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground mb-1">
-                Healthy Anchors
-              </div>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {
-                  sortedAndFilteredAnchors.filter(
-                    (a) =>
-                      a.status.toLowerCase() === "green" ||
-                      a.status === "Healthy",
-                  ).length
-                }
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Empty State (when no error but also no data) */}
         {!loading &&
           !error &&
           sortedAndFilteredAnchors.length === 0 &&
           anchors.length > 0 && (
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-12 text-center">
-              <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className="mt-4 rounded-2xl border border-border bg-card p-12 text-center">
+              <Search className="mx-auto mb-4 h-10 w-10 text-muted-foreground" aria-hidden="true" />
+              <p className="text-muted-foreground">
                 No anchors found matching &quot;{searchTerm}&quot;
               </p>
             </div>

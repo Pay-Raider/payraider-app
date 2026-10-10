@@ -300,7 +300,7 @@ function ComparisonContent() {
 export default function ComparePage() {
   return (
     <MainLayout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div>
         <Suspense
           fallback={
             <div className="flex items-center justify-center min-h-[400px]">

@@ -1,17 +1,60 @@
 import type { Dispatch, SetStateAction } from "react";
-import { Home as AnchorIcon, ExternalLink } from "lucide-react";
-import { formatNumber, generateMockHistoricalData, getHealthStatusColor, getHealthStatusIcon, handleSort, SortIndicator, truncateAddress, type AnchorSortBy, type AnchorSortOrder } from "./helpers";
-import { Line, LineChart, ResponsiveContainer } from "recharts";
-import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  AnchorAvatar,
+  formatNumber,
+  handleSort,
+  HealthBadge,
+  SortIndicator,
+  truncateAddress,
+  type AnchorSortBy,
+  type AnchorSortOrder,
+} from "./helpers";
 import type { AnchorMetrics } from "@/lib/api/types";
+
+function SortableHeader({
+  column,
+  label,
+  sortBy,
+  sortOrder,
+  setSortBy,
+  setSortOrder,
+}: {
+  column: AnchorSortBy;
+  label: string;
+  sortBy: AnchorSortBy;
+  sortOrder: AnchorSortOrder;
+  setSortBy: Dispatch<SetStateAction<AnchorSortBy>>;
+  setSortOrder: Dispatch<SetStateAction<AnchorSortOrder>>;
+}) {
+  return (
+    <th scope="col" className="px-4 py-3 text-left">
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+        onClick={() => handleSort(column, sortBy, sortOrder, setSortBy, setSortOrder)}
+        aria-label={`Sort by ${label.toLowerCase()}`}
+      >
+        {label}
+        <SortIndicator column={column} currentSort={sortBy} direction={sortOrder} />
+      </button>
+    </th>
+  );
+}
+
+function reliabilityTone(score: number) {
+  if (score >= 95) return "bg-success";
+  if (score >= 85) return "bg-warning";
+  return "bg-error";
+}
 
 const AnchorList = ({
   sortBy,
   sortOrder,
   setSortBy,
   setSortOrder,
-  paginatedAnchors
+  paginatedAnchors,
 }: {
   sortBy: AnchorSortBy;
   sortOrder: AnchorSortOrder;
@@ -19,218 +62,112 @@ const AnchorList = ({
   setSortOrder: Dispatch<SetStateAction<AnchorSortOrder>>;
   paginatedAnchors: AnchorMetrics[];
 }) => {
-  const router = useRouter()
+  const router = useRouter();
+  const sortProps = { sortBy, sortOrder, setSortBy, setSortOrder };
+
   return (
-    <div className="hidden lg:block overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-slate-700">
+    <div className="hidden lg:block">
+      <table className="w-full table-fixed">
+        <colgroup>
+          <col className="w-[30%]" />
+          <col className="w-[13%]" />
+          <col className="w-[17%]" />
+          <col className="w-[14%]" />
+          <col className="w-[9%]" />
+          <col className="w-[13%]" />
+          <col className="w-[4%]" />
+        </colgroup>
+        <thead className="border-b border-border bg-surface">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
               Anchor
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              Health Status
+            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+              Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              <button
-                type="button"
-                className="w-full text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none flex items-center gap-1"
-                onClick={() =>
-                  handleSort(
-                    "reliability",
-                    sortBy,
-                    sortOrder,
-                    setSortBy,
-                    setSortOrder,
-                  )
-                }
-                aria-label="Sort by reliability score"
-              >
-                Reliability Score
-                <SortIndicator
-                  column="reliability"
-                  currentSort={sortBy}
-                  direction={sortOrder}
-                />
-              </button>
+            <SortableHeader column="reliability" label="Reliability" {...sortProps} />
+            <SortableHeader column="failure_rate" label="Success rate" {...sortProps} />
+            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+              Assets
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              <button
-                type="button"
-                className="w-full text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none flex items-center gap-1"
-                onClick={() =>
-                  handleSort(
-                    "failure_rate",
-                    sortBy,
-                    sortOrder,
-                    setSortBy,
-                    setSortOrder,
-                  )
-                }
-                aria-label="Sort by success rate"
-              >
-                Success Rate
-                <SortIndicator
-                  column="failure_rate"
-                  currentSort={sortBy}
-                  direction={sortOrder}
-                />
-              </button>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              Asset Coverage
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              <button
-                type="button"
-                className="w-full text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 select-none flex items-center gap-1"
-                onClick={() =>
-                  handleSort(
-                    "transactions",
-                    sortBy,
-                    sortOrder,
-                    setSortBy,
-                    setSortOrder,
-                  )
-                }
-                aria-label="Sort by total transactions"
-              >
-                Total Transactions
-                <SortIndicator
-                  column="transactions"
-                  currentSort={sortBy}
-                  direction={sortOrder}
-                />
-              </button>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              30-Day Trend
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-              Actions
+            <SortableHeader column="transactions" label="Transactions" {...sortProps} />
+            <th scope="col" className="px-4 py-3">
+              <span className="sr-only">Open</span>
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+        <tbody className="divide-y divide-border">
           {paginatedAnchors.map((anchor) => {
             const successRate =
-              (anchor.successful_transactions /
-                anchor.total_transactions) *
-              100;
-            const historicalData = generateMockHistoricalData(
-              anchor.reliability_score,
-            );
+              anchor.total_transactions > 0
+                ? (anchor.successful_transactions / anchor.total_transactions) * 100
+                : 0;
+            const open = () => router.push(`/anchors/${anchor.stellar_account}`);
 
             return (
               <tr
                 key={anchor.id}
-                className="hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
+                className="group cursor-pointer transition-colors hover:bg-[var(--sidebar-hover-bg)]"
                 role="button"
                 tabIndex={0}
                 aria-label={`Open anchor details for ${anchor.name}`}
-                onClick={() => router.push(`/anchors/${anchor.stellar_account}`)}
+                onClick={open}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
+                  if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    router.push(`/anchors/${anchor.stellar_account}`);
+                    open();
                   }
                 }}
               >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3">
-                      <AnchorIcon className="w-5 h-5 text-blue-600 dark:text-blue-300" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {anchor.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                <td className="px-4 py-3.5">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <AnchorAvatar name={anchor.name} />
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-foreground">{anchor.name}</div>
+                      <div className="truncate font-mono text-xs text-muted-foreground">
                         {truncateAddress(anchor.stellar_account)}
                       </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getHealthStatusColor(anchor.status)}`}
-                  >
-                    {getHealthStatusIcon(anchor.status)}
-                    {anchor.status}
-                  </span>
+                <td className="px-4 py-3.5">
+                  <HealthBadge status={anchor.status} />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                <td className="px-4 py-3.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-12 text-sm font-medium tabular-nums text-foreground">
                       {anchor.reliability_score.toFixed(1)}%
-                    </div>
-                    <div className="ml-2 w-16 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
+                    </span>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                       <div
-                        className={`h-2 rounded-full ${anchor.reliability_score >= 95
-                          ? "bg-green-500"
-                          : anchor.reliability_score >= 85
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                          }`}
-                        style={{
-                          width: `${anchor.reliability_score}%`,
-                        }}
+                        className={`h-full rounded-full ${reliabilityTone(anchor.reliability_score)}`}
+                        style={{ width: `${Math.min(100, Math.max(0, anchor.reliability_score))}%` }}
                       />
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900 dark:text-white">
-                    {successRate.toFixed(1)}%
+                <td className="px-4 py-3.5">
+                  <div className="text-sm tabular-nums text-foreground">{successRate.toFixed(1)}%</div>
+                  <div className="text-xs tabular-nums text-muted-foreground">
+                    {formatNumber(anchor.successful_transactions)} / {formatNumber(anchor.total_transactions)}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatNumber(anchor.successful_transactions)}/
+                </td>
+                <td className="px-4 py-3.5 text-sm tabular-nums text-foreground">{anchor.asset_coverage}</td>
+                <td className="px-4 py-3.5">
+                  <div className="text-sm tabular-nums text-foreground">
                     {formatNumber(anchor.total_transactions)}
                   </div>
+                  {anchor.failed_transactions > 0 && (
+                    <div className="text-xs tabular-nums text-error">
+                      {formatNumber(anchor.failed_transactions)} failed
+                    </div>
+                  )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {anchor.asset_coverage} assets
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {formatNumber(anchor.total_transactions)}
-                  </div>
-                  <div className="text-xs text-red-500">
-                    {formatNumber(anchor.failed_transactions)} failed
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="w-20 h-8">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={historicalData.slice(-7)}>
-                        <Line
-                          type="monotone"
-                          dataKey="score"
-                          stroke={
-                            anchor.reliability_score >= 95
-                              ? "#10b981"
-                              : anchor.reliability_score >= 85
-                                ? "#f59e0b"
-                                : "#ef4444"
-                          }
-                          strokeWidth={2}
-                          dot={false}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`/anchors/${anchor.stellar_account}`}
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 inline-flex items-center gap-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    View Details
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
+                <td className="px-2 py-3.5 text-right">
+                  <ChevronRight
+                    className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-accent"
+                    aria-hidden="true"
+                  />
                 </td>
               </tr>
             );
@@ -239,6 +176,6 @@ const AnchorList = ({
       </table>
     </div>
   );
-}
+};
 
 export default AnchorList;

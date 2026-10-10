@@ -1,6 +1,5 @@
-import { formatNumber, generateMockHistoricalData, getHealthStatusColor, getHealthStatusIcon, truncateAddress } from "./helpers";
-import { Line, LineChart, ResponsiveContainer } from "recharts";
-import { Home as AnchorIcon, BarChart3, ExternalLink } from "lucide-react";
+import { AnchorAvatar, formatNumber, HealthBadge, truncateAddress } from "./helpers";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { AnchorMetrics } from "@/lib/api/types";
@@ -15,11 +14,9 @@ const AnchorCards = ({
     <div className="lg:hidden divide-y divide-gray-200 dark:divide-slate-700">
       {paginatedAnchors.map((anchor) => {
         const successRate =
-          (anchor.successful_transactions / anchor.total_transactions) *
-          100;
-        const historicalData = generateMockHistoricalData(
-          anchor.reliability_score,
-        );
+          anchor.total_transactions > 0
+            ? (anchor.successful_transactions / anchor.total_transactions) * 100
+            : 0;
 
         return (
           <article
@@ -38,9 +35,9 @@ const AnchorCards = ({
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3">
-                  <AnchorIcon aria-hidden="true" className="w-5 h-5 text-blue-600 dark:text-blue-300" />
-                </div>
+                <span className="mr-3">
+                  <AnchorAvatar name={anchor.name} />
+                </span>
                 <div>
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {anchor.name}
@@ -50,12 +47,7 @@ const AnchorCards = ({
                   </div>
                 </div>
               </div>
-              <span
-                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getHealthStatusColor(anchor.status)}`}
-              >
-                {getHealthStatusIcon(anchor.status)}
-                {anchor.status}
-              </span>
+              <HealthBadge status={anchor.status} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-3">
@@ -108,39 +100,14 @@ const AnchorCards = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BarChart3 aria-hidden="true" className="w-4 h-4 text-gray-400" />
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  30-day trend
-                </span>
-                <div className="w-16 h-6">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={historicalData.slice(-7)}>
-                      <Line
-                        type="monotone"
-                        dataKey="score"
-                        stroke={
-                          anchor.reliability_score >= 95
-                            ? "#10b981"
-                            : anchor.reliability_score >= 85
-                              ? "#f59e0b"
-                              : "#ef4444"
-                        }
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
+            <div className="flex items-center justify-end">
               <Link
                 href={`/anchors/${anchor.stellar_account}`}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 inline-flex items-center gap-1 text-sm"
+                className="inline-flex items-center gap-1 text-sm font-medium text-accent"
                 onClick={(e) => e.stopPropagation()}
               >
                 Details
-                <ExternalLink className="w-3 h-3" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
           </article>

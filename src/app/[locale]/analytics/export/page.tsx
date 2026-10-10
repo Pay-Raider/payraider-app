@@ -88,7 +88,7 @@ export default function ExportPage() {
 
   return (
     <MainLayout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-screen flex flex-col">
+      <div className="flex flex-col">
         {/* Header */}
         <div className="mb-8 flex items-center gap-4">
           <Link

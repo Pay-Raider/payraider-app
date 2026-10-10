@@ -13,21 +13,6 @@ import {
 
 const truncateAddress = (address: string) => formatAddressShort(address, 6, 4);
 
-const generateMockHistoricalData = (currentScore: number) => {
-  const data = [];
-  for (let i = 30; i >= 0; i--) {
-    const variation = (Math.random() - 0.5) * 10;
-    const score = Math.max(0, Math.min(100, currentScore + variation));
-    data.push({
-      date: new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0],
-      score: score,
-    });
-  }
-  return data;
-};
-
 const handleSort = (
   column: "reliability" | "transactions" | "failure_rate",
   currentSortBy: string,
@@ -56,9 +41,9 @@ const SortIndicator = ({
     return <span className="text-muted-foreground w-4 h-4 inline-block text-center">⇕</span>;
   }
   return direction === "asc" ? (
-    <span className="text-blue-500 w-4 h-4 inline-block text-center">↑</span>
+    <span className="text-accent w-4 h-4 inline-block text-center">↑</span>
   ) : (
-    <span className="text-blue-500 w-4 h-4 inline-block text-center">↓</span>
+    <span className="text-accent w-4 h-4 inline-block text-center">↓</span>
   );
 };
 
@@ -68,11 +53,65 @@ const formatNumber = (num: number) => {
   return num.toString();
 };
 
-const getHealthStatusColor = (status: string) => {
+type Health = "healthy" | "degraded" | "down";
+
+/** The API reports status as green/yellow/red; show what that means. */
+const normalizeHealth = (status: string): Health => {
   const s = status.toLowerCase();
-  if (s === "green" || s === "healthy") return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
-  if (s === "yellow" || s === "degraded") return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
-  return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+  if (s === "green" || s === "healthy") return "healthy";
+  if (s === "yellow" || s === "degraded") return "degraded";
+  return "down";
+};
+
+const HEALTH_LABEL: Record<Health, string> = {
+  healthy: "Healthy",
+  degraded: "Degraded",
+  down: "Down",
+};
+
+const getHealthStatusColor = (status: string) => {
+  const h = normalizeHealth(status);
+  if (h === "healthy") return "bg-success/12 text-success";
+  if (h === "degraded") return "bg-warning/12 text-warning";
+  return "bg-error/12 text-error";
+};
+
+const healthLabel = (status: string) => HEALTH_LABEL[normalizeHealth(status)];
+
+const HealthBadge = ({ status }: { status: string }) => (
+  <span
+    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${getHealthStatusColor(status)}`}
+  >
+    <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+    {healthLabel(status)}
+  </span>
+);
+
+const AVATAR_TONES = [
+  "bg-[#eab069]/20 text-[#f0c48c]",
+  "bg-[#9a7a5f]/25 text-[#e8d8c2]",
+  "bg-[#c9803f]/20 text-[#f6cf8f]",
+  "bg-[#7a5a42]/35 text-[#f4eadb]",
+];
+
+/** Initials on a warm tint picked from the name, so rows are easy to tell apart. */
+const AnchorAvatar = ({ name }: { name: string }) => {
+  const initials =
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase())
+      .join("") || "?";
+  const tone = AVATAR_TONES[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % AVATAR_TONES.length];
+  return (
+    <span
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl font-display text-sm font-semibold ${tone}`}
+      aria-hidden="true"
+    >
+      {initials}
+    </span>
+  );
 };
 
 const getHealthStatusIcon = (status: string) => {
@@ -84,13 +123,13 @@ const getHealthStatusIcon = (status: string) => {
 
 const Error = ({ error }: { error?: string }) => {
   return (
-    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+    <div role="alert" className="mb-6 rounded-2xl border border-error/40 bg-error/10 p-4">
       <div className="flex items-center gap-2">
-        <div className="text-red-600 dark:text-red-400 font-medium">
+        <div className="font-medium text-error">
           Error loading anchors
         </div>
       </div>
-      <div className="text-sm text-red-600 dark:text-red-400 mt-1">
+      <div className="mt-1 text-sm text-error">
         {error}
       </div>
     </div>
@@ -117,13 +156,13 @@ const SearchAndControls = ({
   return (
     <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       <div className="flex-1 relative w-full sm:max-w-md">
-        <Search className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
         <input
           type="text"
           placeholder="Search anchors by name or account..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-surface text-foreground focus:outline-none focus:border-accent focus:ring-2 focus:ring-[var(--accent-soft)]"
         />
       </div>
       <div className="flex gap-2">
@@ -138,7 +177,7 @@ const SearchAndControls = ({
             )
           }
           aria-label="Sort anchors by"
-          className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 border border-border rounded-xl bg-surface text-foreground focus:outline-none focus:border-accent focus:ring-2 focus:ring-[var(--accent-soft)]"
         >
           <option value="reliability">Reliability Score</option>
           <option value="transactions">Total Transactions</option>
@@ -148,7 +187,7 @@ const SearchAndControls = ({
           type="button"
           onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
           aria-label={sortOrder === "desc" ? "Sorted descending; switch to ascending" : "Sorted ascending; switch to descending"}
-          className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 border border-border rounded-xl bg-surface text-foreground hover:bg-[var(--sidebar-hover-bg)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)]"
         >
           {sortOrder === "desc" ? (
             <TrendingDown className="w-4 h-4" aria-hidden="true" />
@@ -158,7 +197,7 @@ const SearchAndControls = ({
         </button>
         <button
           onClick={() => setIsExportOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-xl text-sm font-semibold transition hover:brightness-110"
         >
           <Download className="w-4 h-4" />
           Export
@@ -170,8 +209,10 @@ const SearchAndControls = ({
 
 export {
   truncateAddress,
-  generateMockHistoricalData,
   handleSort,
+  HealthBadge,
+  healthLabel,
+  AnchorAvatar,
   SortIndicator,
   formatNumber,
   getHealthStatusColor,
