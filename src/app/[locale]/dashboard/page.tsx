@@ -1,371 +1,227 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import { useTranslations, useLocale } from "next-intl";
-import { MetricCard } from "@/components/dashboard/MetricCard";
-import { CorridorHealth } from "@/components/dashboard/CorridorHealth";
-import { LiquidityChart } from "@/components/dashboard/LiquidityChart";
-import { TopAssetsTable } from "@/components/dashboard/TopAssetsTable";
-import { SettlementSpeedChart } from "@/components/dashboard/SettlementSpeedChart";
-import { WebSocketStatus } from "@/components/WebSocketStatus";
-import { DataRefreshIndicator } from "@/components/DataRefreshIndicator";
-import { useRealtimeCorridors, type CorridorUpdate, type HealthAlert } from "@/hooks/useRealtimeCorridors";
-import { useRealtimeAnchors, type AnchorUpdate } from "@/hooks/useRealtimeAnchors";
-import { useDataRefresh } from "@/hooks/useDataRefresh";
-import { logger } from "@/lib/logger";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight } from "lucide-react";
+import { api } from "@/lib/api/api";
+import type { CorridorMetrics } from "@/lib/api/corridors";
+import { useCorridors } from "@/lib/react-query/queries";
+import { Link } from "@/i18n/navigation";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataUnavailable } from "@/components/ui/DataUnavailable";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { BookmarksDashboardWidget } from "@/components/BookmarksDashboardWidget";
-import {
-  Skeleton,
-  SkeletonChart,
-  SkeletonCorridorCard,
-  SkeletonTable
-} from "@/components/ui/Skeleton";
-import {
-  WidgetProvider,
-  WidgetGrid,
-  WidgetCustomizer,
-  CustomiseButton,
-  type WidgetDefinition,
-} from "@/components/DashboardWidgets";
 
-interface CorridorData {
-  id: string;
-  name: string;
-  status: "optimal" | "degraded" | "down";
-  uptime: number;
-  volume24h: number;
+const REFRESH_MS = 30_000;
+
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+function Stat({ label, value, detail }: { label: string; value: string; detail?: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="mt-2 text-3xl font-semibold tabular-nums text-foreground">{value}</p>
+      {detail && <p className="mt-1 text-sm text-muted-foreground">{detail}</p>}
+    </div>
+  );
 }
 
-interface LiquidityData {
-  date: string;
-  value: number;
+function tone(score: number) {
+  if (score >= 80) return "text-success";
+  if (score >= 50) return "text-warning";
+  return "text-error";
 }
 
-interface AssetData {
-  symbol: string;
-  name: string;
-  volume24h: number;
-  price: number;
-  change24h: number;
+function CorridorRow({ c, metric }: { c: CorridorMetrics; metric: string }) {
+  return (
+    <li>
+      <Link
+        href={`/corridors/${c.id}`}
+        className="group flex items-center gap-3 py-3 transition-colors hover:text-accent"
+      >
+        <span className="min-w-0 flex-1 truncate font-medium text-foreground group-hover:text-accent">
+          {c.source_asset} → {c.destination_asset}
+        </span>
+        <span className="text-sm tabular-nums text-muted-foreground">{metric}</span>
+        <span className={`w-10 text-right text-sm font-semibold tabular-nums ${tone(c.health_score)}`}>
+          {c.health_score.toFixed(0)}
+        </span>
+      </Link>
+    </li>
+  );
 }
 
-interface SettlementData {
-  time: string;
-  speed: number;
+function Panel({ title, description, href, children }: {
+  title: string;
+  description: string;
+  href?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        </div>
+        {href && (
+          <Link href={href} className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent hover:underline">
+            All <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        )}
+      </div>
+      {children}
+    </section>
+  );
 }
 
-interface DashboardData {
-  kpi: {
-    successRate: {
-      value: number;
-      trend: number;
-      trendDirection: "up" | "down";
-    };
-    activeCorridors: {
-      value: number;
-      trend: number;
-      trendDirection: "up" | "down";
-    };
-    liquidityDepth: {
-      value: number;
-      trend: number;
-      trendDirection: "up" | "down";
-    };
-    settlementSpeed: {
-      value: number;
-      trend: number;
-      trendDirection: "up" | "down";
-    };
-  };
-  corridors: CorridorData[];
-  liquidity: LiquidityData[];
-  assets: AssetData[];
-  settlement: SettlementData[];
-}
-
+/**
+ * Overview of the corridor table. Every figure is computed from the
+ * backend's 24-hour window of mainnet payments; there are no trend arrows
+ * because no earlier window is stored to compare against.
+ */
 export default function DashboardPage() {
-  const t = useTranslations("dashboard");
-  const locale = useLocale();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // ── Data refresh hook (auto-refresh every 30 s + manual trigger) ──────────
-  const fetchDashboard = useCallback(async () => {
-    const response = await fetch("/api/dashboard");
-    if (!response.ok) throw new Error(t("failedToFetch"));
-    const result = await response.json();
-    setData(result);
-  }, [t]);
-
-  const {
-    lastUpdated,
-    secondsUntilRefresh,
-    isRefreshing,
-    triggerRefresh,
-    markUpdated,
-  } = useDataRefresh({
-    refreshIntervalMs: 30_000,
-    onRefresh: fetchDashboard,
+  const corridors = useCorridors({ sort_by: "health_score", limit: 200 });
+  const ledger = useQuery({
+    queryKey: ["ledger-latest"],
+    queryFn: () => api.get<{ sequence: number; closed_at: string }>("/rpc/ledger/latest"),
+    refetchInterval: REFRESH_MS,
   });
 
-  // ── WebSocket connections for real-time updates ─────────────────────────
-  const onCorridorUpdate = useCallback((update: CorridorUpdate) => {
-    logger.debug("Received corridor update:", { update: JSON.stringify(update) });
-    markUpdated();
-    setData((prevData) => {
-      if (!prevData) return prevData;
-      const updatedData = { ...prevData };
-      if (update.success_rate !== undefined) {
-        updatedData.kpi.successRate.value = update.success_rate;
-      }
-      return updatedData;
-    });
-  }, [markUpdated]);
+  const list = useMemo(() => corridors.data?.data ?? [], [corridors.data]);
+  const summary = useMemo(() => {
+    const attempts = list.reduce((n, c) => n + c.total_attempts, 0);
+    const settled = list.reduce((n, c) => n + c.successful_payments, 0);
+    const volume = list.reduce((n, c) => n + c.liquidity_depth_usd, 0);
 
-  const onHealthAlert = useCallback((alert: HealthAlert) => {
-    logger.debug("Health alert:", { alert: JSON.stringify(alert) });
-  }, []);
-
-  const {
-    isConnected: corridorsConnected,
-    isConnecting: corridorsConnecting,
-    connectionAttempts: corridorAttempts,
-    reconnect: reconnectCorridors,
-  } = useRealtimeCorridors({
-    enablePaymentStream: true,
-    onCorridorUpdate,
-    onHealthAlert,
-  });
-
-  const onAnchorUpdate = useCallback((update: AnchorUpdate) => {
-    logger.debug("Received anchor update:", { update: JSON.stringify(update) });
-    markUpdated();
-  }, [markUpdated]);
-
-  const { isConnected: anchorsConnected, reconnect: reconnectAnchors } =
-    useRealtimeAnchors({
-      onAnchorUpdate,
-    });
-
-  // Initial load on mount
-  useEffect(() => {
-    (async () => {
-      try {
-        await fetchDashboard();
-      } catch (err) {
-        const isNetworkError =
-          err instanceof TypeError &&
-          (err.message.includes("Failed to fetch") ||
-            err.message.includes("fetch is not defined") ||
-            err.message.includes("Network request failed"));
-        const errorMessage =
-          err instanceof Error ? err.message : "An error occurred";
-        setError(errorMessage);
-        if (!isNetworkError) logger.error("Dashboard API error:", err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [fetchDashboard]);
-
-  const [customizerOpen, setCustomizerOpen] = useState(false);
-
-  if (loading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-10 w-64" />
-          </div>
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-32" />
-            <Skeleton className="h-8 w-40" />
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton className="h-32 w-full rounded-2xl" key={i} />
-          ))}
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-12">
-          <div className="lg:col-span-8 space-y-6">
-            <SkeletonChart height={300} />
-            <SkeletonTable rows={5} />
-          </div>
-          <div className="lg:col-span-4 space-y-6">
-            <SkeletonCorridorCard />
-            <SkeletonChart height={300} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="px-6 py-4 glass border-red-500/50 text-red-500 text-sm">
-          {t("error")}: {error}
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) return null;
-
-  const formatVolume = (val: number) => {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: "USD",
-      notation: "compact",
-      maximumFractionDigits: 1,
-    }).format(val);
-  };
-
-  // ── Widget definitions (#2109) ───────────────────────────────────────────
-  const WIDGET_DEFS: WidgetDefinition[] = [
-    { id: "liquidity-chart", title: "Liquidity Chart", description: "24-hour liquidity flow across corridors.", colSpan: "lg:col-span-8", minH: "min-h-[300px]", defaultVisible: true },
-    { id: "assets-table", title: "Top Assets", description: "Top performing assets by volume.", colSpan: "lg:col-span-8", minH: "min-h-[300px]", defaultVisible: true },
-    { id: "corridor-health", title: "Corridor Health", description: "Real-time status for active corridors.", colSpan: "lg:col-span-4", minH: "min-h-[300px]", defaultVisible: true },
-    { id: "settlement-speed", title: "Settlement Speed", description: "Average payment settlement times.", colSpan: "lg:col-span-4", minH: "min-h-[300px]", defaultVisible: true },
-  ];
-
-  const renderWidget = (id: string) => {
-    switch (id) {
-      case "liquidity-chart":
-        return (
-          <div className="glass-card rounded-2xl p-1 h-full transition-all duration-300 flex flex-col">
-            {data.liquidity.length > 0 ? (
-              <LiquidityChart data={data.liquidity} />
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
-                {t("waitingLiquidity")}
-              </div>
-            )}
-          </div>
-        );
-      case "assets-table":
-        return (
-          <div className="glass-card rounded-2xl p-1 h-full transition-all duration-300 flex flex-col">
-            {data.assets.length > 0 ? (
-              <TopAssetsTable assets={data.assets} />
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
-                {t("waitingAsset")}
-              </div>
-            )}
-          </div>
-        );
-      case "corridor-health":
-        return (
-          <div className="glass-card rounded-2xl p-1 h-full transition-all duration-300 flex flex-col">
-            {data.corridors.length > 0 ? (
-              <CorridorHealth corridors={data.corridors} />
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
-                {t("waitingCorridor")}
-              </div>
-            )}
-          </div>
-        );
-      case "settlement-speed":
-        return (
-          <div className="glass-card rounded-2xl p-1 h-full transition-all duration-300 flex flex-col">
-            {data.settlement.length > 0 ? (
-              <SettlementSpeedChart data={data.settlement} />
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
-                {t("waitingSettlement")}
-              </div>
-            )}
-          </div>
-        );
-      default:
-        return null;
+    const assets = new Map<string, { volume: number; corridors: number; payments: number }>();
+    for (const c of list) {
+      const a = assets.get(c.source_asset) ?? { volume: 0, corridors: 0, payments: 0 };
+      assets.set(c.source_asset, {
+        volume: a.volume + c.liquidity_depth_usd,
+        corridors: a.corridors + 1,
+        payments: a.payments + c.total_attempts,
+      });
     }
-  };
+
+    return {
+      attempts,
+      successRate: attempts > 0 ? (settled / attempts) * 100 : 0,
+      volume,
+      busiest: [...list].sort((a, b) => b.liquidity_depth_usd - a.liquidity_depth_usd).slice(0, 6),
+      // Corridors with enough traffic to matter that are not doing well.
+      attention: list
+        .filter((c) => c.total_attempts >= 5 && c.health_score < 50)
+        .sort((a, b) => a.health_score - b.health_score)
+        .slice(0, 6),
+      assets: [...assets.entries()].sort((a, b) => b[1].volume - a[1].volume).slice(0, 6),
+    };
+  }, [list]);
+
+  const header = (
+    <PageHeader
+      eyebrow="Overview"
+      title="Dashboard"
+      description="The state of Stellar payment corridors over the last 24 hours of mainnet payments."
+    />
+  );
+
+  if (corridors.isError && !corridors.data) {
+    return (
+      <div>
+        {header}
+        <DataUnavailable what="the dashboard" onRetry={() => corridors.refetch()} retrying={corridors.isFetching} />
+      </div>
+    );
+  }
+
+  if (corridors.isPending) {
+    return (
+      <div>
+        {header}
+        <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+        </div>
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <Skeleton className="h-80 rounded-2xl" />
+          <Skeleton className="h-80 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <WidgetProvider definitions={WIDGET_DEFS} storageKey="dashboard_widget_layout">
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
-          <div>
-            <div className="text-xs text-accent mb-2">
-              {t("intelligenceTerminal")}
-            </div>
-            <h2 className="text-4xl font-semibold tracking-tight">
-              {t("networkOverview")}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <CustomiseButton
-              onClick={() => setCustomizerOpen(true)}
-              activeCount={WIDGET_DEFS.length}
-              totalCount={WIDGET_DEFS.length}
-            />
-            <WebSocketStatus
-              isConnected={corridorsConnected && anchorsConnected}
-              isConnecting={corridorsConnecting}
-              connectionAttempts={corridorAttempts}
-              onReconnect={() => {
-                reconnectCorridors();
-                reconnectAnchors();
-              }}
-            />
-            <DataRefreshIndicator
-              lastUpdated={lastUpdated}
-              secondsUntilRefresh={secondsUntilRefresh}
-              refreshIntervalSec={30}
-              isRefreshing={isRefreshing}
-              onRefresh={triggerRefresh}
-            />
-          </div>
-        </div>
+    <div>
+      {header}
 
-        {/* KPI Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <MetricCard
-            label={t("paymentSuccessRate")}
-            value={`${data.kpi.successRate.value}%`}
-            trend={data.kpi.successRate.trend}
-            trendDirection={data.kpi.successRate.trendDirection}
-          />
-          <MetricCard
-            label={t("activeCorridors")}
-            value={data.kpi.activeCorridors.value}
-            trend={data.kpi.activeCorridors.trend}
-            trendDirection={data.kpi.activeCorridors.trendDirection}
-          />
-          <MetricCard
-            label={t("liquidityDepth")}
-            value={formatVolume(data.kpi.liquidityDepth.value)}
-            trend={data.kpi.liquidityDepth.trend}
-            trendDirection={data.kpi.liquidityDepth.trendDirection}
-          />
-          <MetricCard
-            label={t("avgSettlementSpeed")}
-            value={`${data.kpi.settlementSpeed.value}s`}
-            trend={Math.abs(data.kpi.settlementSpeed.trend)}
-            trendDirection={data.kpi.settlementSpeed.trendDirection}
-            inverse={true}
-          />
-          <BookmarksDashboardWidget />
-        </div>
-
-        {/* Customizable widget grid (#2109) */}
-        <WidgetGrid definitions={WIDGET_DEFS} renderWidget={renderWidget} />
-
-        {/* Widget customizer modal */}
-        <WidgetCustomizer
-          definitions={WIDGET_DEFS}
-          isOpen={customizerOpen}
-          onClose={() => setCustomizerOpen(false)}
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Stat
+          label="Payment success rate"
+          value={`${summary.successRate.toFixed(1)}%`}
+          detail={`Across ${summary.attempts.toLocaleString()} payments`}
+        />
+        <Stat label="Active corridors" value={list.length.toLocaleString()} detail="Seen in the last 24 hours" />
+        <Stat label="Settled volume" value={usd.format(summary.volume)} detail="Priced assets only" />
+        <Stat
+          label="Latest ledger"
+          value={ledger.data ? ledger.data.sequence.toLocaleString() : "—"}
+          detail={ledger.data ? new Date(ledger.data.closed_at).toLocaleTimeString() : undefined}
         />
       </div>
-    </WidgetProvider>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <Panel title="Busiest corridors" description="By settled dollar volume." href="/corridors">
+          <ul className="mt-3 divide-y divide-border">
+            {summary.busiest.map((c) => (
+              <CorridorRow key={c.id} c={c} metric={c.liquidity_depth_usd > 0 ? usd.format(c.liquidity_depth_usd) : "Unpriced"} />
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel title="Needs attention" description="Corridors with at least 5 payments and a health score under 50.">
+          {summary.attention.length > 0 ? (
+            <ul className="mt-3 divide-y divide-border">
+              {summary.attention.map((c) => (
+                <CorridorRow key={c.id} c={c} metric={`${c.success_rate.toFixed(0)}% settled`} />
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-6 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              No busy corridor is struggling right now.
+            </p>
+          )}
+        </Panel>
+
+        <Panel title="Top source assets" description="Assets sent most, by settled dollar volume.">
+          <table className="mt-3 w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-muted-foreground">
+                <th scope="col" className="py-2 text-left font-medium">Asset</th>
+                <th scope="col" className="py-2 text-right font-medium">Corridors</th>
+                <th scope="col" className="py-2 text-right font-medium">Payments</th>
+                <th scope="col" className="py-2 text-right font-medium">Volume</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {summary.assets.map(([asset, a]) => (
+                <tr key={asset}>
+                  <td className="py-2.5 font-medium text-foreground">{asset}</td>
+                  <td className="py-2.5 text-right tabular-nums text-muted-foreground">{a.corridors}</td>
+                  <td className="py-2.5 text-right tabular-nums text-muted-foreground">{a.payments.toLocaleString()}</td>
+                  <td className="py-2.5 text-right tabular-nums text-foreground">{a.volume > 0 ? usd.format(a.volume) : "Unpriced"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
+
+        <BookmarksDashboardWidget />
+      </div>
+    </div>
   );
 }
