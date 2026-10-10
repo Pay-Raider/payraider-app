@@ -2,7 +2,7 @@
 
 **See how healthy a Stellar payment corridor is, check a payment before sending it, and manage API access, all in the browser.**
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-proprietary-8c4a1c.svg)](LICENSE)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![React](https://img.shields.io/badge/React-19-61dafb)
 ![Stellar](https://img.shields.io/badge/Stellar-Freighter%20%7C%20xBull%20%7C%20LOBSTR-black)
@@ -81,4 +81,6 @@ Browser tests (Playwright) live in `src/__tests__/e2e` and `acceptance/`.
 
 ## License
 
-[Apache 2.0](LICENSE)
+Proprietary. Copyright (c) 2026 PayRaider. All rights reserved.
+
+This is **not open source**. The code is visible for review only; you may not use, copy, modify, deploy or distribute it without written permission from PayRaider. See [LICENSE](LICENSE).
