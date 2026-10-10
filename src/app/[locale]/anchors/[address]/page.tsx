@@ -1,184 +1,151 @@
 "use client";
-import { use, Suspense } from "react";
+
+import { Suspense, use, useState } from "react";
+import { Check, Copy } from "lucide-react";
 import { getAddressValidationError } from "@/lib/address";
-import { AnchorHeader } from "@/components/anchors/AnchorHeader";
 import { AssetPortfolio } from "@/components/anchors/AssetPortfolio";
 import { ReliabilityTrend } from "@/components/charts/ReliabilityTrend";
-import { AlertCircle, Clock, XCircle } from "lucide-react";
-import { Link } from "@/i18n/navigation";
 import { BackButton } from "@/components/ui/BackButton";
+import { DataUnavailable } from "@/components/ui/DataUnavailable";
+import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
 import { useAnchorDetail } from "@/lib/react-query/queries";
 import { sanitizeText } from "@/lib/sanitize";
+import { AnchorAvatar, formatNumber, HealthBadge } from "../components/helpers";
 
-function AnchorDetailPageContent({
-  params,
-}: {
-  params: Promise<{ address: string }>;
+function Stat({ label, value, detail, tone = "text-foreground" }: {
+  label: string;
+  value: string;
+  detail?: string;
+  tone?: string;
 }) {
-  const unwrappedParams = use(params);
-  const { address } = unwrappedParams;
-  // Validate Stellar address (G-address or M-address / muxed) before fetching.
-  const validationError = address ? getAddressValidationError(address) : null;
-  const query = useAnchorDetail(validationError ? undefined : address);
-
-  const data = query.data ?? null;
-  const loading = !validationError && query.isPending && !!address;
-  const error =
-    validationError ??
-    (query.isError ? "Failed to load anchor data. Please try again later." : null);
-
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-4 w-32 bg-slate-800 rounded mb-6"></div>
-          <div className="h-32 bg-slate-800 rounded-xl mb-8"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="h-80 bg-slate-800 rounded-xl"></div>
-            <div className="h-80 bg-slate-800 rounded-xl"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center text-center">
-        <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
-          <AlertCircle className="w-8 h-8 text-rose-500" />
-        </div>
-        <h2 className="text-xl font-bold text-white mb-2">
-          Error Loading Anchor
-        </h2>
-        <p className="text-slate-400 mb-6 max-w-md">
-          {error || "Anchor not found."}
-        </p>
-        <Link
-          href="/anchors"
-          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors font-medium text-sm"
-        >
-          Return to Anchors List
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Breadcrumb / Back */}
-      <div className="flex items-center gap-2 text-sm text-slate-400">
-        <BackButton
-          fallbackHref="/anchors"
-          label="Anchors"
-          className="hover:text-white transition-colors flex items-center gap-1 group"
-        />
-        <span className="text-slate-600">/</span>
-        <span className="text-slate-200 truncate max-w-[200px]">
-          {sanitizeText(data.anchor.name) || sanitizeText(address)}
-        </span>
-      </div>
-
-      <AnchorHeader anchor={data.anchor} />
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Reliability Trend (Span 2) */}
-        <div className="lg:col-span-2">
-          <ReliabilityTrend data={data.reliability_history} />
-        </div>
-
-        {/* Right Column: Failure Diagnostics (Span 1) */}
-        <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <XCircle className="w-4 h-4 text-rose-400" />
-            Failure Diagnostics
-          </h3>
-
-          <div className="space-y-6">
-            {/* Top Failure Reasons */}
-            <div>
-              <h4 className="text-xs font-semibold text-slate-500 mb-3">
-                Top Failure Reasons
-              </h4>
-              <div className="space-y-3">
-                {data.top_failure_reasons?.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span
-                      className="text-slate-300 truncate pr-4"
-                      title={item.reason}
-                    >
-                      {item.reason}
-                    </span>
-                    <span className="font-mono text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded text-xs">
-                      {item.count}
-                    </span>
-                  </div>
-                )) || (
-                  <div className="text-sm text-slate-500 italic">
-                    No failure data available
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="h-px bg-slate-800"></div>
-
-            {/* Recent Failed Corridors */}
-            <div>
-              <h4 className="text-xs font-semibold text-slate-500 mb-3">
-                Recent Failed Corridors
-              </h4>
-              <div className="space-y-3">
-                {data.recent_failed_corridors?.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-start text-sm"
-                  >
-                    <span className="text-indigo-400 font-medium">
-                      {item.corridor_id}
-                    </span>
-                    <span className="text-slate-500 text-xs flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {new Date(item.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                )) || (
-                  <div className="text-sm text-slate-500 italic">
-                    No recent failures
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Issued Assets Portfolio (Full Width) */}
-      <div>
-        <AssetPortfolio assets={data.issued_assets} />
-      </div>
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className={`mt-2 text-3xl font-semibold tabular-nums ${tone}`}>{value}</p>
+      {detail && <p className="mt-1 text-sm text-muted-foreground">{detail}</p>}
     </div>
   );
 }
 
-export default function AnchorDetailPage(props: {
-  params: Promise<{ address: string }>;
-}) {
+function CopyAddress({ address }: { address: string }) {
+  const [copied, setCopied] = useState(false);
   return (
-    <Suspense
-      fallback={
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[400px]">
-          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(address);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+      className="inline-flex max-w-full items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
+      aria-label="Copy account address"
     >
+      <span className="truncate">{address}</span>
+      {copied ? <Check className="h-4 w-4 shrink-0 text-success" aria-hidden="true" /> : <Copy className="h-4 w-4 shrink-0" aria-hidden="true" />}
+    </button>
+  );
+}
+
+const back = (
+  <BackButton
+    fallbackHref="/anchors"
+    label="All anchors"
+    className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+  />
+);
+
+function AnchorDetailPageContent({ params }: { params: Promise<{ address: string }> }) {
+  const { address } = use(params);
+  // Validate Stellar address (G-address or M-address / muxed) before fetching.
+  const validationError = address ? getAddressValidationError(address) : null;
+  const query = useAnchorDetail(validationError ? undefined : address);
+  const data = query.data;
+
+  if (validationError) {
+    return (
+      <div>
+        {back}
+        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+          {validationError}
+        </div>
+      </div>
+    );
+  }
+
+  if (query.isPending) {
+    return (
+      <div>
+        {back}
+        <Skeleton className="mb-8 h-16 w-80" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div>
+        {back}
+        <DataUnavailable what="this anchor" onRetry={() => query.refetch()} retrying={query.isFetching} />
+      </div>
+    );
+  }
+
+  const anchor = data.anchor;
+  const name = sanitizeText(anchor.name) || "Unnamed anchor";
+  const successRate =
+    anchor.total_transactions > 0
+      ? (anchor.successful_transactions / anchor.total_transactions) * 100
+      : 0;
+
+  return (
+    <div>
+      {back}
+      <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center">
+        <AnchorAvatar name={anchor.name} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-accent">Anchor</p>
+          <h1 className="mt-1 flex flex-wrap items-center gap-3 text-4xl font-semibold text-foreground md:text-5xl">
+            {name}
+            <HealthBadge status={anchor.status} />
+          </h1>
+          <div className="mt-3">
+            <CopyAddress address={anchor.stellar_account} />
+          </div>
+        </div>
+      </header>
+
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Stat label="Reliability" value={`${anchor.reliability_score.toFixed(1)}%`} />
+        <Stat
+          label="Success rate"
+          value={`${successRate.toFixed(1)}%`}
+          detail={`${formatNumber(anchor.successful_transactions)} of ${formatNumber(anchor.total_transactions)}`}
+        />
+        <Stat label="Transactions" value={formatNumber(anchor.total_transactions)} />
+        <Stat
+          label="Failed"
+          value={formatNumber(anchor.failed_transactions)}
+          tone={anchor.failed_transactions > 0 ? "text-error" : "text-foreground"}
+        />
+      </div>
+
+      {data.reliability_history.length > 0 && (
+        <div className="mb-8">
+          <ReliabilityTrend data={data.reliability_history} />
+        </div>
+      )}
+
+      {data.issued_assets.length > 0 && <AssetPortfolio assets={data.issued_assets} />}
+    </div>
+  );
+}
+
+export default function AnchorDetailPage(props: { params: Promise<{ address: string }> }) {
+  return (
+    <Suspense fallback={<Skeleton className="h-64 w-full rounded-2xl" />}>
       <AnchorDetailPageContent {...props} />
     </Suspense>
   );

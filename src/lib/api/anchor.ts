@@ -11,12 +11,27 @@ export async function getAnchorDetail(
   address: string,
 ): Promise<AnchorDetailData> {
   const trimmed = address?.trim() ?? "";
-  if (isStellarAccountAddress(trimmed)) {
-    return api.get<AnchorDetailData>(
-      `/anchors/account/${encodeURIComponent(trimmed)}`,
-    );
+  const raw = await api.get<AnchorDetailData | AnchorMetrics>(
+    isStellarAccountAddress(trimmed)
+      ? `/anchors/account/${encodeURIComponent(trimmed)}`
+      : `/anchors/${trimmed}`,
+  );
+  return toAnchorDetail(raw);
+}
+
+/**
+ * The backend returns the bare anchor record; older builds wrapped it with
+ * history and assets. Accept both so the page never reads `undefined.anchor`.
+ */
+export function toAnchorDetail(raw: AnchorDetailData | AnchorMetrics): AnchorDetailData {
+  if ("anchor" in raw && raw.anchor) {
+    return {
+      ...raw,
+      issued_assets: raw.issued_assets ?? [],
+      reliability_history: raw.reliability_history ?? [],
+    };
   }
-  return api.get<AnchorDetailData>(`/anchors/${trimmed}`);
+  return { anchor: raw as AnchorMetrics, issued_assets: [], reliability_history: [] };
 }
 
 /**
