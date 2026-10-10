@@ -147,6 +147,12 @@ describe('xBull', () => {
     xbullBridge.target = {};
   });
 
+  it('explains a closed xBull window instead of an RxJS error', async () => {
+    const empty = Object.assign(new Error('no elements in sequence'), { name: 'EmptyError' });
+    xbullBridge.connect.mockRejectedValue(empty);
+    await expect(getWallet('xbull').connect()).rejects.toThrow('xBull window was closed');
+  });
+
   it('reports a blocked popup instead of waiting forever', async () => {
     xbullBridge.target = null;
     xbullBridge.connect.mockReturnValue(new Promise(() => {}));

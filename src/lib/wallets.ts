@@ -162,6 +162,11 @@ async function withXBull<T>(
     }
     return await withTimeout(pending, "xBull");
   } catch (error) {
+    // The bridge's observables complete empty (RxJS EmptyError, "no elements
+    // in sequence") when the xBull window is closed before it answers.
+    if (error instanceof Error && (error.name === "EmptyError" || /no elements in sequence/i.test(error.message))) {
+      throw new Error("The xBull window was closed before it finished. Try again and complete the request there.");
+    }
     throw new Error(errorMessage(error, "xBull request was rejected."));
   } finally {
     bridge.closeConnections();
