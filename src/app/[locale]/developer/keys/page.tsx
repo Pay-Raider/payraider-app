@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader } from "@/components/layout/PageHeader";
+
 import { useEffect, useState, useCallback } from "react";
 import {
   Key,
@@ -148,25 +150,17 @@ export default function DeveloperKeysPage() {
 
   if (!isConnected) {
     return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
-          <div>
-            <div className="text-xs text-accent mb-2">
-              Developer // API Keys
-            </div>
-            <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
-              <Key className="w-8 h-8 text-accent" />
-              API Keys
-            </h2>
-          </div>
-        </div>
-        <div className="text-center py-20">
-          <Shield className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-foreground mb-2">
-            Connect Your Wallet
-          </h3>
-          <p className="text-muted-foreground">
-            Connect your Stellar wallet to manage API keys.
+      <div>
+        <PageHeader
+          eyebrow="Developers"
+          title="API keys"
+          description="Keys for calling the PayRaider API from your own backend."
+        />
+        <div className="rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center">
+          <Shield className="mx-auto mb-4 h-12 w-12 text-accent" aria-hidden="true" />
+          <h2 className="text-xl font-semibold text-foreground">Connect your wallet</h2>
+          <p className="mt-2 text-muted-foreground">
+            Keys belong to a Stellar account. Connect a wallet to create and manage them.
           </p>
         </div>
       </div>
@@ -174,28 +168,22 @@ export default function DeveloperKeysPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
-        <div>
-          <div className="text-xs text-accent mb-2">
-            Developer // API Keys
-          </div>
-          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
-            <Key className="w-8 h-8 text-accent" />
-            API Keys
-          </h2>
-        </div>
-        <p className="text-muted-foreground text-sm max-w-xl">
-          Manage API keys for programmatic access to the PayRaider API.
-        </p>
-        <button
-          onClick={() => setModal({ type: "create" })}
-          className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-xl hover:opacity-90 transition-opacity font-medium shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          Create Key
-        </button>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Developers"
+        title="API keys"
+        description="Keys for calling the PayRaider API from your own backend."
+        actions={
+          <button
+            type="button"
+            onClick={() => setModal({ type: "create" })}
+            className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:brightness-110"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Create key
+          </button>
+        }
+      />
 
       {error && (
         <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 flex items-center gap-3">
@@ -213,7 +201,7 @@ export default function DeveloperKeysPage() {
       )}
 
       {loading ? (
-        <div className="glass rounded-xl p-8 border border-border">
+        <div className="rounded-2xl bg-card p-8 border border-border">
           <div className="animate-pulse space-y-4">
             {[...Array(3)].map((_, i) => (
               <div
@@ -224,7 +212,7 @@ export default function DeveloperKeysPage() {
           </div>
         </div>
       ) : keys.length === 0 ? (
-        <div className="glass rounded-xl p-12 text-center border border-border">
+        <div className="rounded-2xl bg-card p-12 text-center border border-border">
           <Key className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
             No API Keys
@@ -242,7 +230,7 @@ export default function DeveloperKeysPage() {
           </button>
         </div>
       ) : (
-        <div className="glass rounded-xl border border-border overflow-hidden">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Activity, Share2, Info } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { DataUnavailable } from '@/components/ui/DataUnavailable';
 import type { GraphData } from '@/components/charts/NetworkGraph';
 
 // Lazy-load the force-graph canvas component — it pulls in react-force-graph-2d
@@ -41,89 +42,38 @@ export default function NetworkPage() {
     }, []);
 
     return (
-        <div className="min-h-screen p-8 lg:p-12">
-            {/* Header Area */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-accent/20 rounded-lg">
-                            <Share2 className="w-5 h-5 text-accent" />
-                        </div>
-                        <h1 className="text-4xl font-bold tracking-tight">Network Topology</h1>
-                    </div>
-                    <p className="text-muted-foreground text-sm max-w-xl">
-                        Visualize the complex relationships between Stellar anchors, issued assets, and payment corridors.
-                        Clusters represent strong liquidity hubs and operational dependencies.
-                    </p>
-                </div>
+        <div>
+            <PageHeader
+                eyebrow="Network data"
+                title="Network graph"
+                description="Anchors, the assets they issue and the corridors between them. Line thickness follows settled volume; colour follows success rate."
+                actions={
+                    data && (
+                        <span className="rounded-full border border-border bg-surface px-4 py-2 text-sm text-muted-foreground">
+                            {data.nodes.length} nodes · {data.links.length} links
+                        </span>
+                    )
+                }
+            />
 
-                <div className="flex items-center gap-4">
-                    <div className="glass px-6 py-4 rounded-2xl flex items-center gap-4 border border-white/5">
-                        <div className="text-right">
-                            <div className="text-xs font-medium text-muted-foreground">Global Graph</div>
-                            <div className="text-xl font-bold tabular-nums">
-                                {data ? `${data.nodes.length} Nodes` : '--'}
-                            </div>
-                        </div>
-                        <div className="w-px h-8 bg-white/10" />
-                        <div className="text-right">
-                            <div className="text-xs font-medium text-muted-foreground">Active Links</div>
-                            <div className="text-xl font-bold tabular-nums">
-                                {data ? `${data.links.length} Edges` : '--'}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="relative h-[calc(100vh-320px)] min-h-[500px]">
+            <div className="relative h-[calc(100vh-320px)] min-h-[480px] overflow-hidden rounded-2xl border border-border bg-card">
                 {loading ? (
-                    <div className="w-full h-full glass rounded-3xl flex flex-col items-center justify-center gap-4">
-                        <div className="w-12 h-12 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-                        <p className="text-sm font-medium text-muted-foreground animate-pulse">Calculating Graph Layout...</p>
+                    <div className="flex h-full flex-col items-center justify-center gap-4">
+                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
+                        <p className="text-sm text-muted-foreground">Laying out the graph…</p>
                     </div>
                 ) : error ? (
-                    <div className="w-full h-full glass rounded-3xl flex flex-col items-center justify-center gap-4 text-red-400">
-                        <Activity className="w-12 h-12" />
-                        <p className="font-medium">Telemetry Data Unavailable</p>
-                        <p className="text-sm text-muted-foreground">{error}</p>
+                    <div className="flex h-full items-center p-6">
+                        <DataUnavailable what="the network graph" onRetry={() => window.location.reload()} />
                     </div>
                 ) : data ? (
                     <NetworkGraph data={data} />
                 ) : null}
-
-                {/* Floating Info Card */}
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="p-6 glass border border-white/5 rounded-2xl">
-                        <div className="flex items-center gap-2 mb-4 text-accent">
-                            <Info className="w-4 h-4" />
-                            <h3 className="font-bold text-[10px] tracking-tight">Clusters</h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            Nodes that gravitate together represent a shared ecosystem. Larger nodes indicate high-volume anchors or assets with multiple active trustlines.
-                        </p>
-                    </div>
-                    <div className="p-6 glass border border-white/5 rounded-2xl">
-                        <div className="flex items-center gap-2 mb-4 text-amber-400">
-                            <Activity className="w-4 h-4" />
-                            <h3 className="font-bold text-[10px] tracking-tight">Corridors</h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            Lines between assets represent corridors. Thickness is proportional to USD liquidity depth, while color reflects recent payment success rates.
-                        </p>
-                    </div>
-                    <div className="p-6 glass border border-white/5 rounded-2xl">
-                        <div className="flex items-center gap-2 mb-4 text-green-400">
-                            <Share2 className="w-4 h-4" />
-                            <h3 className="font-bold text-[10px] tracking-tight">Navigation</h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            Drag nodes to reorganize the layout. Use the mouse wheel to zoom. Hover over any element to view detailed performance metrics.
-                        </p>
-                    </div>
-                </div>
             </div>
+
+            <p className="mt-4 text-sm text-muted-foreground">
+                Drag nodes to rearrange, scroll to zoom, and hover for details.
+            </p>
         </div>
     );
 }
