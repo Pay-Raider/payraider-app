@@ -3,7 +3,7 @@
 import React from "react";
 import { Link } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
-import { Home, TrendingUp, Anchor, BarChart3, Bookmark } from "lucide-react";
+import { Home, TrendingUp, Anchor, ShieldCheck, Bookmark } from "lucide-react";
 
 interface NavItem {
   name: string;
@@ -32,10 +32,10 @@ const navItems: NavItem[] = [
     id: "anchors",
   },
   {
-    name: "Analytics",
-    href: "/analytics",
-    icon: <BarChart3 className="w-5 h-5" />,
-    id: "analytics",
+    name: "Check",
+    href: "/prediction",
+    icon: <ShieldCheck className="w-5 h-5" />,
+    id: "check",
   },
   {
     name: "Saved",

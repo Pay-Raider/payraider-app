@@ -4,27 +4,15 @@ import React from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
-  BarChart3,
-  TrendingUp,
   Compass,
   Settings,
   Activity,
-  Bell,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   LayoutDashboard,
-  Waves,
-  Droplets,
-  Users,
-  Database,
-  Calculator,
   Key,
-  Trophy,
-  ScrollText,
   Share2,
-  Shield,
-  Gauge,
   X,
   Home,
   ShieldCheck,
@@ -40,52 +28,26 @@ import { BookmarksSidebarSection } from "@/components/BookmarksSidebarSection";
 const pinnedItems = [
   { key: "home", icon: Home, path: "/" },
   { key: "checkPayment", icon: ShieldCheck, path: "/prediction" },
+  { key: "corridors", icon: Compass, path: "/corridors" },
   { key: "anchors", icon: Anchor, path: "/anchors" },
   { key: "terminal", icon: LayoutDashboard, path: "/dashboard" },
 ];
 
-// Everything else is grouped into collapsible sections so the sidebar
-// doesn't read as one long undifferentiated list of 16+ links.
+// Only pages backed by live network data are listed. Pages inherited from
+// the Stellar Insights codebase that show sample data (trustlines, pools,
+// analytics, quests, governance, ...) still exist but are not linked until
+// they have real data behind them.
 const navGroups = [
   {
     key: "networkData",
     items: [
-      { key: "corridors", icon: Compass, path: "/corridors" },
-      { key: "network", icon: Share2, path: "/network" },
-      { key: "trustlines", icon: Users, path: "/trustlines" },
-      { key: "liquidity", icon: Waves, path: "/liquidity" },
-      { key: "pools", icon: Droplets, path: "/liquidity-pools" },
-    ],
-  },
-  {
-    key: "analytics",
-    items: [
-      { key: "analytics", icon: BarChart3, path: "/analytics" },
-      { key: "apiUsage", icon: Activity, path: "/analytics/api" },
-      { key: "failedPayments", icon: BarChart3, path: "/analytics/failed-payments" },
-      { key: "settlementDistribution", icon: Gauge, path: "/analytics/settlement-distribution" },
-      { key: "calculator", icon: Calculator, path: "/calculator" },
-      { key: "performance", icon: Gauge, path: "/performance" },
-    ],
-  },
-  {
-    key: "monitoring",
-    items: [
       { key: "networkHealth", icon: Activity, path: "/health" },
-      { key: "alerts", icon: Activity, path: "/alerts" },
-      { key: "corridorAlerts", icon: Bell, path: "/corridor-alerts" },
-      { key: "forecasting", icon: TrendingUp, path: "/corridors/forecasting" },
+      { key: "network", icon: Share2, path: "/network" },
     ],
   },
   {
     key: "developer",
-    items: [
-      { key: "apiKeys", icon: Key, path: "/developer/keys" },
-      { key: "governance", icon: ScrollText, path: "/governance" },
-      { key: "quests", icon: Trophy, path: "/quests" },
-      { key: "privacy", icon: Shield, path: "/settings/gdpr" },
-      { key: "sep6", icon: Database, path: "/sep6" },
-    ],
+    items: [{ key: "apiKeys", icon: Key, path: "/developer/keys" }],
   },
 ];
 

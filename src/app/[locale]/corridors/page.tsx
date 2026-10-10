@@ -40,9 +40,6 @@ function CorridorsPageContent() {
 
   const [filterState, setFilterState] = useState<AdvancedFilterState>({ query: "", filters: [] });
 
-  // Derive searchTerm from the filter state for backward compatibility
-  const searchTerm = filterState.query;
-  const setSearchTerm = (q: string) => setFilterState((prev) => ({ ...prev, query: q }));
 
   // The page filters/paginates client-side, so request one large page.
   const corridorQuery = useCorridors({
