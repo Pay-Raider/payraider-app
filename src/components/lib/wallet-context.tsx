@@ -5,7 +5,8 @@ import React from "react"
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { sep10AuthService } from '../../services/sep10Auth'
 import { logger } from "@/lib/logger"
-import { detectWallet, getWallet, isWalletId, WALLETS, type WalletId } from "@/lib/wallets"
+import { getWallet, isWalletId, type WalletId } from "@/lib/wallets"
+import { config } from "@/config"
 
 interface WalletContextType {
   isConnected: boolean
@@ -17,9 +18,13 @@ interface WalletContextType {
   authToken: string | null
   /**
    * Connect a wallet. Without an id (or when used directly as an onClick
-   * handler) the first installed extension wallet is used.
+   * handler) the wallet picker opens so the person chooses one.
    */
   connectWallet: (walletId?: WalletId | unknown) => Promise<void>
+  /** Whether the wallet picker in the header is open. */
+  isPickerOpen: boolean
+  openWalletPicker: () => void
+  closeWalletPicker: () => void
   disconnectWallet: () => void
   authenticateWithSep10: () => Promise<void>
   logout: () => Promise<void>
@@ -41,6 +46,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [isConnecting, setIsConnecting] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authToken, setAuthToken] = useState<string | null>(null)
+  const [isPickerOpen, setPickerOpen] = useState(false)
+  const openWalletPicker = useCallback(() => setPickerOpen(true), [])
+  const closeWalletPicker = useCallback(() => setPickerOpen(false), [])
 
   // Check if wallet is already connected and authenticated on mount
   useEffect(() => {
@@ -66,6 +74,24 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
           if (now < expiryTime) {
             setAuthToken(savedToken)
             setIsAuthenticated(true)
+            // The backend may have ended the session (logout elsewhere, or a
+            // restart when it keeps sessions in memory). Check, and sign out
+            // locally if it is gone rather than failing every request.
+            fetch(`${config.apiUrl}/api/sep10/session`, {
+              headers: { Authorization: `Bearer ${savedToken}` },
+            })
+              .then((res) => {
+                if (res.status === 401) {
+                  localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+                  localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY)
+                  setAuthToken(null)
+                  setIsAuthenticated(false)
+                }
+              })
+              .catch(() => {
+                // Offline or backend asleep: keep the token and let the next
+                // authenticated request decide.
+              })
           } else {
             // Token expired, clear it
             localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
@@ -81,21 +107,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const connectWallet = useCallback(async (requested?: WalletId | unknown) => {
+    // Buttons outside the header ("Connect wallet" on the home page, demos)
+    // call this without a wallet: let the person pick one.
+    if (!isWalletId(requested)) {
+      setPickerOpen(true)
+      return
+    }
     setIsConnecting(true)
     try {
-      const wallet = isWalletId(requested) ? getWallet(requested) : await detectWallet()
-      if (!wallet) {
-        throw new Error(
-          `No Stellar wallet found. Install ${WALLETS.map(w => w.name).join(', ')} or choose xBull to use its web wallet.`
-        )
-      }
-
+      const wallet = getWallet(requested)
       const publicKey = await wallet.connect()
       setAddress(publicKey)
       setWalletId(wallet.id)
       setIsConnected(true)
       localStorage.setItem(STORAGE_KEYS.ADDRESS, publicKey)
       localStorage.setItem(STORAGE_KEYS.WALLET, wallet.id)
+      setPickerOpen(false)
     } catch (error) {
       logger.error('Error connecting wallet:', error)
       throw error
@@ -169,6 +196,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated,
         authToken,
         connectWallet,
+        isPickerOpen,
+        openWalletPicker,
+        closeWalletPicker,
         disconnectWallet,
         authenticateWithSep10,
         logout,

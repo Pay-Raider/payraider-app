@@ -36,9 +36,7 @@ export function AppHeader({ onMobileMenuOpen }: { onMobileMenuOpen: () => void }
           <NetworkSwitcher className="hidden lg:block" />
           <ThemeToggle />
           <NotificationBell />
-          <div className="hidden sm:block">
-            <WalletButton />
-          </div>
+          <WalletButton />
         </div>
       </div>
     </header>

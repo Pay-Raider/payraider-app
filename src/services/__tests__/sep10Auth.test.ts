@@ -2,7 +2,10 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { signMessage } from '@stellar/freighter-api';
 import { Sep10AuthService } from '../sep10Auth';
 
-vi.mock('@stellar/freighter-api', () => ({ signMessage: vi.fn() }));
+vi.mock('@stellar/freighter-api', () => ({
+  signMessage: vi.fn(),
+  isConnected: vi.fn().mockResolvedValue({ isConnected: true }),
+}));
 
 const CLIENT = 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN';
 const PASSPHRASE = 'Test SDF Network ; September 2015';

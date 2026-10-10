@@ -57,6 +57,44 @@ function checkSigner(signer: string | undefined, expected: string) {
   }
 }
 
+/** Thrown when the chosen wallet is not installed in this browser. */
+export class WalletNotInstalledError extends Error {
+  constructor(readonly wallet: { name: string; url: string }) {
+    super(`${wallet.name} isn't installed in this browser.`);
+    this.name = "WalletNotInstalledError";
+  }
+}
+
+/**
+ * How long to wait for the person to approve in their wallet. The wallet
+ * libraries wait forever when the extension never answers (it is missing,
+ * locked in a broken state, or its popup was blocked), which left the
+ * button stuck on "Connecting…" until the page was reloaded.
+ */
+export const WALLET_TIMEOUT_MS = 120_000;
+
+function withTimeout<T>(promise: Promise<T>, walletName: string, ms = WALLET_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`${walletName} did not respond. Open ${walletName}, check it is unlocked, and try again.`)),
+      ms,
+    );
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+/** Extension wallets answer "are you there?" within about two seconds. */
+async function requireInstalled(wallet: { name: string; url: string; isAvailable(): Promise<boolean> }) {
+  let installed = false;
+  try {
+    installed = await wallet.isAvailable();
+  } catch {
+    installed = false;
+  }
+  if (!installed) throw new WalletNotInstalledError(wallet);
+}
+
 function errorMessage(error: unknown, fallback: string): string {
   if (error && typeof error === "object" && "message" in error) {
     const message = (error as { message?: unknown }).message;
@@ -75,16 +113,18 @@ const freighter: WalletAdapter = {
     return Boolean(result.isConnected);
   },
   async connect() {
+    await requireInstalled(freighter);
     const api = await import("@stellar/freighter-api");
-    const result = await api.requestAccess();
+    const result = await withTimeout(api.requestAccess(), "Freighter");
     if (result.error || !result.address) {
       throw new Error(errorMessage(result.error, "Freighter did not share an account."));
     }
     return result.address;
   },
   async signMessage(message, opts) {
+    await requireInstalled(freighter);
     const api = await import("@stellar/freighter-api");
-    const result = await api.signMessage(message, opts);
+    const result = await withTimeout(api.signMessage(message, opts), "Freighter");
     if (result.error || !result.signedMessage) {
       throw new Error(errorMessage(result.error, "Freighter did not sign the message."));
     }
@@ -92,8 +132,9 @@ const freighter: WalletAdapter = {
     return toBase64Signature(result.signedMessage);
   },
   async signTransaction(xdr, opts) {
+    await requireInstalled(freighter);
     const api = await import("@stellar/freighter-api");
-    const result = await api.signTransaction(xdr, opts);
+    const result = await withTimeout(api.signTransaction(xdr, opts), "Freighter");
     if (result.error || !result.signedTxXdr) {
       throw new Error(errorMessage(result.error, "Freighter did not sign the transaction."));
     }
@@ -109,7 +150,17 @@ async function withXBull<T>(
   const { xBullWalletConnect } = await import("@creit.tech/xbull-wallet-connect");
   const bridge = new xBullWalletConnect();
   try {
-    return await run(bridge);
+    const pending = run(bridge);
+    // Without the xBull extension the bridge opens xBull's web wallet with
+    // window.open as soon as the request starts. If the browser blocked that
+    // popup it has no window to wait on and would never settle.
+    const hasExtension = typeof window !== "undefined" && "xBullSDK" in window;
+    const popup = (bridge as unknown as { target?: Window | null }).target;
+    if (!hasExtension && !popup) {
+      pending.catch(() => undefined);
+      throw new Error("Your browser blocked the xBull window. Allow pop-ups for this site and try again.");
+    }
+    return await withTimeout(pending, "xBull");
   } catch (error) {
     throw new Error(errorMessage(error, "xBull request was rejected."));
   } finally {
@@ -150,8 +201,9 @@ const lobstr: WalletAdapter = {
     return api.isConnected();
   },
   async connect() {
+    await requireInstalled(lobstr);
     const api = await import("@lobstrco/signer-extension-api");
-    const address = await api.getPublicKey();
+    const address = await withTimeout(api.getPublicKey(), "LOBSTR");
     if (!address) {
       throw new Error("LOBSTR did not share an account. Open the extension and try again.");
     }
@@ -160,8 +212,9 @@ const lobstr: WalletAdapter = {
   // LOBSTR signs with whichever account is active; checkSigner catches a
   // mismatch with the connected one.
   async signMessage(message, opts) {
+    await requireInstalled(lobstr);
     const api = await import("@lobstrco/signer-extension-api");
-    const result = await api.signMessage(message);
+    const result = await withTimeout(api.signMessage(message), "LOBSTR");
     if (!result?.signedMessage) {
       throw new Error("LOBSTR did not sign the message.");
     }
@@ -169,8 +222,9 @@ const lobstr: WalletAdapter = {
     return toBase64Signature(result.signedMessage);
   },
   async signTransaction(xdr) {
+    await requireInstalled(lobstr);
     const api = await import("@lobstrco/signer-extension-api");
-    const signed = await api.signTransaction(xdr);
+    const signed = await withTimeout(api.signTransaction(xdr), "LOBSTR");
     if (!signed) {
       throw new Error("LOBSTR did not sign the transaction.");
     }
@@ -203,4 +257,15 @@ export async function detectWallet(): Promise<WalletAdapter | null> {
     }
   }
   return null;
+}
+
+/**
+ * Load the wallet libraries ahead of a click (call when the picker opens).
+ * xBull opens its popup from the click handler; having its code loaded
+ * already keeps that inside the browser's window for user-initiated popups.
+ */
+export function preloadWallets(): void {
+  void import("@stellar/freighter-api").catch(() => undefined);
+  void import("@creit.tech/xbull-wallet-connect").catch(() => undefined);
+  void import("@lobstrco/signer-extension-api").catch(() => undefined);
 }

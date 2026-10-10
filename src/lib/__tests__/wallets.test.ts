@@ -2,7 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as freighter from '@stellar/freighter-api';
 import * as lobstr from '@lobstrco/signer-extension-api';
-import { detectWallet, getWallet, isWalletId, toBase64Signature, WALLETS } from '@/lib/wallets';
+import {
+  detectWallet,
+  getWallet,
+  isWalletId,
+  toBase64Signature,
+  WALLET_TIMEOUT_MS,
+  WalletNotInstalledError,
+  WALLETS,
+} from '@/lib/wallets';
 
 vi.mock('@stellar/freighter-api', () => ({
   isConnected: vi.fn(),
@@ -18,7 +26,14 @@ vi.mock('@lobstrco/signer-extension-api', () => ({
   signTransaction: vi.fn(),
 }));
 
-const xbullBridge = {
+const xbullBridge: Record<string, unknown> & {
+  connect: ReturnType<typeof vi.fn>;
+  sign: ReturnType<typeof vi.fn>;
+  signMessage: ReturnType<typeof vi.fn>;
+  closeConnections: ReturnType<typeof vi.fn>;
+} = {
+  // The real bridge sets `target` to the popup it opened.
+  target: {},
   connect: vi.fn(),
   sign: vi.fn(),
   signMessage: vi.fn(),
@@ -79,7 +94,29 @@ describe('detectWallet', () => {
 });
 
 describe('Freighter', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(freighter.isConnected).mockResolvedValue({ isConnected: true });
+  });
+
+  it('says so when the extension is not installed, instead of waiting forever', async () => {
+    vi.mocked(freighter.isConnected).mockResolvedValue({ isConnected: false });
+    await expect(getWallet('freighter').connect()).rejects.toBeInstanceOf(WalletNotInstalledError);
+    expect(freighter.requestAccess).not.toHaveBeenCalled();
+  });
+
+  it('gives up when the extension never answers', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.mocked(freighter.requestAccess).mockReturnValue(new Promise(() => {}));
+      const result = getWallet('freighter').connect();
+      const assertion = expect(result).rejects.toThrow('did not respond');
+      await vi.advanceTimersByTimeAsync(WALLET_TIMEOUT_MS + 1);
+      await assertion;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it('connects through requestAccess', async () => {
     vi.mocked(freighter.requestAccess).mockResolvedValue({ address: ACCOUNT });
@@ -105,7 +142,17 @@ describe('Freighter', () => {
 });
 
 describe('xBull', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    xbullBridge.target = {};
+  });
+
+  it('reports a blocked popup instead of waiting forever', async () => {
+    xbullBridge.target = null;
+    xbullBridge.connect.mockReturnValue(new Promise(() => {}));
+    await expect(getWallet('xbull').connect()).rejects.toThrow('blocked the xBull window');
+    expect(xbullBridge.closeConnections).toHaveBeenCalled();
+  });
 
   it('signs a message and closes the bridge', async () => {
     xbullBridge.signMessage.mockResolvedValue({ signedMessage: 'c2ln', signerAddress: ACCOUNT });
@@ -134,7 +181,15 @@ describe('xBull', () => {
 });
 
 describe('LOBSTR', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(lobstr.isConnected).mockResolvedValue(true);
+  });
+
+  it('says so when the extension is not installed', async () => {
+    vi.mocked(lobstr.isConnected).mockResolvedValue(false);
+    await expect(getWallet('lobstr').connect()).rejects.toThrow("LOBSTR isn't installed");
+  });
 
   it('requires an account to connect', async () => {
     vi.mocked(lobstr.getPublicKey).mockResolvedValue('');
