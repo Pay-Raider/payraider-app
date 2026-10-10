@@ -1,261 +1,125 @@
 "use client";
 
 import {
-  LineChart,
-  Line,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
 } from "recharts";
-import {
-  SuccessRateDataPoint,
-  LatencyDataPoint,
-  LiquidityDataPoint,
-  VolumeDataPoint,
-  SlippageDataPoint,
-} from "@/lib/api/types";
+import type { LiquidityDataPoint, SuccessRateDataPoint } from "@/lib/api/types";
+import { getTooltipContentStyle, getTooltipLabelStyle } from "@/lib/chart-utils";
 
-interface SuccessRateChartProps {
-  data: SuccessRateDataPoint[];
+/** "2026-10-10T13:00:00Z" -> "13:00" in the viewer's time zone. */
+function hourLabel(timestamp: string) {
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime())
+    ? timestamp
+    : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-export function SuccessRateChart({ data }: SuccessRateChartProps) {
+function ChartCard({
+  title,
+  description,
+  empty,
+  children,
+}: {
+  title: string;
+  description: string;
+  empty: string | null;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900">
-        Historical Success Rate (30 days)
-      </h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="timestamp"
-            tick={{ fontSize: 12 }}
-            interval={Math.floor(data.length / 6)}
-          />
-          <YAxis
-            label={{
-              value: "Success Rate (%)",
-              angle: -90,
-              position: "insideLeft",
-            }}
-            domain={[0, 100]}
-          />
-          <Tooltip
-            formatter={(value, _name, _props) => {
-              if (typeof value === "number") {
-                return `${value.toFixed(2)}%`;
-              }
-              return value;
-            }}
-            labelFormatter={(label, _payload) => `Date: ${label}`}
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="success_rate"
-            stroke="#c27a42"
-            dot={false}
-            strokeWidth={2}
-            name="Success Rate %"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+    <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
+      <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      {empty ? (
+        <div className="mt-5 flex h-56 items-center justify-center rounded-xl border border-dashed border-border text-center text-sm text-muted-foreground">
+          <p className="max-w-xs">{empty}</p>
+        </div>
+      ) : (
+        // Series colours come from currentColor so they follow the theme.
+        <div className="mt-5 h-56 text-accent">{children}</div>
+      )}
+    </section>
   );
 }
 
-interface LatencyDistributionChartProps {
-  data: LatencyDataPoint[];
-}
+const axis = { fontSize: 12, fill: "var(--muted-foreground)" };
 
-export function LatencyDistributionChart({
-  data,
-}: LatencyDistributionChartProps) {
-  const chartData = data.map((item) => ({
-    ...item,
-    label: `${item.latency_bucket_ms}ms`,
-  }));
-
+export function SuccessRateChart({ data }: { data: SuccessRateDataPoint[] }) {
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900">
-        Latency Distribution
-      </h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-          <YAxis
-            label={{
-              value: "Payment Count",
-              angle: -90,
-              position: "insideLeft",
-            }}
-          />
+    <ChartCard
+      title="Success rate by hour"
+      description="Share of payments through this corridor that settled, each hour over the last 24 hours."
+      empty={data.length === 0 ? "No payments through this corridor in the last 24 hours." : null}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+          <defs>
+            <linearGradient id="successFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="timestamp" tickFormatter={hourLabel} tick={axis} tickLine={false} axisLine={false} minTickGap={24} />
+          <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={axis} tickLine={false} axisLine={false} />
           <Tooltip
-            formatter={(value, _name, _props) => {
-              if (typeof value === "number") {
-                return value.toLocaleString();
-              }
-              return value;
-            }}
+            contentStyle={getTooltipContentStyle()}
+            labelStyle={getTooltipLabelStyle()}
+            labelFormatter={(label) => hourLabel(String(label))}
+            formatter={(value, _name, item) => [
+              `${Number(value).toFixed(1)}% of ${(item.payload as SuccessRateDataPoint).attempts}`,
+              "Settled",
+            ]}
           />
-          <Legend />
-          <Bar dataKey="count" fill="#10b981" name="Count" />
-        </BarChart>
+          <Area type="monotone" dataKey="success_rate" stroke="currentColor" strokeWidth={2} fill="url(#successFill)" />
+        </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </ChartCard>
   );
 }
 
-interface LiquidityTrendChartProps {
-  data: LiquidityDataPoint[];
-}
-
-export function LiquidityTrendChart({ data }: LiquidityTrendChartProps) {
+export function VolumeByHourChart({ data }: { data: LiquidityDataPoint[] }) {
+  const usd = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900">
-        Liquidity Trends (30 days)
-      </h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="timestamp"
-            tick={{ fontSize: 12 }}
-            interval={Math.floor(data.length / 6)}
-          />
-          <YAxis yAxisId="left" />
-          <YAxis yAxisId="right" orientation="right" />
+    <ChartCard
+      title="Settled volume by hour"
+      description="Dollar value of payments that settled through this corridor, each hour."
+      empty={
+        data.length === 0
+          ? "No dollar price is available for the source asset, so its volume can't be shown in USD."
+          : null
+      }
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
+          <defs>
+            <linearGradient id="volumeFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="timestamp" tickFormatter={hourLabel} tick={axis} tickLine={false} axisLine={false} minTickGap={24} />
+          <YAxis tickFormatter={(v) => usd.format(v)} tick={axis} tickLine={false} axisLine={false} />
           <Tooltip
-            formatter={(value, _name, _props) => {
-              if (typeof value === "number") {
-                return `$${(value / 1000000).toFixed(2)}M`;
-              }
-              return value;
-            }}
-            labelFormatter={(label, _payload) => `Date: ${label}`}
+            contentStyle={getTooltipContentStyle()}
+            labelStyle={getTooltipLabelStyle()}
+            labelFormatter={(label) => hourLabel(String(label))}
+            formatter={(value) => [usd.format(Number(value)), "Settled"]}
           />
-          <Legend />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="liquidity_usd"
-            stroke="#b8905c"
-            dot={false}
-            strokeWidth={2}
-            name="Liquidity Depth"
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="volume_24h_usd"
-            stroke="#f59e0b"
-            dot={false}
-            strokeWidth={2}
-            name="24h Volume"
-          />
-        </LineChart>
+          <Area type="monotone" dataKey="volume_24h_usd" stroke="currentColor" strokeWidth={2} fill="url(#volumeFill)" />
+        </AreaChart>
       </ResponsiveContainer>
-    </div>
-  );
-}
-
-interface VolumeTrendChartProps {
-  data: VolumeDataPoint[];
-}
-
-export function VolumeTrendChart({ data }: VolumeTrendChartProps) {
-  return (
-    <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-        24h Volume Trends (30 days)
-      </h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="timestamp"
-            tick={{ fontSize: 12 }}
-            interval={Math.floor(data.length / 6)}
-          />
-          <YAxis
-            label={{ value: "Volume ($)", angle: -90, position: "insideLeft" }}
-            tickFormatter={(value: unknown) => {
-              const n = Number(value || 0);
-              return `$${(n / 1000).toFixed(0)}k`;
-            }}
-          />
-          <Tooltip
-            formatter={(value, _name, _props) => {
-              if (typeof value === "number") {
-                return `$${value.toLocaleString()}`;
-              }
-              return value;
-            }}
-            labelFormatter={(label, _payload) => `Date: ${label}`}
-          />
-          <Legend />
-          <Bar dataKey="volume_usd" fill="#f59e0b" name="24h Volume" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-interface SlippageTrendChartProps {
-  data: SlippageDataPoint[];
-}
-
-export function SlippageTrendChart({ data }: SlippageTrendChartProps) {
-  return (
-    <div className="w-full h-full bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-        Average Slippage (30 days)
-      </h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="timestamp"
-            tick={{ fontSize: 12 }}
-            interval={Math.floor(data.length / 6)}
-          />
-          <YAxis
-            label={{
-              value: "Slippage (bps)",
-              angle: -90,
-              position: "insideLeft",
-            }}
-            domain={["auto", "auto"]}
-          />
-          <Tooltip
-            formatter={(value, _name, _props) => {
-              if (typeof value === "number") {
-                return `${value.toFixed(2)} bps`;
-              }
-              return value;
-            }}
-            labelFormatter={(label, _payload) => `Date: ${label}`}
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="average_slippage_bps"
-            stroke="#ef4444"
-            dot={false}
-            strokeWidth={2}
-            name="Slippage (bps)"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+    </ChartCard>
   );
 }

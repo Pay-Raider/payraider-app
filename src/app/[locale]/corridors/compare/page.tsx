@@ -1,297 +1,199 @@
 "use client";
 
-import { useMemo, useState, Suspense } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
-import {
-  ArrowLeft,
-  Share2,
-  BarChart3,
-  Check,
-  Download,
-  Plus,
-  X,
-} from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { MainLayout } from "@/components/layout";
-import {
-  CorridorDetailData,
-  generateMockCorridorData,
-} from "@/lib/api/corridors";
-import { useCorridorDetails } from "@/lib/react-query/queries";
-import {
-  SuccessRateCompareChart,
-  VolumeCompareChart,
-  SlippageCompareChart,
-} from "@/components/corridors/CorridorCompareCharts";
-import {
-  CorridorCompareCards,
-  BestTimeToTransact,
-} from "@/components/corridors/CorridorCompareCards";
-import { CorridorComparisonTable } from "@/components/CorridorComparisonTable";
+import { Check, Download, Share2, X } from "lucide-react";
+import { Link, useRouter } from "@/i18n/navigation";
+import type { CorridorMetrics } from "@/lib/api/corridors";
+import { useCorridorDetails, useCorridors } from "@/lib/react-query/queries";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataUnavailable } from "@/components/ui/DataUnavailable";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+const MAX = 4;
+
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  notation: "compact",
+  maximumFractionDigits: 2,
+});
+
+const ROWS: { label: string; value: (c: CorridorMetrics) => number; format: (n: number) => string }[] = [
+  { label: "Health score", value: (c) => c.health_score, format: (n) => n.toFixed(0) },
+  { label: "Success rate", value: (c) => c.success_rate, format: (n) => `${n.toFixed(1)}%` },
+  { label: "Payments seen", value: (c) => c.total_attempts, format: (n) => n.toLocaleString() },
+  { label: "Failed", value: (c) => -c.failed_payments, format: (n) => (-n).toLocaleString() },
+  { label: "Settled volume (24h)", value: (c) => c.liquidity_depth_usd, format: (n) => (n > 0 ? usd.format(n) : "Unpriced") },
+];
+
+function label(c: Pick<CorridorMetrics, "source_asset" | "destination_asset">) {
+  return `${c.source_asset} → ${c.destination_asset}`;
+}
 
 function ComparisonContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const idsString = searchParams.get("ids") || "";
-  const [selectedIds, setSelectedIds] = useState<string[]>(
-    idsString ? idsString.split(",").filter(Boolean) : [],
+  const selectedIds = useMemo(
+    () => (searchParams.get("ids") || "").split(",").filter(Boolean).slice(0, MAX),
+    [searchParams],
   );
   const [copied, setCopied] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newCorridorId, setNewCorridorId] = useState("");
 
-  // Each corridor is cached individually, so adding one only fetches the new id.
-  const { data: details, isPending: loading } = useCorridorDetails(selectedIds);
-  const corridorData: CorridorDetailData[] = useMemo(
-    () =>
-      // Fall back to demo data for corridors the backend can't serve.
-      details.map((d, i) => d ?? generateMockCorridorData(selectedIds[i])),
-    [details, selectedIds],
-  );
+  const list = useCorridors({ sort_by: "health_score", limit: 200 });
+  const { data: details, isPending } = useCorridorDetails(selectedIds);
+  const corridors = details.filter(Boolean).map((d) => d!.corridor);
+  const missing = selectedIds.filter((id, i) => !isPending && !details[i]);
 
-  const handleShare = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
+  const setIds = (ids: string[]) =>
+    router.push(ids.length ? `/corridors/compare?ids=${ids.join(",")}` : "/corridors/compare");
+
+  const exportCsv = () => {
+    const header = ["Corridor", ...ROWS.map((r) => r.label)];
+    const lines = corridors.map((c) => [label(c), ...ROWS.map((r) => r.format(r.value(c)))]);
+    const csv = [header, ...lines].map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `corridor-comparison-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const share = () => {
+    navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleExportCSV = () => {
-    if (corridorData.length === 0) return;
-
-    // Create CSV content
-    const headers = [
-      "Corridor",
-      "Success Rate (%)",
-      "Health Score",
-      "Avg Latency (ms)",
-      "Liquidity Depth (USD)",
-      "24h Volume (USD)",
-      "Avg Slippage (bps)",
-      "Total Attempts",
-      "Successful",
-      "Failed",
-    ];
-
-    const rows = corridorData.map((d) => [
-      `${d.corridor.source_asset}-${d.corridor.destination_asset}`,
-      d.corridor.success_rate.toFixed(2),
-      d.corridor.health_score.toFixed(1),
-      d.corridor.average_latency_ms.toFixed(0),
-      d.corridor.liquidity_depth_usd.toFixed(2),
-      d.corridor.liquidity_volume_24h_usd.toFixed(2),
-      d.corridor.average_slippage_bps.toFixed(2),
-      d.corridor.total_attempts,
-      d.corridor.successful_payments,
-      d.corridor.failed_payments,
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row) => row.join(",")),
-    ].join("\n");
-
-    // Download CSV
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `corridor-comparison-${new Date().toISOString().split("T")[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleAddCorridor = () => {
-    if (!newCorridorId.trim()) return;
-    if (selectedIds.includes(newCorridorId.trim())) {
-      alert("This corridor is already in the comparison");
-      return;
-    }
-    if (selectedIds.length >= 4) {
-      alert("Maximum 4 corridors can be compared at once");
-      return;
-    }
-
-    const newIds = [...selectedIds, newCorridorId.trim()];
-    setSelectedIds(newIds);
-    router.push(`/corridors/compare?ids=${newIds.join(",")}`);
-    setNewCorridorId("");
-    setShowAddModal(false);
-  };
-
-  const handleRemoveCorridor = (idToRemove: string) => {
-    const newIds = selectedIds.filter((id) => id !== idToRemove);
-    setSelectedIds(newIds);
-    if (newIds.length > 0) {
-      router.push(`/corridors/compare?ids=${newIds.join(",")}`);
-    } else {
-      router.push("/corridors/compare");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-        <p className="text-gray-500 dark:text-gray-400">
-          Comparing corridors...
-        </p>
-      </div>
-    );
-  }
-
-  if (selectedIds.length === 0) {
-    return (
-      <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-dashed border-gray-300 dark:border-slate-700">
-        <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-          No Corridors Selected
-        </h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-6 px-4">
-          Select up to 3 corridors from the listing page to compare them
-          side-by-side.
-        </p>
-        <Link
-          href="/corridors"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-        >
-          Browse Corridors
-        </Link>
-      </div>
-    );
-  }
+  const options = (list.data?.data ?? []).filter((c) => !selectedIds.includes(c.id));
+  const button =
+    "inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[var(--sidebar-hover-bg)] disabled:opacity-50";
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/corridors"
-            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors text-gray-500"
+    <div>
+      <PageHeader
+        eyebrow="Corridors"
+        title="Compare corridors"
+        description={`Put up to ${MAX} corridors side by side, measured over the same 24 hours of mainnet payments.`}
+        actions={
+          corridors.length > 0 && (
+            <>
+              <button type="button" onClick={exportCsv} className={button}>
+                <Download className="h-4 w-4" aria-hidden="true" />
+                CSV
+              </button>
+              <button type="button" onClick={share} className={button}>
+                {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Share2 className="h-4 w-4" aria-hidden="true" />}
+                {copied ? "Link copied" : "Share"}
+              </button>
+            </>
+          )
+        }
+      />
+
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        {selectedIds.map((id) => {
+          const c = corridors.find((x) => x.id === id);
+          return (
+            <span key={id} className="inline-flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-3 pr-1 text-sm text-foreground">
+              {c ? label(c) : id.split("->").map((a) => a.split(":")[0]).join(" → ")}
+              <button
+                type="button"
+                onClick={() => setIds(selectedIds.filter((x) => x !== id))}
+                aria-label={`Remove ${id}`}
+                className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </span>
+          );
+        })}
+        {selectedIds.length < MAX && (
+          <select
+            aria-label="Add a corridor"
+            value=""
+            disabled={!list.data}
+            onChange={(e) => e.target.value && setIds([...selectedIds, e.target.value])}
+            className="cursor-pointer rounded-full border border-dashed border-border bg-transparent px-3 py-1.5 text-sm text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              Corridor Comparison
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
-                {selectedIds.length} Selected
-              </span>
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Compare up to 4 corridors side-by-side
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {selectedIds.length < 4 && (
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-4 py-2 rounded-lg font-semibold text-gray-700 dark:text-gray-200 hover:border-blue-500 transition-all shadow-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Add Corridor
-            </button>
-          )}
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-4 py-2 rounded-lg font-semibold text-gray-700 dark:text-gray-200 hover:border-green-500 transition-all shadow-sm"
-          >
-            <Download className="w-4 h-4 text-green-500" />
-            Export CSV
-          </button>
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-4 py-2 rounded-lg font-semibold text-gray-700 dark:text-gray-200 hover:border-blue-500 transition-all shadow-sm"
-          >
-            {copied ? (
-              <Check className="w-4 h-4 text-green-500" />
-            ) : (
-              <Share2 className="w-4 h-4 text-blue-500" />
-            )}
-            {copied ? "Copied!" : "Share"}
-          </button>
-        </div>
+            <option value="">{list.data ? "+ Add a corridor" : "Loading corridors…"}</option>
+            {options.map((c) => (
+              <option key={c.id} value={c.id}>
+                {label(c)} · {c.total_attempts} payments
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
-      {/* Selected Corridors Pills */}
-      {selectedIds.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {selectedIds.map((id) => (
-            <div
-              key={id}
-              className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 px-3 py-1 rounded-full text-sm"
-            >
-              <span className="font-medium text-blue-700 dark:text-blue-300">
-                {id}
-              </span>
-              <button
-                onClick={() => handleRemoveCorridor(id)}
-                className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-400"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+      {selectedIds.length === 0 ? (
+        list.isError ? (
+          <DataUnavailable what="corridors" onRetry={() => list.refetch()} retrying={list.isFetching} />
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center">
+            <h2 className="text-xl font-semibold text-foreground">Pick corridors to compare</h2>
+            <p className="mt-2 text-muted-foreground">
+              Use “Add a corridor” above, or browse the{" "}
+              <Link href="/corridors" className="font-medium text-accent hover:underline">
+                corridor list
+              </Link>
+              .
+            </p>
+          </div>
+        )
+      ) : isPending ? (
+        <Skeleton className="h-72 w-full rounded-2xl" />
+      ) : corridors.length === 0 ? (
+        <DataUnavailable what="these corridors" />
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+          <table className="w-full min-w-[540px] text-sm">
+            <thead className="border-b border-border bg-surface">
+              <tr>
+                <th scope="col" className="px-4 py-3 text-left font-medium text-muted-foreground">
+                  Metric
+                </th>
+                {corridors.map((c) => (
+                  <th key={c.id} scope="col" className="px-4 py-3 text-left font-semibold text-foreground">
+                    <Link href={`/corridors/${c.id}`} className="hover:text-accent">
+                      {label(c)}
+                    </Link>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {ROWS.map((row) => {
+                const best = corridors.length > 1 ? Math.max(...corridors.map(row.value)) : null;
+                return (
+                  <tr key={row.label}>
+                    <th scope="row" className="px-4 py-3 text-left font-normal text-muted-foreground">
+                      {row.label}
+                    </th>
+                    {corridors.map((c) => {
+                      const v = row.value(c);
+                      return (
+                        <td
+                          key={c.id}
+                          className={`px-4 py-3 tabular-nums ${v === best ? "font-semibold text-success" : "text-foreground"}`}
+                        >
+                          {row.format(v)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {/* Metrics Cards */}
-      <CorridorCompareCards corridors={corridorData.map((d) => d.corridor)} />
-
-      {/* Comparison Table */}
-      <CorridorComparisonTable
-        corridors={corridorData.map((d) => d.corridor)}
-        onExport={handleExportCSV}
-      />
-
-      {/* Recommendations */}
-      <BestTimeToTransact corridors={corridorData.map((d) => d.corridor)} />
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-8">
-        <SuccessRateCompareChart corridors={corridorData} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <VolumeCompareChart corridors={corridorData} />
-          <SlippageCompareChart corridors={corridorData} />
-        </div>
-      </div>
-
-      {/* Add Corridor Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Add Corridor to Comparison
-            </h3>
-            <input
-              type="text"
-              value={newCorridorId}
-              onChange={(e) => setNewCorridorId(e.target.value)}
-              placeholder="Enter corridor ID (e.g., USDC-XLM)"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white mb-4"
-              onKeyPress={(e) => e.key === "Enter" && handleAddCorridor()}
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddCorridor}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        </div>
+      {missing.length > 0 && (
+        <p className="mt-4 text-sm text-warning">
+          No payments seen in the last 24 hours for: {missing.join(", ")}
+        </p>
       )}
     </div>
   );
@@ -299,18 +201,8 @@ function ComparisonContent() {
 
 export default function ComparePage() {
   return (
-    <MainLayout>
-      <div>
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            </div>
-          }
-        >
-          <ComparisonContent />
-        </Suspense>
-      </div>
-    </MainLayout>
+    <Suspense fallback={<Skeleton className="h-72 w-full rounded-2xl" />}>
+      <ComparisonContent />
+    </Suspense>
   );
 }

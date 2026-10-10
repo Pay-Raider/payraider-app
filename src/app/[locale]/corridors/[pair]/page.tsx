@@ -1,405 +1,193 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import {
-  TrendingUp,
-  TrendingDown,
-  Zap,
-  Droplets,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  BarChart3,
-  ChevronRight,
-  Home,
-} from "lucide-react";
-import {
-  generateMockCorridorData,
-  CorridorMetrics,
-} from "@/lib/api/corridors";
+import { AlertTriangle, ArrowRight, ShieldCheck } from "lucide-react";
+import type { CorridorMetrics } from "@/lib/api/corridors";
 import { useCorridorDetail, useRealtimeCacheSync } from "@/lib/react-query/queries";
-import { logger } from "@/lib/logger";
-import {
-  SuccessRateChart,
-  LatencyDistributionChart,
-  LiquidityTrendChart,
-  VolumeTrendChart,
-  SlippageTrendChart,
-} from "@/components/corridor-charts";
-import { MainLayout } from "@/components/layout";
-import { WebSocketStatus } from "@/components/WebSocketStatus";
+import { SuccessRateChart, VolumeByHourChart } from "@/components/corridor-charts";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataUnavailable } from "@/components/ui/DataUnavailable";
 import { useRealtimeCorridors } from "@/hooks/useRealtimeCorridors";
 import { Link } from "@/i18n/navigation";
-import { Skeleton, SkeletonText, SkeletonCard } from "@/components/ui/Skeleton";
+import { Skeleton, SkeletonCard } from "@/components/ui/Skeleton";
 import { BackButton } from "@/components/ui/BackButton";
+
+const usd = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  notation: "compact",
+  maximumFractionDigits: 2,
+});
+
+function healthTone(score: number) {
+  if (score >= 80) return { text: "text-success", label: "Healthy" };
+  if (score >= 50) return { text: "text-warning", label: "Caution" };
+  return { text: "text-error", label: "Poor" };
+}
+
+/** "USDC:GA5Z…KZVN" -> issuer for display; native XLM has none. */
+function issuerOf(asset: string | undefined) {
+  const issuer = asset?.split(":")[1];
+  if (!issuer || issuer === "native") return "Native asset";
+  return `${issuer.slice(0, 4)}…${issuer.slice(-4)}`;
+}
+
+function Stat({ label, value, detail, tone = "text-foreground" }: {
+  label: string;
+  value: string;
+  detail?: string;
+  tone?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className={`mt-2 text-3xl font-semibold tabular-nums ${tone}`}>{value}</p>
+      {detail && <p className="mt-1 text-sm text-muted-foreground">{detail}</p>}
+    </div>
+  );
+}
 
 export default function CorridorDetailPage() {
   const params = useParams();
-  const corridorPair = params.pair as string;
-
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const corridorPair = decodeURIComponent(params.pair as string);
+  const [sourceKey, destKey] = corridorPair.split("->");
   const cacheSync = useRealtimeCacheSync();
-
   const detailQuery = useCorridorDetail(corridorPair);
-  // Fall back to demo data when the backend is unreachable.
-  const data = useMemo(
-    () =>
-      detailQuery.data ??
-      (detailQuery.isError && corridorPair
-        ? generateMockCorridorData(corridorPair)
-        : null),
-    [detailQuery.data, detailQuery.isError, corridorPair],
-  );
-  const loading = detailQuery.isPending && !detailQuery.isError;
+  const data = detailQuery.data;
 
-  const {
-    isConnected,
-    isConnecting,
-    connectionAttempts,
-    healthAlerts,
-    recentPayments,
-    reconnect,
-  } = useRealtimeCorridors({
+  const { healthAlerts } = useRealtimeCorridors({
     corridorKeys: corridorPair ? [corridorPair] : [],
-    enablePaymentStream: true,
-    onCorridorUpdate: (update) => {
-      logger.debug("Received real-time corridor update:", update as unknown as Record<string, unknown>);
-      setLastUpdate(new Date());
-      // Patches the cached corridor so every view of it updates together.
-      cacheSync.onCorridorUpdate(update);
-    },
-    onHealthAlert: (alert) => {
-      logger.debug("Health alert for corridor:", alert as unknown as Record<string, unknown>);
-    },
-    onNewPayment: (payment) => {
-      logger.debug("New payment in corridor:", payment as unknown as Record<string, unknown>);
-    },
+    enablePaymentStream: false,
+    // Patches the cached corridor so every view of it updates together.
+    onCorridorUpdate: (update) => cacheSync.onCorridorUpdate(update),
   });
 
-  if (loading) {
+  const back = <BackButton fallbackHref="/corridors" label="All corridors" className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline" />;
+
+  if (detailQuery.isPending) {
     return (
-      <MainLayout>
-        <div>
-          <div className="mb-6">
-            <Skeleton className="h-8 w-48 mb-4" />
-            <SkeletonText lines={2} className="max-w-2xl" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6">
-              <Skeleton className="h-6 w-40 mb-4" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-6">
-              <Skeleton className="h-6 w-40 mb-4" />
-              <Skeleton className="h-64 w-full" />
-            </div>
-          </div>
+      <div>
+        {back}
+        <Skeleton className="mb-3 h-5 w-24" />
+        <Skeleton className="mb-8 h-12 w-72" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   if (!data) {
     return (
-      <MainLayout>
-        <div>
-          <BackButton fallbackHref="/corridors" label="Back to Corridors" className="flex items-center gap-2 text-blue-600 dark:text-link-primary hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium mb-6 group" />
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-lg p-6 text-red-800 dark:text-red-300">
-            <AlertCircle className="w-6 h-6 inline mr-2" />
-            Failed to load corridor data
-          </div>
-        </div>
-      </MainLayout>
+      <div>
+        {back}
+        <DataUnavailable
+          what="this corridor"
+          onRetry={() => detailQuery.refetch()}
+          retrying={detailQuery.isFetching}
+        />
+      </div>
     );
   }
 
   const corridor = data.corridor;
-  const healthColor =
-    corridor.health_score >= 90
-      ? "text-green-500"
-      : corridor.health_score >= 75
-        ? "text-yellow-500"
-        : "text-red-500";
-
-  const trendIcon =
-    corridor.liquidity_trend === "increasing" ? (
-      <TrendingUp className="w-5 h-5 text-green-500" />
-    ) : corridor.liquidity_trend === "decreasing" ? (
-      <TrendingDown className="w-5 h-5 text-red-500" />
-    ) : (
-      <TrendingUp className="w-5 h-5 text-muted-foreground" />
-    );
+  const tone = healthTone(corridor.health_score);
 
   return (
-    <MainLayout>
-      <div>
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground mb-6 overflow-x-auto whitespace-nowrap pb-2">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-link-primary transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            Dashboard
-          </Link>
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-          <Link
-            href="/corridors"
-            className="hover:text-blue-600 dark:hover:text-link-primary transition-colors"
-          >
-            Corridors
-          </Link>
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-          <span className="font-semibold text-gray-900 dark:text-white">
-            {corridor.source_asset} → {corridor.destination_asset}
+    <div>
+      {back}
+      <PageHeader
+        eyebrow="Corridor"
+        title={
+          <span className="inline-flex flex-wrap items-center gap-3">
+            {corridor.source_asset}
+            <ArrowRight className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
+            {corridor.destination_asset}
           </span>
-        </nav>
+        }
+        description={
+          <span className="font-mono text-base">
+            {issuerOf(sourceKey)} → {issuerOf(destKey)}
+          </span>
+        }
+        actions={
+          <Link
+            href="/prediction"
+            className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:brightness-110"
+          >
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            Check a payment
+          </Link>
+        }
+      />
 
-        <div className="mb-8">
-          <BackButton fallbackHref="/corridors" label="Back to Corridors" className="flex items-center gap-2 text-blue-600 dark:text-link-primary hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium mb-4 group" />
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {corridor.source_asset} → {corridor.destination_asset}
-              </h1>
-              <p className="text-muted-foreground dark:text-muted-foreground mt-1 text-sm font-mono">
-                Pair: {corridorPair}
-              </p>
+      {healthAlerts.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {healthAlerts.slice(0, 3).map((alert, index) => (
+            <div key={index} className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+              <span className="flex-1">{alert.message}</span>
+              <span className="text-xs text-muted-foreground">{new Date(alert.timestamp).toLocaleTimeString()}</span>
             </div>
-            <div className="flex items-center gap-4">
-              <WebSocketStatus
-                isConnected={isConnected}
-                isConnecting={isConnecting}
-                connectionAttempts={connectionAttempts}
-                onReconnect={reconnect}
-                className="mr-2"
-              />
-              <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700">
-                <div className="text-right">
-                  <div className={`text-3xl font-bold ${healthColor}`}>
-                    {corridor.health_score.toFixed(1)}
-                  </div>
-                  <p className="text-muted-foreground dark:text-muted-foreground text-xs font-medium">
-                    Health Score
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
+      )}
 
-        {healthAlerts.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              Recent Alerts
-            </h2>
-            <div className="space-y-2">
-              {healthAlerts.slice(0, 3).map((alert, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg border ${
-                    alert.severity === "critical"
-                      ? "bg-red-50 border-red-200 text-red-800"
-                      : alert.severity === "error"
-                        ? "bg-red-50 border-red-200 text-red-700"
-                        : alert.severity === "warning"
-                          ? "bg-yellow-50 border-yellow-200 text-yellow-800"
-                          : "bg-blue-50 border-blue-200 text-blue-800"
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <p className="text-sm font-medium">{alert.message}</p>
-                    <span className="text-xs opacity-75">
-                      {new Date(alert.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Stat label="Health score" value={corridor.health_score.toFixed(0)} detail={tone.label} tone={tone.text} />
+        <Stat
+          label="Success rate"
+          value={`${corridor.success_rate.toFixed(1)}%`}
+          detail={`${corridor.successful_payments.toLocaleString()} of ${corridor.total_attempts.toLocaleString()} settled`}
+        />
+        <Stat
+          label="Payments seen"
+          value={corridor.total_attempts.toLocaleString()}
+          detail={`${corridor.failed_payments.toLocaleString()} failed`}
+        />
+        <Stat
+          label="Settled volume"
+          value={corridor.liquidity_depth_usd > 0 ? usd.format(corridor.liquidity_depth_usd) : "Unpriced"}
+          detail="Last 24 hours"
+        />
+      </div>
 
-        {recentPayments.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-green-500" />
-              Live Payment Stream
-            </h2>
-            <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden">
-              <div className="max-h-48 overflow-y-auto">
-                {recentPayments.slice(0, 10).map((payment, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center p-3 border-b border-gray-100 dark:border-slate-700 last:border-b-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-2 h-2 rounded-full ${payment.successful ? "bg-green-500" : "bg-red-500"}`}
-                      />
-                      <span className="text-sm font-mono">
-                        ${payment.amount.toFixed(2)}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(payment.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <SuccessRateChart data={data.historical_success_rate ?? []} />
+        <VolumeByHourChart data={data.liquidity_trends ?? []} />
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
-                Success Rate
-              </span>
-              <CheckCircle2 className="w-5 h-5 text-green-500" />
-            </div>
-            <div className="text-3xl font-bold text-green-500">
-              {corridor.success_rate.toFixed(1)}%
-            </div>
-            <p className="text-muted-foreground dark:text-muted-foreground text-xs mt-2">
-              {corridor.successful_payments} of {corridor.total_attempts}
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
-                Avg Latency
-              </span>
-              <Clock className="w-5 h-5 text-blue-500" />
-            </div>
-            <div className="text-3xl font-bold text-blue-500">
-              {corridor.average_latency_ms.toFixed(0)}
-              <span className="text-xl">ms</span>
-            </div>
-            <p className="text-muted-foreground dark:text-muted-foreground text-xs mt-2">
-              Med: {corridor.median_latency_ms}ms | P99:{" "}
-              {corridor.p99_latency_ms}ms
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
-                Liquidity Depth
-              </span>
-              <Droplets className="w-5 h-5 text-purple-500" />
-            </div>
-            <div className="text-3xl font-bold text-purple-500">
-              ${(corridor.liquidity_depth_usd / 1000000).toFixed(2)}M
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              {trendIcon}
-              <p className="text-muted-foreground dark:text-muted-foreground text-xs capitalize">
-                {corridor.liquidity_trend}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-blue-500 transition-colors">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
-                24h Volume
-              </span>
-              <Zap className="w-5 h-5 text-amber-500" />
-            </div>
-            <div className="text-3xl font-bold text-amber-500">
-              ${(corridor.liquidity_volume_24h_usd / 1000000).toFixed(2)}M
-            </div>
-            <p className="text-muted-foreground dark:text-muted-foreground text-xs mt-2">
-              {new Date(corridor.last_updated).toLocaleTimeString()}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 shadow-sm">
-            <SuccessRateChart data={data.historical_success_rate} />
-          </div>
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 shadow-sm">
-            <VolumeTrendChart data={data.historical_volume} />
-          </div>
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 shadow-sm">
-            <SlippageTrendChart data={data.historical_slippage} />
-          </div>
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 shadow-sm">
-            <LatencyDistributionChart data={data.latency_distribution} />
-          </div>
-          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 shadow-sm lg:col-span-2">
-            <LiquidityTrendChart data={data.liquidity_trends} />
-          </div>
-        </div>
-
-        {data.related_corridors && data.related_corridors.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <BarChart3 className="w-6 h-6 text-blue-500" />
-              Related Corridors
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.related_corridors.map((related: CorridorMetrics) => (
+      {data.related_corridors && data.related_corridors.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-2xl font-semibold text-foreground">Related corridors</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.related_corridors.map((related: CorridorMetrics) => {
+              const t = healthTone(related.health_score);
+              return (
                 <Link
                   key={related.id}
                   href={`/corridors/${related.id}`}
-                  className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:border-blue-500 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1 text-left cursor-pointer"
+                  className="lift rounded-2xl border border-border bg-card p-4 transition-colors hover:border-accent/40"
                 >
-                  <div className="flex justify-between items-start mb-3 gap-2">
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
-                        {related.source_asset} → {related.destination_asset}
-                      </h3>
-                      <p className="text-muted-foreground dark:text-muted-foreground text-xs truncate">
-                        {related.id}
-                      </p>
-                    </div>
-                    <span className="text-green-600 dark:text-green-400 text-sm font-bold shrink-0">
-                      {related.success_rate.toFixed(1)}%
-                    </span>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-foreground">
+                      {related.source_asset} → {related.destination_asset}
+                    </h3>
+                    <span className={`text-sm font-medium ${t.text}`}>{t.label}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <p className="text-muted-foreground dark:text-muted-foreground text-xs">
-                        Health
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {related.health_score.toFixed(0)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground dark:text-muted-foreground text-xs">
-                        Liquidity
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        ${(related.liquidity_depth_usd / 1000000).toFixed(1)}M
-                      </p>
-                    </div>
-                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {related.success_rate.toFixed(1)}% of {related.total_attempts.toLocaleString()} settled
+                  </p>
                 </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </section>
+      )}
 
-        <div className="mt-8 p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-600 dark:text-gray-400 text-sm">
-          <p>Last updated: {lastUpdate.toLocaleString()}</p>
-          <p className="mt-2 text-xs">
-            Charts update every 5 minutes with 30-day historical data. Real-time
-            updates via WebSocket.
-          </p>
-        </div>
-      </div>
-    </MainLayout>
+      <p className="mt-10 text-sm text-muted-foreground">
+        Measured from mainnet payments over the last 24 hours. Updated {new Date(corridor.last_updated).toLocaleTimeString()}.
+      </p>
+    </div>
   );
 }

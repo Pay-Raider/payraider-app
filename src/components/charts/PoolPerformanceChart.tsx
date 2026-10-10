@@ -100,7 +100,7 @@ export function PoolPerformanceChart({
             />
             <Tooltip
               contentStyle={getTooltipContentStyle({
-                backgroundColor: "rgba(15, 23, 42, 0.95)",
+                backgroundColor: "rgba(44, 27, 16, 0.95)",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
                 borderRadius: "12px",
                 fontSize: "10px",

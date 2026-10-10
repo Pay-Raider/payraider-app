@@ -1,185 +1,159 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { MainLayout } from "@/components/layout";
-import { ArrowLeft, Download, FileText, Mail, Table } from "lucide-react";
-import { PrintButton } from "@/components/PrintButton";
-import { Link } from "@/i18n/navigation";
-import { DateRangeSelector } from "./components/DateRangeSelector";
-import { MetricSelector, MetricOption } from "./components/MetricSelector";
-import { ExportPreview } from "./components/ExportPreview";
-import { generateCSV, generateJSON, generatePDF, generateExcel } from "@/lib/export-utils";
-import { subDays, startOfDay, endOfDay } from "date-fns";
+import { useMemo, useState } from "react";
+import { Braces, FileText, Table } from "lucide-react";
+import { useCorridors } from "@/lib/react-query/queries";
+import { generateCSV, generateExcel, generateJSON } from "@/lib/export-utils";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataUnavailable } from "@/components/ui/DataUnavailable";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-// MOCK DATA GENERATOR
-const generateMockData = (start: Date | null, end: Date | null) => {
-  if (!start || !end) return [];
-  const days =
-    Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-  const data = [];
-  for (let i = 0; i < days; i++) {
-    const date = new Date(start);
-    date.setDate(date.getDate() + i);
-    data.push({
-      date: date.toISOString(),
-      success_rate: 0.95 + (Math.random() * 0.04 - 0.02),
-      total_volume: Math.floor(1000000 + Math.random() * 500000),
-      active_corridors: Math.floor(20 + Math.random() * 5),
-      latency: Math.floor(2000 + Math.random() * 500),
-      tvl: Math.floor(5000000 + Math.random() * 1000000),
-    });
-  }
-  return data;
-};
+const COLUMNS = [
+  { id: "corridor", label: "Corridor" },
+  { id: "source_asset", label: "Source asset" },
+  { id: "destination_asset", label: "Destination asset" },
+  { id: "health_score", label: "Health score" },
+  { id: "success_rate", label: "Success rate (%)" },
+  { id: "total_attempts", label: "Payments seen" },
+  { id: "failed_payments", label: "Failed" },
+  { id: "volume_usd", label: "Settled volume (USD)" },
+] as const;
 
+type ColumnId = (typeof COLUMNS)[number]["id"];
+
+/**
+ * Exports the live corridor table. This page used to export numbers
+ * generated in the browser; everything here now comes from the backend's
+ * 24-hour window of mainnet payments.
+ */
 export default function ExportPage() {
-  const [startDate, setStartDate] = useState<Date | null>(
-    subDays(new Date(), 30),
+  const query = useCorridors({ sort_by: "health_score", limit: 200 });
+  const [selected, setSelected] = useState<Set<ColumnId>>(
+    () => new Set(COLUMNS.map((c) => c.id)),
   );
-  const [endDate, setEndDate] = useState<Date | null>(new Date());
 
-  const [metrics, setMetrics] = useState<MetricOption[]>([
-    { id: "date", label: "Date/Time", checked: true },
-    { id: "success_rate", label: "Success Rate", checked: true },
-    { id: "total_volume", label: "Total Volume (USD)", checked: true },
-    { id: "active_corridors", label: "Active Corridors", checked: false },
-    { id: "latency", label: "Avg Latency (ms)", checked: false },
-    { id: "tvl", label: "Total Value Locked", checked: true },
-  ]);
+  const rows = useMemo(
+    () =>
+      (query.data?.data ?? []).map((c) => ({
+        corridor: c.id,
+        source_asset: c.source_asset,
+        destination_asset: c.destination_asset,
+        health_score: Number(c.health_score.toFixed(1)),
+        success_rate: Number(c.success_rate.toFixed(2)),
+        total_attempts: c.total_attempts,
+        failed_payments: c.failed_payments,
+        volume_usd: Number(c.liquidity_depth_usd.toFixed(2)),
+      })),
+    [query.data],
+  );
+  const columns = COLUMNS.filter((c) => selected.has(c.id));
 
-  // Generate preview data based on date range
-  const previewData = useMemo(() => {
-    const start = startDate ? startOfDay(startDate) : null;
-    const end = endDate ? endOfDay(endDate) : null;
-    return generateMockData(start, end);
-  }, [startDate, endDate]);
+  const toggle = (id: ColumnId) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
-  const handleMetricChange = (id: string, checked: boolean) => {
-    setMetrics((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, checked } : m)),
-    );
-  };
-
-  const getActiveColumns = () =>
-    metrics.filter((m) => m.checked).map((m) => ({ id: m.id, label: m.label }));
-
-  const handleExport = async (format: "csv" | "json" | "pdf" | "excel") => {
-    const columns = getActiveColumns();
-    if (columns.length === 0) {
-      alert("Please select at least one metric to export.");
-      return;
-    }
-
-    switch (format) {
-      case "csv":
-        generateCSV(previewData, columns);
-        break;
-      case "json":
-        generateJSON(previewData, columns);
-        break;
-      case "excel":
-        generateExcel(previewData, columns, "Analytics Export");
-        break;
-      case "pdf":
-        await generatePDF(previewData, columns, { start: startDate, end: endDate });
-        break;
-    }
-  };
+  const formats = [
+    { label: "CSV", icon: FileText, run: () => generateCSV(rows, columns) },
+    { label: "Excel", icon: Table, run: () => generateExcel(rows, columns, "Corridors") },
+    { label: "JSON", icon: Braces, run: () => generateJSON(rows, columns) },
+  ];
 
   return (
-    <MainLayout>
-      <div className="flex flex-col">
-        {/* Header */}
-        <div className="mb-8 flex items-center gap-4">
-          <Link
-            href="/analytics"
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Export Data
-            </h1>
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              Download custom reports
-            </p>
-          </div>
-        </div>
+    <div>
+      <PageHeader
+        eyebrow="Analytics"
+        title="Export data"
+        description="Download the current corridor table, measured over the last 24 hours of mainnet payments."
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
-          {/* Left Column: Controls */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm space-y-6">
-              <DateRangeSelector
-                startDate={startDate}
-                endDate={endDate}
-                onChange={(s, e) => {
-                  setStartDate(s);
-                  setEndDate(e);
-                }}
-              />
-
-              <hr className="border-gray-100 dark:border-slate-700" />
-
-              <MetricSelector metrics={metrics} onChange={handleMetricChange} />
-            </div>
-
-            {/* Export Actions */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
-                Export As
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                <button
-                  onClick={() => handleExport("csv")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition font-medium text-sm text-gray-700 dark:text-gray-200"
-                >
-                  <FileText className="w-4 h-4 text-green-600" />
-                  Download CSV
-                </button>
-                <button
-                  onClick={() => handleExport("json")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition font-medium text-sm text-gray-700 dark:text-gray-200"
-                >
-                  <FileText className="w-4 h-4 text-orange-500" />
-                  Download JSON
-                </button>
-                <button
-                  onClick={() => handleExport("excel")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition font-medium text-sm text-gray-700 dark:text-gray-200"
-                >
-                  <Table className="w-4 h-4 text-emerald-600" />
-                  Download Excel (.xlsx)
-                </button>
-                <button
-                  onClick={() => handleExport("pdf")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  Generate PDF Report
-                </button>
+      {query.isError && !query.data ? (
+        <DataUnavailable what="corridors" onRetry={() => query.refetch()} retrying={query.isFetching} />
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <aside className="space-y-6 lg:col-span-4">
+            <fieldset className="rounded-2xl border border-border bg-card p-5">
+              <legend className="px-1 text-sm font-semibold text-foreground">Columns</legend>
+              <div className="mt-2 space-y-1">
+                {COLUMNS.map((c) => (
+                  <label key={c.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 text-sm text-foreground hover:bg-[var(--sidebar-hover-bg)]">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(c.id)}
+                      onChange={() => toggle(c.id)}
+                      className="h-4 w-4 accent-[var(--accent)]"
+                    />
+                    {c.label}
+                  </label>
+                ))}
               </div>
+            </fieldset>
 
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 flex flex-col gap-2">
-                <PrintButton
-                  label="Print Report"
-                  className="w-full justify-center"
-                />
-                <button className="flex items-center justify-center gap-2 w-full py-2 text-sm text-muted-foreground hover:text-gray-700 dark:text-muted-foreground dark:hover:text-gray-200 transition">
-                  <Mail className="w-4 h-4" />
-                  Email Report
-                </button>
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <h2 className="text-sm font-semibold text-foreground">Download</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {rows.length} corridor{rows.length === 1 ? "" : "s"}
+              </p>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {formats.map(({ label, icon: Icon, run }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={run}
+                    disabled={rows.length === 0 || columns.length === 0}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:brightness-110 disabled:opacity-50"
+                  >
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
+          </aside>
 
-          {/* Right Column: Preview */}
-          <div className="lg:col-span-8 h-full min-h-[500px]">
-            <ExportPreview metrics={metrics} data={previewData} />
-          </div>
+          <section className="overflow-hidden rounded-2xl border border-border bg-card lg:col-span-8">
+            <div className="border-b border-border bg-surface px-5 py-3">
+              <h2 className="text-sm font-semibold text-foreground">Preview</h2>
+              <p className="text-xs text-muted-foreground">First 8 rows</p>
+            </div>
+            {query.isPending ? (
+              <div className="space-y-2 p-5">
+                {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-8 w-full" />)}
+              </div>
+            ) : columns.length === 0 ? (
+              <p className="p-8 text-center text-muted-foreground">Pick at least one column.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      {columns.map((c) => (
+                        <th key={c.id} scope="col" className="whitespace-nowrap px-4 py-2.5 text-left font-medium text-muted-foreground">
+                          {c.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {rows.slice(0, 8).map((row) => (
+                      <tr key={row.corridor}>
+                        {columns.map((c) => (
+                          <td key={c.id} className="max-w-[16rem] truncate whitespace-nowrap px-4 py-2.5 tabular-nums text-foreground">
+                            {String(row[c.id])}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         </div>
-      </div>
-    </MainLayout>
+      )}
+    </div>
   );
 }

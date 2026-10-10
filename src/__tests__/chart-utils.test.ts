@@ -74,7 +74,7 @@ describe('chart-utils', () => {
 
       const style = getTooltipContentStyle();
       expect(style.backdropFilter).toBe('blur(8px)');
-      expect(style.backgroundColor).toBe('rgba(15, 23, 42, 0.95)');
+      expect(style.backgroundColor).toBe('rgba(44, 27, 16, 0.95)');
     });
 
     it('should return style without backdropFilter for Safari browsers', () => {
@@ -85,7 +85,7 @@ describe('chart-utils', () => {
 
       const style = getTooltipContentStyle();
       expect(style.backdropFilter).toBeUndefined();
-      expect(style.backgroundColor).toBe('rgba(15, 23, 42, 0.98)');
+      expect(style.backgroundColor).toBe('rgba(44, 27, 16, 0.98)');
     });
 
     it('should apply custom options to style', () => {

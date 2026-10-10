@@ -101,7 +101,7 @@ export function LiquidityChart({ data }: LiquidityChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                backgroundColor: 'rgba(44, 27, 16, 0.9)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: '12px',
                 backdropFilter: 'blur(12px)',

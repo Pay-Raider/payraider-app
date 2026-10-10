@@ -88,7 +88,7 @@ export const LiquidityChart: React.FC<LiquidityChartProps> = ({ data }) => {
             />
             <Tooltip
               contentStyle={getTooltipContentStyle({
-                backgroundColor: "rgba(15, 23, 42, 0.9)",
+                backgroundColor: "rgba(44, 27, 16, 0.9)",
                 borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
                 color: "#faf4ea",

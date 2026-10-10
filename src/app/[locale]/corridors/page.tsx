@@ -2,33 +2,22 @@
 
 import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import {
-  TrendingUp,
-  Search,
-  Filter,
-  CheckCircle2,
-  AlertCircle,
-  ArrowRight,
-  Download,
-} from "lucide-react";
+import { AlertCircle, ArrowRight, Download } from "lucide-react";
 import {
   AdvancedFilterPanel,
   applyFilters,
   type AdvancedFilterState,
 } from "@/components/AdvancedFilterPanel";
-import { Badge } from "@/components/ui/badge";
 import { SkeletonCorridorCard } from "@/components/ui/Skeleton";
 import { Link } from "@/i18n/navigation";
 import type { CorridorFilters, CorridorMetrics } from "@/lib/api/corridors";
 import { useCorridors } from "@/lib/react-query/queries";
-import { mockCorridors } from "@/components/lib//mockCorridorData";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DataUnavailable } from "@/components/ui/DataUnavailable";
 import { DataTablePagination } from "@/components/ui/DataTablePagination";
 import { usePagination } from "@/hooks/usePagination";
 import { ExportDialog } from "@/components/ExportDialog";
-import {
-  useUserPreferences,
-  type CorridorsTimePeriod,
-} from "@/contexts/UserPreferencesContext";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BookmarkButton } from "@/components/BookmarkButton";
 
@@ -48,9 +37,6 @@ function CorridorsPageContent() {
     setPrefs({ corridorsViewMode: v });
   const sortBy = prefs.corridorsSortBy;
   const setSortBy = (v: typeof sortBy) => setPrefs({ corridorsSortBy: v });
-  const timePeriod = prefs.corridorsTimePeriod;
-  const setTimePeriod = (v: typeof timePeriod) =>
-    setPrefs({ corridorsTimePeriod: v });
 
   const [filterState, setFilterState] = useState<AdvancedFilterState>({ query: "", filters: [] });
 
@@ -60,15 +46,11 @@ function CorridorsPageContent() {
 
   // The page filters/paginates client-side, so request one large page.
   const corridorQuery = useCorridors({
-    time_period: timePeriod || undefined,
     sort_by: sortBy,
     limit: 200,
   } satisfies CorridorFilters);
-  // Fall back to demo data when the backend is unreachable.
-  const corridors = useMemo(
-    () => corridorQuery.data?.data ?? (corridorQuery.isError ? mockCorridors : []),
-    [corridorQuery.data, corridorQuery.isError],
-  );
+  // No sample-data fallback: an error shows DataUnavailable instead.
+  const corridors = useMemo(() => corridorQuery.data?.data ?? [], [corridorQuery.data]);
   const loading = corridorQuery.isPending && !corridorQuery.isError;
 
   const filteredCorridors = useMemo(() => {
@@ -102,40 +84,42 @@ function CorridorsPageContent() {
 
   const paginatedCorridors = filteredCorridors.slice(startIndex, endIndex);
 
+  const usd = (n: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      notation: "compact",
+      maximumFractionDigits: n < 100 ? 2 : 1,
+    }).format(n);
+
+  const selectClass =
+    "flex-1 cursor-pointer appearance-none rounded-xl border border-border bg-surface px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50";
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/50 pb-6">
-        <div>
-          <div className="text-xs text-accent mb-2">
-            Network routing
-          </div>
-          <h2 className="text-4xl font-semibold tracking-tight flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-accent" />
-            Payment Corridors
-          </h2>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge
-            variant="outline"
-            className="text-[10px] font-mono border-accent/30 text-accent px-3 py-1 bg-accent/5"
-          >
-            {filteredCorridors.length} active routes
-          </Badge>
-          <Link
-            href="/corridors/forecasting"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs font-medium text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
-          >
-            Forecast
-          </Link>
-          <button
-            onClick={() => setIsExportOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-xl text-xs font-medium text-accent hover:bg-accent hover:text-white transition-all shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] hover:shadow-accent/30"
-          >
-            <Download className="w-3 h-3" />
-            Export Data
-          </button>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Network data"
+        title="Corridors"
+        description="Every asset route seen in mainnet payments over the last 24 hours, scored on how often payments through it settle."
+        actions={
+          <>
+            <Link
+              href="/corridors/compare"
+              className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[var(--sidebar-hover-bg)]"
+            >
+              Compare
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsExportOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:brightness-110"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Export
+            </button>
+          </>
+        }
+      />
 
       <ExportDialog
         isOpen={isExportOpen}
@@ -144,23 +128,12 @@ function CorridorsPageContent() {
         title="Payment Corridors"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Advanced Filter Panel (#2110) */}
+      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="lg:col-span-8">
           <AdvancedFilterPanel
             fields={[
               { key: "source_asset", label: "Source Asset", type: "text", placeholder: "e.g. USDC" },
-              { key: "destination_asset", label: "Dest Asset", type: "text", placeholder: "e.g. PHP" },
-              {
-                key: "status",
-                label: "Status",
-                type: "select",
-                options: [
-                  { value: "active", label: "Active" },
-                  { value: "inactive", label: "Inactive" },
-                  { value: "degraded", label: "Degraded" },
-                ],
-              },
+              { key: "destination_asset", label: "Dest Asset", type: "text", placeholder: "e.g. XLM" },
               { key: "success_rate", label: "Success Rate (%)", type: "number", placeholder: "e.g. 95" },
               { key: "health_score", label: "Health Score", type: "range", min: 0, max: 100, step: 1 },
             ]}
@@ -169,175 +142,127 @@ function CorridorsPageContent() {
             placeholder="Search corridors…"
           />
         </div>
-        <div className="lg:col-span-4 flex gap-2">
+        <div className="flex gap-2 lg:col-span-4">
           <select
-            value={timePeriod}
-            onChange={(e) =>
-              setTimePeriod(e.target.value as CorridorsTimePeriod)
-            }
-            className="flex-1 bg-slate-900/50 border border-border/50 rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none cursor-pointer"
-          >
-            <option value="7d">Time: 7 Days</option>
-            <option value="30d">Time: 30 Days</option>
-            <option value="90d">Time: 90 Days</option>
-            <option value="">Time: All</option>
-          </select>
-          <select
+            aria-label="Sort corridors"
             value={sortBy}
             onChange={(e) =>
-              setSortBy(
-                e.target.value as "success_rate" | "health_score" | "liquidity",
-              )
+              setSortBy(e.target.value as "success_rate" | "health_score" | "liquidity")
             }
-            className="flex-1 bg-slate-900/50 border border-border/50 rounded-xl px-4 py-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent/50 appearance-none cursor-pointer"
+            className={selectClass}
           >
             <option value="health_score">Sort: Health</option>
-            <option value="success_rate">Sort: Success</option>
-            <option value="liquidity">Sort: Liquidity</option>
+            <option value="success_rate">Sort: Success rate</option>
+            <option value="liquidity">Sort: Volume</option>
           </select>
+          <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
+            {(["grid", "heatmap"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setViewMode(mode)}
+                aria-pressed={viewMode === mode}
+                className={`rounded-lg px-3 py-2 text-sm font-medium capitalize transition-colors ${
+                  viewMode === mode
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-1 p-1 bg-slate-950/50 border border-border/20 rounded-xl w-fit">
-        <button
-          onClick={() => setViewMode("grid")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-            viewMode === "grid"
-              ? "bg-accent text-accent-foreground glow-accent"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Grid
-        </button>
-        <button
-          onClick={() => setViewMode("heatmap")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-            viewMode === "heatmap"
-              ? "bg-accent text-accent-foreground glow-accent"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Heatmap
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {corridorQuery.isError && !corridorQuery.data ? (
+        <DataUnavailable
+          what="corridors"
+          onRetry={() => corridorQuery.refetch()}
+          retrying={corridorQuery.isFetching}
+        />
+      ) : loading ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <SkeletonCorridorCard key={i} />
           ))}
         </div>
       ) : filteredCorridors.length === 0 ? (
-        <div className="py-20 flex flex-col items-center justify-center glass-card rounded-3xl border-dashed">
-          <AlertCircle className="w-12 h-12 text-muted-foreground/30 mb-4" />
-          <p className="text-sm text-muted-foreground">
-            No matching corridors detected
-          </p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface py-20">
+          <AlertCircle className="mb-4 h-10 w-10 text-muted-foreground/40" aria-hidden="true" />
+          <p className="text-muted-foreground">No corridors match these filters.</p>
         </div>
       ) : viewMode === "heatmap" ? (
-        <div className="glass-card rounded-3xl p-8">
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold tracking-tight mb-2">
-              Corridor Health Matrix
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              System health distribution across network pairs
-            </p>
-          </div>
+        <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
+          <h2 className="text-xl font-semibold text-foreground">Corridor health</h2>
+          <p className="mb-6 mt-1 text-sm text-muted-foreground">
+            Health score for each source and destination pair.
+          </p>
           <CorridorHeatmap corridors={filteredCorridors} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paginatedCorridors.map((corridor) => (
-            <div
-              key={corridor.id}
-              className="group glass-card rounded-2xl p-6 border border-border/50 hover:border-accent/30 transition-all duration-300"
-            >
-              <Link href={`/corridors/${corridor.id}`}>
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold tracking-tight text-foreground group-hover:text-accent transition-colors truncate">
-                      {corridor.source_asset}{" "}
-                      <span className="text-muted-foreground text-xs mx-1">
-                        /
-                      </span>{" "}
-                      {corridor.destination_asset}
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {paginatedCorridors.map((corridor) => {
+            const tone =
+              corridor.health_score >= 80
+                ? { text: "text-success", bar: "bg-success", label: "Healthy" }
+                : corridor.health_score >= 50
+                  ? { text: "text-warning", bar: "bg-warning", label: "Caution" }
+                  : { text: "text-error", bar: "bg-error", label: "Poor" };
+            return (
+              <Link
+                key={corridor.id}
+                href={`/corridors/${corridor.id}`}
+                className="lift group block rounded-2xl border border-border bg-card p-5 transition-colors hover:border-accent/40"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="flex items-center gap-2 truncate text-lg font-semibold text-foreground">
+                      <span className="truncate">{corridor.source_asset}</span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <span className="truncate">{corridor.destination_asset}</span>
                     </h2>
-                    <p className="text-xs text-muted-foreground/50 tracking-tighter mt-1 truncate">
-                      ID: {corridor.id}
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      {corridor.total_attempts.toLocaleString()} payment
+                      {corridor.total_attempts === 1 ? "" : "s"} seen
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-3">
-                    <div className="flex items-center gap-2 bg-green-500/10 px-2 py-1 rounded-md border border-green-500/20">
-                      <CheckCircle2 className="w-3 h-3 text-green-500" />
-                      <span className="text-xs font-mono font-bold text-green-500">
-                        {corridor.success_rate.toFixed(1)}%
-                      </span>
-                    </div>
-                  </div>
+                  <span className={`shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium ${tone.text}`}>
+                    {tone.label}
+                  </span>
                 </div>
 
-                <div className="mb-6 p-4 rounded-xl bg-slate-900/30 border border-white/5">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-muted-foreground">
-                      Health Score
-                    </span>
-                    <span
-                      className={`text-sm font-mono font-black ${
-                        corridor.health_score >= 90
-                          ? "text-green-400"
-                          : corridor.health_score >= 75
-                            ? "text-yellow-400"
-                            : "text-red-400"
-                      }`}
-                    >
+                <div className="mt-5">
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="text-muted-foreground">Health score</span>
+                    <span className={`font-semibold tabular-nums ${tone.text}`}>
                       {corridor.health_score.toFixed(0)}
                     </span>
                   </div>
-                  <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                     <div
-                      className={`h-full transition-all duration-1000 ${
-                        corridor.health_score >= 90
-                          ? "bg-green-500"
-                          : corridor.health_score >= 75
-                            ? "bg-yellow-500"
-                            : "bg-red-500"
-                      }`}
-                      style={{ width: `${corridor.health_score}%` }}
+                      className={`h-full rounded-full ${tone.bar}`}
+                      style={{ width: `${Math.min(100, Math.max(0, corridor.health_score))}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center text-xs tracking-tighter">
-                    <span className="text-muted-foreground">Settlement Time</span>
-                    <span className="text-accent font-bold">
-                      {corridor.average_latency_ms.toFixed(0)}ms
-                    </span>
+                <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-border pt-4 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">Success rate</dt>
+                    <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
+                      {corridor.success_rate.toFixed(1)}%
+                    </dd>
                   </div>
-                  <div className="flex justify-between items-center text-xs tracking-tighter">
-                    <span className="text-muted-foreground">Liquidity Depth</span>
-                    <span className="text-foreground font-bold">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        notation: "compact",
-                      }).format(corridor.liquidity_depth_usd)}
-                    </span>
+                  <div>
+                    <dt className="text-muted-foreground">Observed volume</dt>
+                    <dd className="mt-0.5 font-semibold tabular-nums text-foreground">
+                      {corridor.liquidity_depth_usd > 0 ? usd(corridor.liquidity_depth_usd) : "Unpriced"}
+                    </dd>
                   </div>
-                  <div className="flex justify-between items-center text-xs tracking-tighter">
-                    <span className="text-muted-foreground">24h Vol</span>
-                    <span className="text-foreground font-bold">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        notation: "compact",
-                      }).format(corridor.liquidity_volume_24h_usd)}
-                    </span>
-                  </div>
-                </div>
+                </dl>
 
-                <div className="mt-6 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-4 flex items-center justify-between">
                   <BookmarkButton
                     id={corridor.id}
                     type="corridor"
@@ -345,28 +270,31 @@ function CorridorsPageContent() {
                     href={`/corridors/${corridor.id}`}
                     className="touch-sm"
                   />
-                  <ArrowRight className="w-4 h-4 text-accent animate-bounce-x" />
+                  <span className="text-sm font-medium text-accent opacity-0 transition-opacity group-hover:opacity-100">
+                    Details →
+                  </span>
                 </div>
               </Link>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 glass-card rounded-2xl p-6 border border-border/30">
-        <div className="text-xs text-muted-foreground">
-          Telemetry Feed: Viewing {startIndex + 1}-
-          {Math.min(endIndex, filteredCorridors.length)} of{" "}
-          {filteredCorridors.length} Nodes
+      {filteredCorridors.length > 0 && (
+        <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 sm:flex-row">
+          <p className="text-sm text-muted-foreground">
+            Showing {startIndex + 1}–{Math.min(endIndex, filteredCorridors.length)} of{" "}
+            {filteredCorridors.length} corridors
+          </p>
+          <DataTablePagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalItems={filteredCorridors.length}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+          />
         </div>
-        <DataTablePagination
-          currentPage={currentPage}
-          pageSize={pageSize}
-          totalItems={filteredCorridors.length}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-        />
-      </div>
+      )}
     </div>
   );
 }
